@@ -1,0 +1,189 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Tournée - PharmaLink Pro</title>
+  <script src="https://cdn.tailwindcss.com"></script>
+  <script src="https://cdn.jsdelivr.net/npm/feather-icons/dist/feather.min.js"></script>
+  <link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css" />
+  <script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"></script>
+  <script src="https://unpkg.com/axios/dist/axios.min.js"></script>
+  <style>
+    @import url('https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;500;600;700&display=swap');
+    body { font-family: 'Poppins', sans-serif; }
+  </style>
+</head>
+<body class="bg-gray-50 text-gray-800">
+
+  <!-- Navigation -->
+  <nav class="bg-white shadow-sm relative z-10">
+    <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+      <div class="flex justify-between h-16">
+        <div class="flex items-center">
+          <i data-feather="activity" class="h-8 w-8 text-blue-600"></i>
+          <span class="ml-2 text-xl font-bold text-blue-600">PharmaLink Pro</span>
+        </div>
+        <div class="flex items-center space-x-6">
+          <a href="livreur.html" class="text-gray-600 hover:text-blue-600">Accueil</a>
+          <a href="pharmacies_livreur.html" class="text-blue-600 font-medium">Pharmacies</a>
+          <a href="know_livreur.html" class="text-gray-600 hover:text-blue-600">À propos</a>
+          <a href="login.html" class="bg-blue-600 text-white px-4 py-2 rounded-md font-medium hover:bg-blue-700 transition">
+            <i data-feather="log-out" class="h-4 w-4 inline mr-1"></i> Déconnexion
+          </a>
+        </div>
+      </div>
+    </div>
+  </nav>
+
+  <!-- En-tête -->
+  <section class="relative py-20 bg-gradient-to-br from-blue-600 to-green-500 text-white text-center">
+    <div class="max-w-4xl mx-auto px-6">
+      <h1 class="text-4xl font-bold mb-4">Gérer ma tournée</h1>
+      <p class="text-blue-100 text-lg">Commencez votre course et gérez vos livraisons facilement.</p>
+    </div>
+  </section>
+
+  <!-- Tournée -->
+  <section class="max-w-6xl mx-auto py-16 px-6">
+    <div class="flex justify-between items-center mb-8">
+      <h2 class="text-2xl font-bold text-gray-900">Liste des livraisons</h2>
+      <button id="startTournee" class="flex items-center bg-blue-600 text-white px-4 py-2 rounded-md hover:bg-blue-700 transition">
+        <i data-feather="play-circle" class="h-5 w-5 mr-2"></i> Commencer la tournée
+      </button>
+    </div>
+
+    <!-- Carte -->
+    <div id="map" class="w-full h-96 rounded-lg shadow mb-10"></div>
+
+    <!-- Liste des livraisons -->
+    <div id="livraisonList" class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8">
+      <p class="col-span-full text-center text-gray-500" id="loadingMsg">🚚 Chargement des livraisons...</p>
+    </div>
+  </section>
+
+  <!-- Footer -->
+  <footer class="bg-gray-800 py-8">
+    <div class="max-w-7xl mx-auto text-center text-gray-400">
+      <p>&copy; 2025 PharmaLink Pro. Tous droits réservés.</p>
+    </div>
+  </footer>
+
+  <!-- Scripts -->
+  <script>
+    feather.replace();
+
+    let map;
+    let userMarker;
+    let watchId;
+    let deliveries = [];
+
+    // Exemple de données de livraisons (simulées)
+    const fakeDeliveries = [
+      { id: 1, patient: "Jean Dupont", address: "12 Rue de Cotonou", lat: 6.372, lon: 2.358, phone: "22912345678", produits: "Médicaments A", statut: "En attente" },
+      { id: 2, patient: "Marie Koutou", address: "45 Avenue du Bénin", lat: 6.374, lon: 2.360, phone: "22987654321", produits: "Médicaments B", statut: "En attente" },
+      { id: 3, patient: "Paul Zongo", address: "78 Boulevard Saint-Michel", lat: 6.370, lon: 2.355, phone: "", produits: "Médicaments C", statut: "En attente" }
+    ];
+
+    function initMap(lat, lon) {
+      if(map) map.remove();
+      map = L.map('map').setView([lat, lon], 15);
+      L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
+        maxZoom: 19,
+        attribution: '&copy; OpenStreetMap'
+      }).addTo(map);
+
+      if(userMarker) map.removeLayer(userMarker);
+      userMarker = L.marker([lat, lon], {icon: L.divIcon({ className: 'user-marker', html: '<div class="user-pin"></div>', iconSize:[30,30], iconAnchor:[15,30] })}).addTo(map);
+      userMarker.bindPopup("<b>Vous êtes ici</b>").openPopup();
+    }
+
+    function displayDeliveries() {
+      const listContainer = document.getElementById('livraisonList');
+      listContainer.innerHTML = '';
+
+      if(deliveries.length === 0) {
+        listContainer.innerHTML = `<p class="col-span-full text-center text-gray-500">🚚 Aucune livraison programmée</p>`;
+        return;
+      }
+
+      deliveries.forEach(delivery => {
+        L.marker([delivery.lat, delivery.lon]).addTo(map)
+          .bindPopup(`<b>${delivery.patient}</b><br>${delivery.address}<br>${delivery.statut}`);
+
+        const card = document.createElement('div');
+        card.className = "bg-white shadow rounded-lg p-6 hover:shadow-lg transition";
+        card.innerHTML = `
+          <h3 class="text-lg font-semibold text-gray-900 mb-2">${delivery.patient}</h3>
+          <p class="text-gray-600 mb-1"><strong>Adresse:</strong> ${delivery.address}</p>
+          <p class="text-gray-600 mb-1"><strong>Produits:</strong> ${delivery.produits}</p>
+          <p class="text-gray-600 mb-2"><strong>Statut:</strong> ${delivery.statut}</p>
+          <div class="flex space-x-2">
+            ${delivery.phone ? `<a href="tel:${delivery.phone}" class="bg-green-600 text-white px-4 py-2 rounded-md hover:bg-green-700 transition flex items-center justify-center">
+              <i data-feather="phone" class="h-4 w-4 mr-1"></i> Appeler</a>` : ''}
+            <button class="bg-blue-600 text-white px-4 py-2 rounded-md flex-1 hover:bg-blue-700 transition"
+              onclick="markDelivered(${delivery.id})">Livrée</button>
+            <button class="bg-red-500 text-white px-4 py-2 rounded-md flex-1 hover:bg-red-600 transition"
+              onclick="cancelDelivery(${delivery.id})">Annulée</button>
+          </div>
+        `;
+        listContainer.appendChild(card);
+      });
+
+      feather.replace();
+    }
+
+    function markDelivered(id){
+      const delivery = deliveries.find(d => d.id === id);
+      if(delivery){ delivery.statut = "Livrée"; displayDeliveries(); }
+    }
+
+    function cancelDelivery(id){
+      const delivery = deliveries.find(d => d.id === id);
+      if(delivery){ delivery.statut = "Annulée"; displayDeliveries(); }
+    }
+
+    function startTournee() {
+      if(navigator.geolocation){
+        navigator.geolocation.getCurrentPosition(position => {
+          const lat = position.coords.latitude;
+          const lon = position.coords.longitude;
+          initMap(lat, lon);
+          deliveries = fakeDeliveries;
+          displayDeliveries();
+        }, error => {
+          alert("⚠️ Impossible de récupérer votre position.");
+          const defaultLat = 6.3725, defaultLon = 2.3583;
+          initMap(defaultLat, defaultLon);
+          deliveries = fakeDeliveries;
+          displayDeliveries();
+        }, { enableHighAccuracy:true, timeout:15000 });
+      } else {
+        alert("⚠️ Géolocalisation non supportée.");
+        deliveries = fakeDeliveries;
+        displayDeliveries();
+      }
+    }
+
+    document.getElementById('startTournee').addEventListener('click', startTournee);
+
+    // Styles pour le marqueur utilisateur
+    const style = document.createElement('style');
+    style.textContent = `
+      .user-pin {
+        width: 30px; height: 30px;
+        border-radius: 50% 50% 50% 0;
+        background: #3b82f6; position: relative;
+        transform: rotate(-45deg);
+      }
+      .user-pin:after {
+        content: '';
+        width: 14px; height: 14px;
+        margin: 8px 0 0 8px; background: #fff;
+        position: absolute; border-radius: 50%;
+      }
+    `;
+    document.head.appendChild(style);
+  </script>
+</body>
+</html>

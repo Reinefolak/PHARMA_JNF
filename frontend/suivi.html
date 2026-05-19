@@ -1,0 +1,178 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Suivi de Livraison - PharmaLink Pro</title>
+<script src="https://cdn.tailwindcss.com"></script>
+<script src="https://cdn.jsdelivr.net/npm/feather-icons/dist/feather.min.js"></script>
+<link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css" />
+<link rel="stylesheet" href="https://unpkg.com/leaflet-routing-machine@3.2.12/dist/leaflet-routing-machine.css" />
+<style>
+  @import url('https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;500;600;700&display=swap');
+  body { font-family: 'Poppins', sans-serif; }
+  #map { height: 450px; width: 100%; }
+</style>
+</head>
+<body class="bg-gray-50 text-gray-800">
+
+<!-- Navigation -->
+<nav class="bg-white shadow-sm relative z-10">
+  <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+    <div class="flex justify-between h-16">
+      <div class="flex items-center">
+        <i data-feather="activity" class="h-8 w-8 text-blue-600"></i>
+        <span class="ml-2 text-xl font-bold text-blue-600">PharmaLink Pro</span>
+      </div>
+      <div class="flex items-center space-x-6">
+        <a href="patient.html" class="text-gray-600 hover:text-blue-600">Accueil</a>
+        <a href="pharmacies_patient.html" class="text-gray-600 hover:text-blue-600">Pharmacies</a>
+        <a href="suivi.html" class="text-blue-600 font-medium">Suivi</a>
+        <a href="know_patient.html" class="text-gray-600 hover:text-blue-600">À propos</a>
+        <a href="services_patient.html" class="text-gray-600 hover:text-blue-600">Services</a>
+        <a href="contact_patient.html" class="text-gray-600 hover:text-blue-600">Contact</a>
+        <a href="login.html" class="bg-blue-600 text-white px-4 py-2 rounded-md font-medium hover:bg-blue-700 transition">
+          <i data-feather="log-out" class="h-4 w-4 inline mr-1"></i> Déconnexion
+          </a>
+      </div>
+    </div>
+  </div>
+</nav>
+
+<!-- En-tête -->
+<section class="relative py-20 bg-gradient-to-br from-blue-600 to-green-500 text-white text-center">
+  <div class="max-w-4xl mx-auto px-6">
+    <h1 class="text-4xl font-bold mb-4">Suivi de Livraison</h1>
+    <p class="text-blue-100 text-lg">Visualisez l’état de votre livraison en temps réel et contactez votre livreur facilement.</p>
+  </div>
+</section>
+
+<!-- Carte et infos -->
+<section class="max-w-6xl mx-auto py-16 px-6 space-y-8">
+  <div class="flex justify-between items-center mb-4">
+    <h2 class="text-2xl font-bold text-gray-900">Carte de suivi</h2>
+    <button id="refresh" class="flex items-center bg-blue-600 text-white px-4 py-2 rounded-md hover:bg-blue-700 transition">
+      <i data-feather="refresh-cw" class="h-5 w-5 mr-2"></i> Rafraîchir
+    </button>
+  </div>
+  <div id="map" class="rounded-lg shadow"></div>
+
+  <div class="bg-white shadow rounded-lg p-6">
+    <h3 class="text-xl font-semibold mb-4 text-gray-900">Détails de la commande</h3>
+    <p><strong>Produits :</strong> Paracétamol 500mg, Ibuprofène 400mg</p>
+    <p><strong>Pharmacie :</strong> Pharmacie du Soleil</p>
+    <p><strong>Adresse :</strong> Cotonou - Zogbo</p>
+    <p><strong>Date de livraison :</strong> 02/11/2025</p>
+    <p><strong>Statut :</strong> En cours de livraison</p>
+    <p><strong>Livreur :</strong> M. Koffi</p>
+    <a href="tel:+22912345678" class="mt-4 inline-block bg-green-600 text-white px-4 py-2 rounded-md hover:bg-green-700 transition">
+      <i data-feather="phone" class="h-4 w-4 mr-2"></i> Contacter le livreur
+    </a>
+  </div>
+</section>
+
+<footer class="bg-gray-800 py-8">
+  <div class="max-w-7xl mx-auto text-center text-gray-400">
+    <p>&copy; 2025 PharmaLink Pro. Tous droits réservés.</p>
+  </div>
+</footer>
+
+<script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"></script>
+<script src="https://unpkg.com/leaflet-routing-machine@3.2.12/dist/leaflet-routing-machine.js"></script>
+<script src="https://unpkg.com/axios/dist/axios.min.js"></script>
+<script>
+feather.replace();
+
+let map, patientMarker, livreurMarker, routingControl, watchId;
+let patientPos = null;
+let livreurPos = { lat: 6.3720, lon: 2.3500 }; // Position initiale livreur simulée
+let livreurIndex = 0;
+let routeCoords = [];
+
+// Initialiser la carte
+function initMap(lat, lon) {
+  map = L.map('map').setView([lat, lon], 15);
+
+  L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
+    maxZoom: 19,
+    attribution: '&copy; OpenStreetMap'
+  }).addTo(map);
+
+  patientMarker = L.marker([lat, lon], {icon: L.divIcon({className:'patient-pin', html:'<div class="pin-patient"></div>', iconSize:[30,30], iconAnchor:[15,30]})}).addTo(map).bindPopup("Vous");
+  livreurMarker = L.marker([livreurPos.lat, livreurPos.lon], {icon: L.divIcon({className:'livreur-pin', html:'<div class="pin-livreur"></div>', iconSize:[30,30], iconAnchor:[15,30]})}).addTo(map).bindPopup("Livreur");
+
+  updateRouting();
+}
+
+// Mettre à jour la position du patient
+function updatePatientPosition(lat, lon) {
+  patientPos = { lat, lon };
+  if (patientMarker) patientMarker.setLatLng([lat, lon]);
+  updateRouting();
+}
+
+// Calculer et afficher l’itinéraire
+async function updateRouting() {
+  if (!patientPos) return;
+
+  // Recalcul de l’itinéraire
+  const url = `https://router.project-osrm.org/route/v1/driving/${livreurPos.lon},${livreurPos.lat};${patientPos.lon},${patientPos.lat}?overview=full&geometries=geojson`;
+  const res = await axios.get(url);
+  if (res.data.routes.length === 0) return;
+  routeCoords = res.data.routes[0].geometry.coordinates.map(c => ({lat:c[1], lng:c[0]}));
+
+  if (routingControl) map.removeControl(routingControl);
+  routingControl = L.polyline(routeCoords, {color:'#10b981', weight:5}).addTo(map);
+
+  map.fitBounds(L.featureGroup([patientMarker, livreurMarker]).getBounds().pad(0.3));
+  livreurIndex = 0;
+}
+
+// Déplacer le livreur progressivement
+function animateLivreur() {
+  if (!routeCoords.length) return;
+  if (livreurIndex >= routeCoords.length) return;
+  livreurPos.lat = routeCoords[livreurIndex].lat;
+  livreurPos.lon = routeCoords[livreurIndex].lng;
+  livreurMarker.setLatLng([livreurPos.lat, livreurPos.lon]);
+  livreurIndex++;
+  setTimeout(animateLivreur, 500); // vitesse ajustable
+}
+
+// Surveillance de la position du patient
+function startPositionWatch() {
+  if (navigator.geolocation) {
+    if (watchId) navigator.geolocation.clearWatch(watchId);
+    watchId = navigator.geolocation.watchPosition(
+      pos => {
+        const lat = pos.coords.latitude;
+        const lon = pos.coords.longitude;
+        if (!map) initMap(lat, lon);
+        updatePatientPosition(lat, lon);
+        animateLivreur();
+      },
+      err => { console.error(err); if (!map) initMap(6.3725, 2.3583); },
+      { enableHighAccuracy: true, maximumAge: 10000, timeout: 15000 }
+    );
+  } else {
+    if (!map) initMap(6.3725, 2.3583);
+  }
+}
+
+// Bouton rafraîchir
+document.getElementById("refresh").addEventListener("click", startPositionWatch);
+
+// Styles pour les marqueurs
+const style = document.createElement('style');
+style.textContent = `
+.pin-patient { width:30px; height:30px; border-radius:50% 50% 50% 0; background:#3b82f6; transform:rotate(-45deg); position:relative; }
+.pin-patient:after { content:''; width:14px; height:14px; background:#fff; position:absolute; border-radius:50%; top:8px; left:8px; }
+.pin-livreur { width:30px; height:30px; border-radius:50% 50% 50% 0; background:#10b981; transform:rotate(-45deg); position:relative; }
+.pin-livreur:after { content:''; width:14px; height:14px; background:#fff; position:absolute; border-radius:50%; top:8px; left:8px; }
+`;
+document.head.appendChild(style);
+
+startPositionWatch();
+</script>
+</body>
+</html>

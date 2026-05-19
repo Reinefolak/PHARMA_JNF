@@ -1,0 +1,371 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>PharmaLink Pro - Plateforme de gestion de pharmacies</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <script src="https://cdn.jsdelivr.net/npm/feather-icons/dist/feather.min.js"></script>
+    <script src="https://unpkg.com/feather-icons"></script>
+    <script src="https://cdn.jsdelivr.net/npm/vanta@latest/dist/vanta.net.min.js"></script>
+    <style>
+        @import url('https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;500;600;700&display=swap');
+        body {
+            font-family: 'Poppins', sans-serif;
+        }
+        .hero-gradient {
+            background: linear-gradient(135deg, #3b82f6 0%, #10b981 100%);
+        }
+        .pharmacy-card:hover {
+            transform: translateY(-5px);
+            box-shadow: 0 20px 25px -5px rgba(0, 0, 0, 0.1), 0 10px 10px -5px rgba(0, 0, 0, 0.04);
+        }
+        #vanta-background {
+            position: absolute;
+            top: 0;
+            right: 0;
+            width: 100%;
+            height: 100%;
+            z-index: 0;
+        }
+    </style>
+</head>
+<body class="bg-gray-50">
+    <!-- Vanta.js Background -->
+    <div id="vanta-background"></div>
+
+    <!-- Navigation -->
+    <nav class="relative z-10 bg-white shadow-sm">
+        <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+            <div class="flex justify-between h-16">
+                <div class="flex items-center">
+                    <div class="flex-shrink-0 flex items-center">
+                        <i data-feather="activity" class="h-8 w-8 text-blue-600"></i>
+                        <span class="ml-2 text-xl font-bold text-blue-600">PharmaLink Pro</span>
+                    </div>
+                </div>
+                <div class="hidden md:ml-6 md:flex md:items-center md:space-x-8">
+                    <a href="#" class="text-blue-600 font-medium px-3 py-2">Accueil</a>
+                    <a href="pharmacies.html" class="text-gray-600 hover:text-blue-600 px-3 py-2">Pharmacies</a>
+                    <a href="know.html" class="text-gray-600 hover:text-blue-600 px-3 py-2">À Propos</a>
+                    <a href="services.html" class="text-gray-600 hover:text-blue-600 px-3 py-2">Services</a>
+                    <a href="contact.html" class="text-gray-600 hover:text-blue-600 px-3 py-2">Contact</a>
+                </div>
+                <div class="flex items-center">
+                    <a href="login.html" class="bg-blue-600 text-white px-4 py-2 rounded-md font-medium hover:bg-blue-700 transition duration-300">
+                        Connexion / Inscription
+                    </a>
+                </div>
+            </div>
+        </div>
+    </nav>
+
+    <!-- Hero Section -->
+    <div class="relative hero-gradient text-white overflow-hidden">
+        <div class="max-w-7xl mx-auto">
+            <div class="relative z-10 pb-16 pt-48 px-4 sm:px-6 lg:px-8">
+                <div class="max-w-md mx-auto text-center sm:max-w-3xl">
+                    <h1 class="text-4xl font-extrabold tracking-tight sm:text-5xl lg:text-6xl">
+                        Connecter les pharmacies et les patients
+                    </h1>
+                    <p class="mt-6 text-xl text-blue-100">
+                        Une plateforme moderne pour la gestion des pharmacies et une expérience patient fluide.
+                    </p>
+                    <div class="mt-10 sm:flex sm:justify-center">
+                        <div class="rounded-md shadow">
+                            <a href="register.html" class="w-full flex items-center justify-center px-8 py-3 border border-transparent text-base font-medium rounded-md text-blue-600 bg-white hover:bg-gray-50 md:py-4 md:text-lg md:px-10">
+                                Commencer
+                            </a>
+                        </div>
+                        <div class="mt-3 rounded-md shadow sm:mt-0 sm:ml-3">
+                            <a href="know.html" class="w-full flex items-center justify-center px-8 py-3 border border-transparent text-base font-medium rounded-md text-white bg-blue-700 bg-opacity-60 hover:bg-opacity-70 md:py-4 md:text-lg md:px-10">
+                                En savoir plus
+                            </a>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Features Section -->
+    <div class="py-12 bg-white relative z-10">
+        <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+            <div class="lg:text-center">
+                <h2 class="text-base text-blue-600 font-semibold tracking-wide uppercase">Fonctionnalités</h2>
+                <p class="mt-2 text-3xl leading-8 font-extrabold tracking-tight text-gray-900 sm:text-4xl">
+                    Une meilleure façon de gérer les pharmacies
+                </p>
+            </div>
+
+            <div class="mt-10">
+                <div class="grid grid-cols-1 gap-10 sm:grid-cols-2 lg:grid-cols-3">
+                    <!-- Feature 1 -->
+                    <div class="bg-white p-6 rounded-lg shadow-md border border-gray-100">
+                        <div class="flex items-center justify-center h-12 w-12 rounded-md bg-blue-500 text-white">
+                            <i data-feather="box"></i>
+                        </div>
+                        <h3 class="mt-5 text-lg leading-6 font-medium text-gray-900">Gestion des stocks</h3>
+                        <p class="mt-2 text-base text-gray-500">
+                            Suivi en temps réel des médicaments avec alertes automatiques en cas de faible inventaire.
+                        </p>
+                    </div>
+
+                    <!-- Feature 2 -->
+                    <div class="bg-white p-6 rounded-lg shadow-md border border-gray-100">
+                        <div class="flex items-center justify-center h-12 w-12 rounded-md bg-green-500 text-white">
+                            <i data-feather="shopping-cart"></i>
+                        </div>
+                        <h3 class="mt-5 text-lg leading-6 font-medium text-gray-900">Commandes en ligne</h3>
+                        <p class="mt-2 text-base text-gray-500">
+                            Les clients peuvent commander des médicaments en ligne avec livraison à domicile ou retrait en magasin.
+                        </p>
+                    </div>
+
+                    <!-- Feature 3 -->
+                    <div class="bg-white p-6 rounded-lg shadow-md border border-gray-100">
+                        <div class="flex items-center justify-center h-12 w-12 rounded-md bg-purple-500 text-white">
+                            <i data-feather="map-pin"></i>
+                        </div>
+                        <h3 class="mt-5 text-lg leading-6 font-medium text-gray-900">Localisateur de pharmacies</h3>
+                        <p class="mt-2 text-base text-gray-500">
+                            Trouvez les pharmacies proches avec les médicaments et services disponibles.
+                        </p>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Pharmacy Showcase -->
+    <div class="bg-gray-50 py-12 relative z-10">
+        <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+            <div class="text-center">
+                <h2 class="text-3xl font-extrabold tracking-tight text-gray-900 sm:text-4xl">
+                    Pharmacies à la une
+                </h2>
+                <p class="mt-4 max-w-2xl text-xl text-gray-500 mx-auto">
+                    Des pharmacies de confiance près de chez vous
+                </p>
+            </div>
+
+            <div class="mt-10 grid grid-cols-1 gap-8 sm:grid-cols-2 lg:grid-cols-3">
+                <!-- Pharmacy 1 -->
+                <div class="pharmacy-card bg-white overflow-hidden shadow rounded-lg transition duration-300 ease-in-out">
+                    <div class="px-4 py-5 sm:p-6">
+                        <div class="flex items-center">
+                            <div class="flex-shrink-0 bg-blue-500 rounded-md p-3">
+                                <i data-feather="home" class="h-6 w-6 text-white"></i>
+                            </div>
+                            <div class="ml-5 w-0 flex-1">
+                                <h3 class="text-lg font-medium text-gray-900">Pharmacie City Health</h3>
+                                <p class="mt-1 text-sm text-gray-500">Centre-ville • Ouverte 24h/24</p>
+                            </div>
+                        </div>
+                        <div class="mt-4">
+                            <div class="flex items-center text-sm text-gray-500">
+                                <i data-feather="phone" class="flex-shrink-0 mr-1.5 h-4 w-4 text-gray-400"></i>
+                                (123) 456-7890
+                            </div>
+                            <div class="mt-2 flex items-center text-sm text-gray-500">
+                                <i data-feather="map-pin" class="flex-shrink-0 mr-1.5 h-4 w-4 text-gray-400"></i>
+                                123 Rue Principale, Centre-ville
+                            </div>
+                        </div>
+                        <div class="mt-4">
+                            <span class="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium bg-green-100 text-green-800">
+                                <i data-feather="check" class="mr-1 h-3 w-3"></i>
+                                Livraison disponible
+                            </span>
+                            <span class="ml-1 inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium bg-blue-100 text-blue-800">
+                                <i data-feather="clock" class="mr-1 h-3 w-3"></i>
+                                Ouverte maintenant
+                            </span>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Pharmacy 2 -->
+                <div class="pharmacy-card bg-white overflow-hidden shadow rounded-lg transition duration-300 ease-in-out">
+                    <div class="px-4 py-5 sm:p-6">
+                        <div class="flex items-center">
+                            <div class="flex-shrink-0 bg-green-500 rounded-md p-3">
+                                <i data-feather="plus-circle" class="h-6 w-6 text-white"></i>
+                            </div>
+                            <div class="ml-5 w-0 flex-1">
+                                <h3 class="text-lg font-medium text-gray-900">MediCare Plus</h3>
+                                <p class="mt-1 text-sm text-gray-500">Quartier Ouest • 8h - 22h</p>
+                            </div>
+                        </div>
+                        <div class="mt-4">
+                            <div class="flex items-center text-sm text-gray-500">
+                                <i data-feather="phone" class="flex-shrink-0 mr-1.5 h-4 w-4 text-gray-400"></i>
+                                (234) 567-8901
+                            </div>
+                            <div class="mt-2 flex items-center text-sm text-gray-500">
+                                <i data-feather="map-pin" class="flex-shrink-0 mr-1.5 h-4 w-4 text-gray-400"></i>
+                                456 Avenue du Chêne, Quartier Ouest
+                            </div>
+                        </div>
+                        <div class="mt-4">
+                            <span class="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium bg-purple-100 text-purple-800">
+                                <i data-feather="video" class="mr-1 h-3 w-3"></i>
+                                Consultation en ligne
+                            </span>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Pharmacy 3 -->
+                <div class="pharmacy-card bg-white overflow-hidden shadow rounded-lg transition duration-300 ease-in-out">
+                    <div class="px-4 py-5 sm:p-6">
+                        <div class="flex items-center">
+                            <div class="flex-shrink-0 bg-purple-500 rounded-md p-3">
+                                <i data-feather="heart" class="h-6 w-6 text-white"></i>
+                            </div>
+                            <div class="ml-5 w-0 flex-1">
+                                <h3 class="text-lg font-medium text-gray-900">Pharmacie Family Care</h3>
+                                <p class="mt-1 text-sm text-gray-500">District Nord • 9h - 21h</p>
+                            </div>
+                        </div>
+                        <div class="mt-4">
+                            <div class="flex items-center text-sm text-gray-500">
+                                <i data-feather="phone" class="flex-shrink-0 mr-1.5 h-4 w-4 text-gray-400"></i>
+                                (345) 678-9012
+                            </div>
+                            <div class="mt-2 flex items-center text-sm text-gray-500">
+                                <i data-feather="map-pin" class="flex-shrink-0 mr-1.5 h-4 w-4 text-gray-400"></i>
+                                789 Rue des Pins, District Nord
+                            </div>
+                        </div>
+                        <div class="mt-4">
+                            <span class="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium bg-yellow-100 text-yellow-800">
+                                <i data-feather="shield" class="mr-1 h-3 w-3"></i>
+                                Réductions seniors
+                            </span>
+                            <span class="ml-1 inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium bg-red-100 text-red-800">
+                                <i data-feather="truck" class="mr-1 h-3 w-3"></i>
+                                Livraison gratuite
+                            </span>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <div class="mt-10 text-center">
+                <a href="pharmacies.html" class="inline-flex items-center px-4 py-2 border border-transparent text-base font-medium rounded-md shadow-sm text-white bg-blue-600 hover:bg-blue-700">
+                    Voir toutes les pharmacies
+                    <i data-feather="arrow-right" class="ml-2 h-4 w-4"></i>
+                </a>
+            </div>
+        </div>
+    </div>
+
+    <!-- CTA Section -->
+    <div class="bg-blue-600 relative z-10">
+        <div class="max-w-7xl mx-auto py-12 px-4 sm:px-6 lg:py-16 lg:px-8 lg:flex lg:items-center lg:justify-between">
+            <h2 class="text-3xl font-extrabold tracking-tight text-white sm:text-4xl">
+                <span class="block">Prêt à transformer votre pharmacie ?</span>
+                <span class="block text-blue-200">Commencez votre essai gratuit dès aujourd'hui.</span>
+            </h2>
+            <div class="mt-8 flex lg:mt-0 lg:flex-shrink-0">
+                <div class="inline-flex rounded-md shadow">
+                    <a href="register.html" class="inline-flex items-center justify-center px-5 py-3 border border-transparent text-base font-medium rounded-md text-blue-600 bg-white hover:bg-blue-50">
+                        Commencer
+                    </a>
+                </div>
+                <div class="ml-3 inline-flex rounded-md shadow">
+                    <a href="know.html" class="inline-flex items-center justify-center px-5 py-3 border border-transparent text-base font-medium rounded-md text-white bg-blue-700 bg-opacity-60 hover:bg-opacity-70">
+                        En savoir plus
+                    </a>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Footer -->
+    <footer class="bg-gray-800 relative z-10">
+        <div class="max-w-7xl mx-auto py-12 px-4 sm:px-6 lg:px-8">
+            <div class="grid grid-cols-2 md:grid-cols-4 gap-8">
+                <div>
+                    <h3 class="text-sm font-semibold text-gray-300 tracking-wider uppercase">Produit</h3>
+                    <ul class="mt-4 space-y-4">
+                        <li><a href="#" class="text-base text-gray-400 hover:text-white">Fonctionnalités</a></li>
+                        <li><a href="#" class="text-base text-gray-400 hover:text-white">Tarifs</a></li>
+                        <li><a href="#" class="text-base text-gray-400 hover:text-white">API</a></li>
+                        <li><a href="#" class="text-base text-gray-400 hover:text-white">Documentation</a></li>
+                    </ul>
+                </div>
+                <div>
+                    <h3 class="text-sm font-semibold text-gray-300 tracking-wider uppercase">Entreprise</h3>
+                    <ul class="mt-4 space-y-4">
+                        <li><a href="#" class="text-base text-gray-400 hover:text-white">À propos</a></li>
+                        <li><a href="#" class="text-base text-gray-400 hover:text-white">Blog</a></li>
+                        <li><a href="#" class="text-base text-gray-400 hover:text-white">Carrières</a></li>
+                        <li><a href="#" class="text-base text-gray-400 hover:text-white">Contact</a></li>
+                    </ul>
+                </div>
+                <div>
+                    <h3 class="text-sm font-semibold text-gray-300 tracking-wider uppercase">Légal</h3>
+                    <ul class="mt-4 space-y-4">
+                        <li><a href="#" class="text-base text-gray-400 hover:text-white">Confidentialité</a></li>
+                        <li><a href="#" class="text-base text-gray-400 hover:text-white">Conditions</a></li>
+                        <li><a href="#" class="text-base text-gray-400 hover:text-white">Politique de cookies</a></li>
+                        <li><a href="#" class="text-base text-gray-400 hover:text-white">RGPD</a></li>
+                    </ul>
+                </div>
+                <div>
+                    <h3 class="text-sm font-semibold text-gray-300 tracking-wider uppercase">Réseaux</h3>
+                    <ul class="mt-4 space-y-4">
+                        <li><a href="#" class="text-base text-gray-400 hover:text-white">Twitter</a></li>
+                        <li><a href="#" class="text-base text-gray-400 hover:text-white">Facebook</a></li>
+                        <li><a href="#" class="text-base text-gray-400 hover:text-white">LinkedIn</a></li>
+                        <li><a href="#" class="text-base text-gray-400 hover:text-white">Instagram</a></li>
+                    </ul>
+                </div>
+            </div>
+            <div class="mt-8 border-t border-gray-700 pt-8 md:flex md:items-center md:justify-between">
+                <div class="flex space-x-6 md:order-2">
+                    <a href="#" class="text-gray-400 hover:text-white">
+                        <i data-feather="twitter" class="h-6 w-6"></i>
+                    </a>
+                    <a href="#" class="text-gray-400 hover:text-white">
+                        <i data-feather="facebook" class="h-6 w-6"></i>
+                    </a>
+                    <a href="#" class="text-gray-400 hover:text-white">
+                        <i data-feather="instagram" class="h-6 w-6"></i>
+                    </a>
+                    <a href="#" class="text-gray-400 hover:text-white">
+                        <i data-feather="linkedin" class="h-6 w-6"></i>
+                    </a>
+                </div>
+                <p class="mt-8 text-base text-gray-400 md:mt-0 md:order-1">
+                    &copy; 2025 PharmaLink Pro. Tous droits réservés.
+                </p>
+            </div>
+        </div>
+    </footer>
+
+    <script>
+        // Initialiser le fond Vanta.js
+        VANTA.NET({
+            el: "#vanta-background",
+            mouseControls: true,
+            touchControls: true,
+            gyroControls: false,
+            minHeight: 200.00,
+            minWidth: 200.00,
+            scale: 1.00,
+            scaleMobile: 1.00,
+            color: 0x3b82f6,
+            backgroundColor: 0xf8fafc,
+            points: 10.00,
+            maxDistance: 25.00,
+            spacing: 18.00
+        });
+
+        // Initialiser les icônes Feather
+        feather.replace();
+    </script>
+</body>
+</html>

@@ -1,0 +1,196 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Mes Commandes - PharmaLink Pro</title>
+  <script src="https://cdn.tailwindcss.com"></script>
+  <script src="https://cdn.jsdelivr.net/npm/feather-icons/dist/feather.min.js"></script>
+  <style>
+    @import url('https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;500;600;700&display=swap');
+    body { font-family: 'Poppins', sans-serif; }
+  </style>
+</head>
+<body class="bg-gray-50 text-gray-800">
+
+  <!-- Navigation -->
+  <nav class="bg-white shadow-sm relative z-10">
+    <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+      <div class="flex justify-between h-16">
+        <div class="flex items-center">
+          <i data-feather="activity" class="h-8 w-8 text-blue-600"></i>
+          <span class="ml-2 text-xl font-bold text-blue-600">PharmaLink Pro</span>
+        </div>
+        <div class="flex items-center space-x-6">
+          <a href="patient.html" class="text-gray-600 hover:text-blue-600">Accueil</a>
+          <a href="pharmacies_patient.html" class="text-gray-600 hover:text-blue-600">Pharmacies</a>
+          <a href="com_patient.html" class="text-blue-600 font-medium">Mes commandes</a>
+          <a href="know_patient.html" class="text-gray-600 hover:text-blue-600">À propos</a>
+          <a href="services_patient.html" class="text-gray-600 hover:text-blue-600">Services</a>
+          <a href="contact_patient.html" class="text-gray-600 hover:text-blue-600">Contact</a>
+          <a href="login.html" class="bg-blue-600 text-white px-4 py-2 rounded-md font-medium hover:bg-blue-700 transition">
+            <i data-feather="log-out" class="h-4 w-4 inline mr-1"></i> Déconnexion
+          </a>
+        </div>
+      </div>
+    </div>
+  </nav>
+
+  <!-- En-tête -->
+  <section class="relative py-20 bg-gradient-to-br from-blue-600 to-green-500 text-white text-center">
+    <div class="max-w-4xl mx-auto px-6">
+      <h1 class="text-4xl font-bold mb-4">Mes Commandes</h1>
+      <p class="text-blue-100 text-lg">Consultez et suivez vos commandes passées et en cours directement depuis votre tableau de bord.</p>
+    </div>
+  </section>
+
+  <!-- Statistiques -->
+  <section class="max-w-6xl mx-auto py-10 px-6 grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-6">
+    <div class="bg-white shadow rounded-lg p-5 text-center">
+      <i data-feather="package" class="h-6 w-6 text-blue-600 mx-auto mb-2"></i>
+      <p class="text-gray-500 text-sm">Total commandes</p>
+      <p id="totalCmd" class="text-2xl font-bold text-gray-900">0</p>
+    </div>
+    <div class="bg-white shadow rounded-lg p-5 text-center">
+      <i data-feather="truck" class="h-6 w-6 text-yellow-500 mx-auto mb-2"></i>
+      <p class="text-gray-500 text-sm">En cours</p>
+      <p id="cmdCours" class="text-2xl font-bold text-gray-900">0</p>
+    </div>
+    <div class="bg-white shadow rounded-lg p-5 text-center">
+      <i data-feather="check-circle" class="h-6 w-6 text-green-500 mx-auto mb-2"></i>
+      <p class="text-gray-500 text-sm">Livrées</p>
+      <p id="cmdLivre" class="text-2xl font-bold text-gray-900">0</p>
+    </div>
+    <div class="bg-white shadow rounded-lg p-5 text-center">
+      <i data-feather="x-circle" class="h-6 w-6 text-red-500 mx-auto mb-2"></i>
+      <p class="text-gray-500 text-sm">Annulées</p>
+      <p id="cmdAnnule" class="text-2xl font-bold text-gray-900">0</p>
+    </div>
+  </section>
+
+  <!-- Filtres -->
+  <section class="max-w-6xl mx-auto px-6 mb-8 flex flex-col sm:flex-row sm:items-center sm:justify-between space-y-4 sm:space-y-0">
+    <div class="flex items-center space-x-2">
+      <input id="searchInput" type="text" placeholder="Rechercher une commande..." class="border border-gray-300 rounded-md px-3 py-2 w-64 focus:ring-2 focus:ring-blue-500 focus:outline-none">
+      <select id="filterStatus" class="border border-gray-300 rounded-md px-3 py-2 focus:ring-2 focus:ring-blue-500 focus:outline-none">
+        <option value="Tous">Tous les statuts</option>
+        <option value="En préparation">En préparation</option>
+        <option value="En cours">En cours</option>
+        <option value="Livrée">Livrée</option>
+        <option value="Annulée">Annulée</option>
+      </select>
+    </div>
+    <button id="refresh" class="flex items-center bg-blue-600 text-white px-4 py-2 rounded-md hover:bg-blue-700 transition">
+      <i data-feather="refresh-cw" class="h-5 w-5 mr-2"></i> Rafraîchir
+    </button>
+  </section>
+
+  <!-- Liste des commandes -->
+  <section class="max-w-6xl mx-auto px-6 pb-16">
+    <div id="ordersList" class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8">
+      <p class="col-span-full text-center text-gray-500">Chargement des commandes...</p>
+    </div>
+  </section>
+
+  <!-- Modal détails commande -->
+  <div id="modal" class="hidden fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50">
+    <div class="bg-white rounded-lg p-6 max-w-lg w-full shadow-lg">
+      <h3 id="modalTitle" class="text-xl font-semibold text-gray-900 mb-4"></h3>
+      <div id="modalContent" class="text-gray-700 space-y-2"></div>
+      <button id="closeModal" class="mt-6 bg-blue-600 text-white px-4 py-2 rounded-md hover:bg-blue-700 transition w-full">Fermer</button>
+    </div>
+  </div>
+
+  <!-- Footer -->
+  <footer class="bg-gray-800 py-8">
+    <div class="max-w-7xl mx-auto text-center text-gray-400">
+      <p>&copy; 2025 PharmaLink Pro. Tous droits réservés.</p>
+    </div>
+  </footer>
+
+  <!-- Scripts -->
+  <script>
+    feather.replace();
+
+    const commandes = [
+      { id: "CMD-2025-0012", produits: "Paracétamol 500mg, Doliprane 1000mg", date: "2025-11-01", montant: "7 500 F", statut: "En cours", pharmacie: "Pharmacie du Soleil", adresse: "Cotonou - Zogbo", livraison: "02/11/2025" },
+      { id: "CMD-2025-0009", produits: "Vitamine C 1000mg", date: "2025-10-29", montant: "3 200 F", statut: "Livrée", pharmacie: "Pharmacie Les Anges", adresse: "Cotonou - Cadjehoun", livraison: "30/10/2025" },
+      { id: "CMD-2025-0010", produits: "Ibuprofène 400mg", date: "2025-10-30", montant: "4 000 F", statut: "En préparation", pharmacie: "Pharmacie du Littoral", adresse: "Cotonou - Fidjrossè", livraison: "À venir" },
+      { id: "CMD-2025-0007", produits: "Panadol, Sirop Toplexil", date: "2025-10-27", montant: "5 500 F", statut: "Annulée", pharmacie: "Pharmacie Centrale", adresse: "Abomey-Calavi", livraison: "-" }
+    ];
+
+    const ordersList = document.getElementById("ordersList");
+    const modal = document.getElementById("modal");
+    const modalTitle = document.getElementById("modalTitle");
+    const modalContent = document.getElementById("modalContent");
+    const closeModal = document.getElementById("closeModal");
+
+    function renderOrders(list) {
+      ordersList.innerHTML = "";
+      if (list.length === 0) {
+        ordersList.innerHTML = `<p class="col-span-full text-center text-gray-500">Aucune commande trouvée.</p>`;
+        return;
+      }
+
+      list.forEach(cmd => {
+        const card = document.createElement("div");
+        card.className = "bg-white shadow rounded-lg p-6 hover:shadow-lg transition";
+        card.innerHTML = `
+          <h3 class="text-lg font-semibold text-gray-900 mb-2">${cmd.id}</h3>
+          <p class="text-gray-600 mb-1"><strong>Produits :</strong> ${cmd.produits}</p>
+          <p class="text-gray-600 mb-1"><strong>Date :</strong> ${cmd.date}</p>
+          <p class="text-gray-600 mb-1"><strong>Montant :</strong> ${cmd.montant}</p>
+          <p class="text-gray-600 mb-4"><strong>Statut :</strong> ${cmd.statut}</p>
+          <button onclick="openModal('${cmd.id}')" class="bg-blue-600 text-white w-full px-4 py-2 rounded-md hover:bg-blue-700 transition">📦 Voir les détails</button>
+        `;
+        ordersList.appendChild(card);
+      });
+      feather.replace();
+    }
+
+    function openModal(id) {
+      const cmd = commandes.find(c => c.id === id);
+      modalTitle.textContent = `Détails de la commande ${cmd.id}`;
+      modalContent.innerHTML = `
+        <p><strong>Produits :</strong> ${cmd.produits}</p>
+        <p><strong>Pharmacie :</strong> ${cmd.pharmacie}</p>
+        <p><strong>Adresse :</strong> ${cmd.adresse}</p>
+        <p><strong>Date de commande :</strong> ${cmd.date}</p>
+        <p><strong>Date de livraison :</strong> ${cmd.livraison}</p>
+        <p><strong>Montant total :</strong> ${cmd.montant}</p>
+        <p><strong>Statut :</strong> ${cmd.statut}</p>
+      `;
+      modal.classList.remove("hidden");
+    }
+
+    closeModal.addEventListener("click", () => modal.classList.add("hidden"));
+    window.addEventListener("click", (e) => { if (e.target === modal) modal.classList.add("hidden"); });
+
+    // Filtres
+    document.getElementById("filterStatus").addEventListener("change", filterOrders);
+    document.getElementById("searchInput").addEventListener("input", filterOrders);
+    document.getElementById("refresh").addEventListener("click", () => renderOrders(commandes));
+
+    function filterOrders() {
+      const search = document.getElementById("searchInput").value.toLowerCase();
+      const status = document.getElementById("filterStatus").value;
+      const filtered = commandes.filter(c =>
+        (status === "Tous" || c.statut === status) &&
+        (c.produits.toLowerCase().includes(search) || c.id.toLowerCase().includes(search))
+      );
+      renderOrders(filtered);
+    }
+
+    function updateStats() {
+      document.getElementById("totalCmd").textContent = commandes.length;
+      document.getElementById("cmdCours").textContent = commandes.filter(c => c.statut === "En cours" || c.statut === "En préparation").length;
+      document.getElementById("cmdLivre").textContent = commandes.filter(c => c.statut === "Livrée").length;
+      document.getElementById("cmdAnnule").textContent = commandes.filter(c => c.statut === "Annulée").length;
+    }
+
+    // Initialisation
+    renderOrders(commandes);
+    updateStats();
+  </script>
+</body>
+</html>

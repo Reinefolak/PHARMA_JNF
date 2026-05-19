@@ -1,0 +1,124 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Espace Livreur - PharmaLink Pro</title>
+  <script src="https://cdn.tailwindcss.com"></script>
+  <script src="https://cdn.jsdelivr.net/npm/feather-icons/dist/feather.min.js"></script>
+  <style>
+    @import url('https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;500;600;700&display=swap');
+    body { font-family: 'Poppins', sans-serif; }
+  </style>
+</head>
+<body class="bg-gray-50 text-gray-800">
+
+  <!-- Barre de navigation -->
+  <nav class="bg-white shadow-sm relative z-10">
+    <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+      <div class="flex justify-between h-16">
+        <div class="flex items-center">
+          <i data-feather="activity" class="h-8 w-8 text-blue-600"></i>
+          <span class="ml-2 text-xl font-bold text-blue-600">PharmaLink Pro</span>
+        </div>
+        <div class="flex items-center space-x-6">
+          <a href="livreur.html" class="text-gray-600 hover:text-blue-600">Accueil</a>
+          <a href="pharmacies_livreur.html" class="text-gray-600 hover:text-blue-600">Pharmacies</a>
+          <a href="suivi_livreur.html" class="text-gray-600 hover:text-blue-600">Suivi</a>
+          <a href="services_livreur.html" class="text-gray-600 hover:text-blue-600">Services</a>
+          <a href="contact_livreur.html" class="text-gray-600 hover:text-blue-600">Contact</a>
+           <a href="login.html" class="bg-blue-600 text-white px-4 py-2 rounded-md font-medium hover:bg-blue-700 transition">
+            <i data-feather="log-out" class="h-4 w-4 inline mr-1"></i> Déconnexion
+          </a>
+        </div>
+      </div>
+    </div>
+  </nav>
+
+  <!-- En-tête -->
+  <section class="relative py-20 bg-gradient-to-br from-blue-600 to-green-500 text-white text-center">
+    <div class="max-w-4xl mx-auto px-6">
+      <h1 class="text-4xl font-bold mb-4">Espace Livreur</h1>
+      <p class="text-blue-100 text-lg">
+        Gérer vos livraisons, suivre vos trajets et valider les commandes livrées facilement.
+      </p>
+    </div>
+  </section>
+
+  <!-- Tableau de bord livreur -->
+  <section class="max-w-6xl mx-auto py-16 px-6 grid grid-cols-1 md:grid-cols-3 gap-10">
+    <!-- Commandes à livrer -->
+    <div class="bg-white rounded-2xl shadow-lg p-8 text-center hover:shadow-xl transition">
+      <div class="flex justify-center mb-6">
+        <div class="bg-blue-100 p-4 rounded-full">
+          <i data-feather="shopping-cart" class="h-10 w-10 text-blue-600"></i>
+        </div>
+      </div>
+      <h2 class="text-xl font-semibold text-gray-800 mb-3">Commandes à livrer</h2>
+      <p class="text-gray-600 mb-6">
+        Consultez la liste des commandes qui vous sont attribuées et acceptez-les en un clic.
+      </p>
+      <a href="commande_livreur.html" class="bg-blue-600 text-white px-5 py-2 rounded-md hover:bg-blue-700 transition inline-block">Voir les commandes
+      </a>
+    </div>
+
+    <!-- Trajets en cours -->
+    <div class="bg-white rounded-2xl shadow-lg p-8 text-center hover:shadow-xl transition">
+      <div class="flex justify-center mb-6">
+        <div class="bg-green-100 p-4 rounded-full">
+          <i data-feather="map" class="h-10 w-10 text-green-600"></i>
+        </div>
+      </div>
+      <h2 class="text-xl font-semibold text-gray-800 mb-3">Trajets en cours</h2>
+      <p class="text-gray-600 mb-6">
+        Suivez vos itinéraires de livraison et recevez les mises à jour en temps réel sur votre parcours.
+      </p>
+        <a href="suivi_livreur.html" class="bg-blue-600 text-white px-5 py-2 rounded-md hover:bg-blue-700 transition inline-block">Suivre le trajet
+      </a>
+    </div>
+
+    <!-- Historique -->
+    <div class="bg-white rounded-2xl shadow-lg p-8 text-center hover:shadow-xl transition">
+      <div class="flex justify-center mb-6">
+        <div class="bg-yellow-100 p-4 rounded-full">
+          <i data-feather="clock" class="h-10 w-10 text-yellow-600"></i>
+        </div>
+      </div>
+      <h2 class="text-xl font-semibold text-gray-800 mb-3">Historique</h2>
+      <p class="text-gray-600 mb-6">
+        Consultez vos livraisons effectuées et vos statistiques personnelles de performance.
+      </p>
+      <a href="historique.html" class="bg-blue-600 text-white px-5 py-2 rounded-md hover:bg-blue-700 transition\
+ inline-block">Voir mon historique
+      </a>
+    </div>
+  </section>
+
+  <!-- Section bonus -->
+  <section class="text-center py-16 bg-blue-50">
+    <h2 class="text-3xl font-semibold text-blue-700 mb-4">Livrez facilement et en toute sécurité</h2>
+    <p class="text-gray-600 max-w-3xl mx-auto mb-8">
+      PharmaLink Pro accompagne les livreurs pour simplifier la gestion des tournées et optimiser les trajets.
+    </p>
+    <a href="tournee.html" class="bg-blue-600 text-white px-6 py-3 rounded-md font-medium hover:bg-blue-700 transition">
+      Démarrer ma tournée
+    </a>
+  </section>
+  <section  class="text-center py-16 bg-blue-50">
+    <a href="profil_livreur.html" class="bg-blue-600 text-white px-6 py-3 rounded-md font-medium hover:bg-blue-700 transition">
+      Gérer mon Profil
+    </a>
+    </section>
+
+  <!-- Footer -->
+  <footer class="bg-gray-800 py-8">
+    <div class="max-w-7xl mx-auto text-center text-gray-400">
+      <p>&copy; 2025 PharmaLink Pro. Tous droits réservés.</p>
+    </div>
+  </footer>
+
+  <script>
+    feather.replace();
+  </script>
+</body>
+</html>

@@ -1,0 +1,475 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width,initial-scale=1" />
+  <title>Gestion des Commandes - PharmaLink Pro</title>
+
+  <!-- Tailwind -->
+  <script src="https://cdn.tailwindcss.com"></script>
+  <!-- Feather icons -->
+  <script src="https://cdn.jsdelivr.net/npm/feather-icons/dist/feather.min.js"></script>
+
+  <style>
+    @import url('https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;500;600;700&display=swap');
+    body { font-family: 'Poppins', sans-serif; }
+    /* Tiny helper to animate modal */
+    .modal-show { display: flex; }
+  </style>
+</head>
+<body class="bg-gray-50 text-gray-800">
+
+  <!-- Navigation -->
+  <nav class="bg-white shadow-sm relative z-10">
+    <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+      <div class="flex justify-between h-16 items-center">
+        <div class="flex items-center">
+          <i data-feather="activity" class="h-8 w-8 text-blue-600"></i>
+          <span class="ml-2 text-xl font-bold text-blue-600">PharmaLink Pro</span>
+        </div>
+        <div class="flex items-center space-x-6">
+          <a href="proprietaire.html" class="text-gray-600 hover:text-blue-600">Accueil</a>
+          <a href="pharmacies_proprietaire.html" class="text-gray-600 hover:text-blue-600">Pharmacies</a>
+          <a href="stock.html" class="text-gray-600 hover:text-blue-600">Stock</a>
+          <a href="commandes.html" class="text-blue-600 font-medium">Commandes</a>
+          <a href="services_proprietaire.html" class="text-gray-600 hover:text-blue-600">Services</a>
+          <a href="contact_proprietaire.html" class="text-gray-600 hover:text-blue-600">Contact</a>
+          <a href="login.html" class="bg-blue-600 text-white px-4 py-2 rounded-md font-medium hover:bg-blue-700 transition">
+            <i data-feather="log-out" class="h-4 w-4 inline mr-1"></i> Déconnexion
+          </a>
+        </div>
+      </div>
+    </div>
+  </nav>
+
+  <!-- Header -->
+  <header class="relative py-16 bg-gradient-to-br from-blue-600 to-green-500 text-white text-center">
+    <div class="max-w-4xl mx-auto px-6">
+      <h1 class="text-4xl font-bold mb-3">Gestion des Commandes Clients</h1>
+      <p class="text-blue-100 text-lg">Consultez les commandes reçues, préparez-les et assignez un livreur pour chaque commande.</p>
+    </div>
+  </header>
+
+  <!-- Main -->
+  <main class="max-w-7xl mx-auto py-10 px-4 sm:px-6 lg:px-8">
+
+    <!-- Controls -->
+    <div class="bg-white shadow rounded-lg p-6 mb-6">
+      <div class="flex flex-col md:flex-row md:items-center md:justify-between gap-4">
+        <div class="flex-1 flex gap-3">
+          <div class="relative flex-1">
+            <div class="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none">
+              <i data-feather="search" class="text-gray-400"></i>
+            </div>
+            <input id="searchOrders" type="text" placeholder="Rechercher par client, produit..." class="block w-full pl-10 pr-3 py-2 border border-gray-300 rounded-md bg-white placeholder-gray-500 focus:outline-none focus:ring-blue-500 focus:border-blue-500 sm:text-sm">
+          </div>
+
+          <select id="statusFilter" class="w-48 pl-3 pr-10 py-2 border border-gray-300 rounded-md text-sm focus:outline-none focus:ring-blue-500 focus:border-blue-500">
+            <option value="">Tous statuts</option>
+            <option value="En attente">En attente</option>
+            <option value="En préparation">En préparation</option>
+            <option value="En livraison">En livraison</option>
+            <option value="Livrée">Livrée</option>
+            <option value="Annulée">Annulée</option>
+          </select>
+        </div>
+
+        <div class="flex gap-3 items-center">
+          <button id="refreshBtn" class="flex items-center bg-blue-600 text-white px-4 py-2 rounded-md hover:bg-blue-700 transition">
+            <i data-feather="refresh-cw" class="h-4 w-4 mr-2"></i> Actualiser les commandes
+          </button>
+
+          <button id="newOrderBtn" class="flex items-center bg-green-600 text-white px-4 py-2 rounded-md hover:bg-green-700 transition">
+            <i data-feather="plus" class="h-4 w-4 mr-2"></i> Nouvelle commande
+          </button>
+        </div>
+      </div>
+    </div>
+
+    <!-- Orders list -->
+    <div class="bg-white shadow overflow-hidden sm:rounded-lg">
+      <div class="overflow-x-auto">
+        <table class="min-w-full divide-y divide-gray-200">
+          <thead class="bg-gray-50">
+            <tr>
+              <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">#</th>
+              <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Client</th>
+              <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Produit</th>
+              <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Quantité</th>
+              <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Date</th>
+              <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Statut</th>
+              <th class="px-6 py-3 text-right text-xs font-medium text-gray-500 uppercase tracking-wider">Actions</th>
+            </tr>
+          </thead>
+          <tbody id="ordersTable" class="bg-white divide-y divide-gray-200">
+            <!-- rows inserted by JS -->
+          </tbody>
+        </table>
+      </div>
+    </div>
+  </main>
+
+  <!-- Assign modal -->
+  <div id="assignModal" class="fixed inset-0 z-30 hidden items-center justify-center">
+    <div class="absolute inset-0 bg-black opacity-40"></div>
+    <div class="relative bg-white rounded-lg shadow-xl w-full max-w-md mx-4 p-6 z-40">
+      <h3 class="text-lg font-medium text-gray-900 mb-4">Assigner un livreur</h3>
+      <p class="text-sm text-gray-600 mb-4">Choisis un livreur disponible pour cette commande.</p>
+
+      <div class="mb-4">
+        <label class="block text-sm font-medium text-gray-700">Livreur</label>
+        <select id="courierSelect" class="mt-1 block w-full border border-gray-300 rounded-md py-2 px-3 focus:outline-none focus:ring-blue-500 focus:border-blue-500 sm:text-sm">
+          <!-- options via JS -->
+        </select>
+      </div>
+
+      <div class="flex justify-end gap-3">
+        <button id="cancelAssign" class="bg-white border border-gray-300 px-4 py-2 rounded-md hover:bg-gray-50">Annuler</button>
+        <button id="confirmAssign" class="bg-green-600 text-white px-4 py-2 rounded-md hover:bg-green-700">Valider l'assignation</button>
+      </div>
+    </div>
+  </div>
+
+  <!-- New/Edit order modal -->
+  <div id="orderModal" class="fixed inset-0 z-30 hidden items-center justify-center">
+    <div class="absolute inset-0 bg-black opacity-40"></div>
+    <div class="relative bg-white rounded-lg shadow-xl w-full max-w-lg mx-4 p-6 z-40">
+      <h3 id="orderModalTitle" class="text-lg font-medium text-gray-900 mb-4">Nouvelle commande</h3>
+
+      <form id="orderForm" class="space-y-4">
+        <input type="hidden" id="orderId" />
+
+        <div>
+          <label class="block text-sm font-medium text-gray-700">Nom du client</label>
+          <input id="orderClient" type="text" class="mt-1 block w-full border border-gray-300 rounded-md px-3 py-2 focus:outline-none focus:ring-blue-500 focus:border-blue-500 sm:text-sm" required>
+        </div>
+
+        <div class="grid grid-cols-2 gap-4">
+          <div>
+            <label class="block text-sm font-medium text-gray-700">Produit</label>
+            <input id="orderProduct" type="text" class="mt-1 block w-full border border-gray-300 rounded-md px-3 py-2 focus:outline-none focus:ring-blue-500 focus:border-blue-500 sm:text-sm" required>
+          </div>
+
+          <div>
+            <label class="block text-sm font-medium text-gray-700">Quantité</label>
+            <input id="orderQty" type="number" min="1" value="1" class="mt-1 block w-full border border-gray-300 rounded-md px-3 py-2 focus:outline-none focus:ring-blue-500 focus:border-blue-500 sm:text-sm" required>
+          </div>
+        </div>
+
+        <div class="grid grid-cols-2 gap-4">
+          <div>
+            <label class="block text-sm font-medium text-gray-700">Date de commande</label>
+            <input id="orderDate" type="date" class="mt-1 block w-full border border-gray-300 rounded-md px-3 py-2 focus:outline-none focus:ring-blue-500 focus:border-blue-500 sm:text-sm">
+          </div>
+          <div>
+            <label class="block text-sm font-medium text-gray-700">Statut</label>
+            <select id="orderStatus" class="mt-1 block w-full border border-gray-300 rounded-md px-3 py-2 focus:outline-none focus:ring-blue-500 focus:border-blue-500 sm:text-sm">
+              <option>En attente</option>
+              <option>En préparation</option>
+              <option>En livraison</option>
+              <option>Livrée</option>
+              <option>Annulée</option>
+            </select>
+          </div>
+        </div>
+
+        <div class="flex justify-end gap-3">
+          <button type="button" id="cancelOrder" class="bg-white border border-gray-300 px-4 py-2 rounded-md hover:bg-gray-50">Annuler</button>
+          <button type="submit" id="saveOrder" class="bg-blue-600 text-white px-4 py-2 rounded-md hover:bg-blue-700">Enregistrer</button>
+        </div>
+      </form>
+    </div>
+  </div>
+
+  <!-- Footer -->
+  <footer class="bg-gray-800 py-8 mt-10">
+    <div class="max-w-7xl mx-auto text-center text-gray-400">
+      <p>&copy; 2025 PharmaLink Pro. Tous droits réservés.</p>
+    </div>
+  </footer>
+
+  <!-- Scripts -->
+  <script>
+    feather.replace();
+
+    // Sample couriers (simulated)
+    const couriers = [
+      { id: 1, name: 'Livreur A (BeninExpress)' },
+      { id: 2, name: 'Marie - Indépendant' },
+      { id: 3, name: 'Koffi - MotoRapid' }
+    ];
+
+    // Sample orders (will be replaced by localStorage if present)
+    let orders = JSON.parse(localStorage.getItem('pharmalink-orders')) || [
+      { id: 1, client: 'Jean Dupont', product: 'Paracétamol 500mg', qty: 2, date: '2025-10-20', status: 'En attente', courier: '' },
+      { id: 2, client: 'Amina T.', product: 'Gel hydroalcoolique', qty: 1, date: '2025-10-19', status: 'En préparation', courier: '' },
+      { id: 3, client: 'Paul Z.', product: 'Crème hydratante', qty: 3, date: '2025-10-18', status: 'En livraison', courier: 'Koffi - MotoRapid' }
+    ];
+
+    // DOM refs
+    const ordersTable = document.getElementById('ordersTable');
+    const statusFilter = document.getElementById('statusFilter');
+    const searchOrders = document.getElementById('searchOrders');
+    const refreshBtn = document.getElementById('refreshBtn');
+    const newOrderBtn = document.getElementById('newOrderBtn');
+
+    const assignModal = document.getElementById('assignModal');
+    const courierSelect = document.getElementById('courierSelect');
+    const cancelAssign = document.getElementById('cancelAssign');
+    const confirmAssign = document.getElementById('confirmAssign');
+
+    const orderModal = document.getElementById('orderModal');
+    const orderForm = document.getElementById('orderForm');
+    const orderModalTitle = document.getElementById('orderModalTitle');
+    const orderIdInput = document.getElementById('orderId');
+    const orderClient = document.getElementById('orderClient');
+    const orderProduct = document.getElementById('orderProduct');
+    const orderQty = document.getElementById('orderQty');
+    const orderDate = document.getElementById('orderDate');
+    const orderStatus = document.getElementById('orderStatus');
+    const cancelOrder = document.getElementById('cancelOrder');
+
+    // State for assignment
+    let orderToAssignId = null;
+
+    // Helpers
+    function saveOrders() {
+      localStorage.setItem('pharmalink-orders', JSON.stringify(orders));
+    }
+
+    function formatDate(d) {
+      if (!d) return '';
+      const dt = new Date(d);
+      if (isNaN(dt)) return d;
+      return dt.toLocaleDateString('fr-FR');
+    }
+
+    function statusBadge(status) {
+      switch (status) {
+        case 'En attente': return '<span class="inline-flex items-center px-2 py-1 rounded-full text-xs font-semibold bg-yellow-100 text-yellow-800">En attente</span>';
+        case 'En préparation': return '<span class="inline-flex items-center px-2 py-1 rounded-full text-xs font-semibold bg-blue-100 text-blue-800">En préparation</span>';
+        case 'En livraison': return '<span class="inline-flex items-center px-2 py-1 rounded-full text-xs font-semibold bg-indigo-100 text-indigo-800">En livraison</span>';
+        case 'Livrée': return '<span class="inline-flex items-center px-2 py-1 rounded-full text-xs font-semibold bg-green-100 text-green-800">Livrée</span>';
+        case 'Annulée': return '<span class="inline-flex items-center px-2 py-1 rounded-full text-xs font-semibold bg-red-100 text-red-800">Annulée</span>';
+        default: return `<span class="inline-flex items-center px-2 py-1 rounded-full text-xs font-semibold bg-gray-100 text-gray-800">${status}</span>`;
+      }
+    }
+
+    // Render couriers in modal
+    function populateCouriers() {
+      courierSelect.innerHTML = '';
+      couriers.forEach(c => {
+        const opt = document.createElement('option');
+        opt.value = c.name;
+        opt.textContent = c.name;
+        courierSelect.appendChild(opt);
+      });
+    }
+
+    // Render orders table
+    function renderOrders(list = orders) {
+      ordersTable.innerHTML = '';
+      if (!list.length) {
+        ordersTable.innerHTML = '<tr><td colspan="7" class="px-6 py-4 text-center text-gray-500">Aucune commande trouvée</td></tr>';
+        return;
+      }
+
+      list.forEach((o) => {
+        const tr = document.createElement('tr');
+        tr.innerHTML = `
+          <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-700">${o.id}</td>
+          <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-900 font-medium">${o.client}</td>
+          <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-700">${o.product}</td>
+          <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-700">${o.qty}</td>
+          <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-500">${formatDate(o.date)}</td>
+          <td class="px-6 py-4 whitespace-nowrap text-sm">${statusBadge(o.status)} ${o.courier ? '<div class="text-xs text-gray-500 mt-1">Livreur: ' + o.courier + '</div>' : ''}</td>
+          <td class="px-6 py-4 whitespace-nowrap text-right text-sm font-medium">
+            <button class="prepareBtn text-blue-600 hover:text-blue-900 mr-3" data-id="${o.id}" title="Marquer en préparation"><i data-feather="box" class="w-4 h-4"></i></button>
+            <button class="assignBtn text-green-600 hover:text-green-900 mr-3" data-id="${o.id}" title="Assigner un livreur"><i data-feather="truck" class="w-4 h-4"></i></button>
+            <button class="editBtn text-gray-600 hover:text-gray-900 mr-3" data-id="${o.id}" title="Modifier"><i data-feather="edit" class="w-4 h-4"></i></button>
+            <button class="deleteBtn text-red-600 hover:text-red-900" data-id="${o.id}" title="Supprimer"><i data-feather="trash-2" class="w-4 h-4"></i></button>
+          </td>
+        `;
+        ordersTable.appendChild(tr);
+      });
+
+      feather.replace();
+      attachOrderListeners();
+    }
+
+    // Attach listeners to action buttons
+    function attachOrderListeners() {
+      document.querySelectorAll('.prepareBtn').forEach(btn => {
+        btn.onclick = () => {
+          const id = parseInt(btn.dataset.id);
+          markPreparing(id);
+        };
+      });
+
+      document.querySelectorAll('.assignBtn').forEach(btn => {
+        btn.onclick = () => {
+          const id = parseInt(btn.dataset.id);
+          openAssignModal(id);
+        };
+      });
+
+      document.querySelectorAll('.editBtn').forEach(btn => {
+        btn.onclick = () => {
+          const id = parseInt(btn.dataset.id);
+          openEditOrder(id);
+        };
+      });
+
+      document.querySelectorAll('.deleteBtn').forEach(btn => {
+        btn.onclick = () => {
+          const id = parseInt(btn.dataset.id);
+          if (confirm('Supprimer cette commande ?')) {
+            orders = orders.filter(o => o.id !== id);
+            saveOrders();
+            renderOrders(applyFilters());
+          }
+        };
+      });
+    }
+
+    // Mark as preparing
+    function markPreparing(id) {
+      const idx = orders.findIndex(o => o.id === id);
+      if (idx === -1) return;
+      orders[idx].status = 'En préparation';
+      saveOrders();
+      renderOrders(applyFilters());
+    }
+
+    // Open assign modal
+    function openAssignModal(id) {
+      orderToAssignId = id;
+      populateCouriers();
+      assignModal.classList.remove('hidden');
+      assignModal.classList.add('modal-show');
+    }
+
+    function closeAssignModal() {
+      orderToAssignId = null;
+      assignModal.classList.add('hidden');
+      assignModal.classList.remove('modal-show');
+    }
+
+    // Confirm assign
+    confirmAssign.addEventListener('click', () => {
+      if (!orderToAssignId) return;
+      const picked = courierSelect.value;
+      const idx = orders.findIndex(o => o.id === orderToAssignId);
+      if (idx === -1) return;
+      orders[idx].courier = picked;
+      orders[idx].status = 'En livraison';
+      saveOrders();
+      renderOrders(applyFilters());
+      closeAssignModal();
+    });
+
+    cancelAssign.addEventListener('click', closeAssignModal);
+
+    // New order / Edit order modal handlers
+    newOrderBtn.addEventListener('click', () => openNewOrderModal());
+
+    function openNewOrderModal() {
+      orderModalTitle.textContent = 'Nouvelle commande';
+      orderForm.reset();
+      orderIdInput.value = '';
+      orderModal.classList.remove('hidden');
+      orderModal.classList.add('modal-show');
+    }
+
+    function openEditOrder(id) {
+      const o = orders.find(x => x.id === id);
+      if (!o) return;
+      orderModalTitle.textContent = 'Modifier la commande';
+      orderIdInput.value = o.id;
+      orderClient.value = o.client;
+      orderProduct.value = o.product;
+      orderQty.value = o.qty;
+      orderDate.value = o.date;
+      orderStatus.value = o.status;
+      orderModal.classList.remove('hidden');
+      orderModal.classList.add('modal-show');
+    }
+
+    cancelOrder.addEventListener('click', () => {
+      orderModal.classList.add('hidden');
+      orderModal.classList.remove('modal-show');
+    });
+
+    orderForm.addEventListener('submit', (e) => {
+      e.preventDefault();
+      const idVal = orderIdInput.value ? parseInt(orderIdInput.value) : null;
+      const data = {
+        client: orderClient.value.trim(),
+        product: orderProduct.value.trim(),
+        qty: parseInt(orderQty.value),
+        date: orderDate.value || new Date().toISOString().slice(0,10),
+        status: orderStatus.value,
+        courier: ''
+      };
+
+      if (idVal) {
+        const idx = orders.findIndex(o => o.id === idVal);
+        if (idx !== -1) {
+          orders[idx] = { id: idVal, ...data, courier: orders[idx].courier || '' };
+        }
+      } else {
+        const newId = orders.length ? Math.max(...orders.map(o => o.id)) + 1 : 1;
+        orders.push({ id: newId, ...data });
+      }
+
+      saveOrders();
+      orderModal.classList.add('hidden');
+      orderModal.classList.remove('modal-show');
+      renderOrders(applyFilters());
+    });
+
+    // Filters & search
+    function applyFilters() {
+      const term = searchOrders.value.trim().toLowerCase();
+      const status = statusFilter.value;
+      let filtered = orders.slice().sort((a,b) => b.id - a.id); // latest first
+      if (status) filtered = filtered.filter(o => o.status === status);
+      if (term) {
+        filtered = filtered.filter(o =>
+          (o.client && o.client.toLowerCase().includes(term)) ||
+          (o.product && o.product.toLowerCase().includes(term))
+        );
+      }
+      return filtered;
+    }
+
+    searchOrders.addEventListener('input', () => renderOrders(applyFilters()));
+    statusFilter.addEventListener('change', () => renderOrders(applyFilters()));
+    refreshBtn.addEventListener('click', () => {
+      // Simulate refresh: currently just re-render and show a tiny feedback
+      refreshBtn.disabled = true;
+      refreshBtn.innerHTML = '<i data-feather="loader" class="animate-spin h-4 w-4 mr-2"></i> Actualisation...';
+      setTimeout(() => {
+        renderOrders(applyFilters());
+        refreshBtn.disabled = false;
+        refreshBtn.innerHTML = '<i data-feather="refresh-cw" class="h-4 w-4 mr-2"></i> Actualiser les commandes';
+        feather.replace();
+      }, 700);
+    });
+
+    // Initial render
+    renderOrders(applyFilters());
+    populateCouriers();
+
+    // Accessibility: close modals on Escape
+    window.addEventListener('keydown', (e) => {
+      if (e.key === 'Escape') {
+        assignModal.classList.add('hidden');
+        assignModal.classList.remove('modal-show');
+        orderModal.classList.add('hidden');
+        orderModal.classList.remove('modal-show');
+      }
+    });
+  </script>
+</body>
+</html>

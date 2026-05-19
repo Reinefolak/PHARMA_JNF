@@ -1,0 +1,150 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Produits - PharmaLink Pro</title>
+  <script src="https://cdn.tailwindcss.com"></script>
+  <script src="https://cdn.jsdelivr.net/npm/feather-icons/dist/feather.min.js"></script>
+  <style>
+    @import url('https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;500;600;700&display=swap');
+    body { font-family: 'Poppins', sans-serif; }
+  </style>
+</head>
+<body class="bg-gray-50 text-gray-800">
+
+  <!-- Navigation -->
+  <nav class="bg-white shadow-sm relative z-10">
+    <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+      <div class="flex justify-between h-16">
+        <div class="flex items-center">
+          <i data-feather="activity" class="h-8 w-8 text-blue-600"></i>
+          <span class="ml-2 text-xl font-bold text-blue-600">PharmaLink Pro</span>
+        </div>
+        <div class="flex items-center space-x-6">
+          <a href="patient.html" class="text-gray-600 hover:text-blue-600">Accueil</a>
+          <a href="pharmacies_patient.html" class="text-gray-600 hover:text-blue-600">Pharmacies</a>
+          <a href="produits.html" class="text-blue-600 font-medium">Produits</a>
+          <a href="know_patient.html" class="text-gray-600 hover:text-blue-600">À propos</a>
+          <a href="services_patient.html" class="text-gray-600 hover:text-blue-600">Services</a>
+          <a href="contact_patient.html" class="text-gray-600 hover:text-blue-600">Contact</a>
+          <a href="login.html" class="bg-blue-600 text-white px-4 py-2 rounded-md font-medium hover:bg-blue-700 transition">
+            <i data-feather="log-out" class="h-4 w-4 inline mr-1"></i> Déconnexion
+          </a>
+        </div>
+      </div>
+    </div>
+  </nav>
+
+  <!-- En-tête -->
+  <section class="relative py-20 bg-gradient-to-br from-blue-600 to-green-500 text-white text-center">
+    <div class="max-w-4xl mx-auto px-6">
+      <h1 class="text-4xl font-bold mb-4">Produits pharmaceutiques</h1>
+      <p class="text-blue-100 text-lg">Consultez la liste des produits disponibles dans les pharmacies autour de vous.</p>
+    </div>
+  </section>
+
+  <!-- Section de recherche et de filtrage -->
+  <section class="max-w-6xl mx-auto py-12 px-6">
+    <div class="flex flex-col md:flex-row justify-between items-center mb-8 space-y-4 md:space-y-0">
+      <div class="flex items-center w-full md:w-1/2 bg-white border rounded-lg shadow-sm px-4 py-2">
+        <i data-feather="search" class="text-gray-500 mr-2"></i>
+        <input id="searchInput" type="text" placeholder="Rechercher un produit..." class="w-full focus:outline-none">
+      </div>
+
+      <div>
+        <select id="filterSelect" class="border border-gray-300 rounded-md px-4 py-2 text-gray-700 focus:ring-blue-500 focus:border-blue-500">
+          <option value="all">Tous les produits</option>
+          <option value="available">Disponibles</option>
+          <option value="unavailable">En rupture</option>
+        </select>
+      </div>
+    </div>
+
+    <!-- Liste des produits -->
+    <div id="productList" class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-8">
+      <!-- Contenu généré par JavaScript -->
+    </div>
+  </section>
+
+  <!-- Footer -->
+  <footer class="bg-gray-800 py-8">
+    <div class="max-w-7xl mx-auto text-center text-gray-400">
+      <p>&copy; 2025 PharmaLink Pro. Tous droits réservés.</p>
+    </div>
+  </footer>
+
+  <script>
+    feather.replace();
+
+    // Liste simulée de produits
+    const products = [
+      { name: "Doliprane 500mg", price: "1500 FCFA", available: true, pharmacy: "Pharmacie Centrale" },
+      { name: "Paracétamol 1g", price: "1200 FCFA", available: true, pharmacy: "Pharmacie du Soleil" },
+      { name: "Amoxicilline 500mg", price: "2500 FCFA", available: false, pharmacy: "Pharmacie Ste-Marie" },
+      { name: "Vitamine C 1000mg", price: "1000 FCFA", available: true, pharmacy: "Pharmacie Centrale" },
+      { name: "Ibuprofène 400mg", price: "2000 FCFA", available: false, pharmacy: "Pharmacie de la Santé" },
+      { name: "Efferalgan 500mg", price: "1300 FCFA", available: true, pharmacy: "Pharmacie du Soleil" },
+    ];
+
+    const listContainer = document.getElementById("productList");
+    const searchInput = document.getElementById("searchInput");
+    const filterSelect = document.getElementById("filterSelect");
+
+    // Fonction d’affichage des produits
+    function displayProducts(filteredProducts) {
+      listContainer.innerHTML = "";
+      if (filteredProducts.length === 0) {
+        listContainer.innerHTML = '<p class="col-span-full text-center text-gray-500">Aucun produit trouvé.</p>';
+        return;
+      }
+
+      filteredProducts.forEach(product => {
+        const card = document.createElement("div");
+        card.className = "bg-white p-6 rounded-lg shadow hover:shadow-lg transition";
+        card.innerHTML = `
+          <div class="flex items-center mb-3">
+            <i data-feather="package" class="text-blue-600 h-6 w-6 mr-2"></i>
+            <h3 class="text-lg font-semibold text-gray-900">${product.name}</h3>
+          </div>
+          <p class="text-gray-600 mb-1"><strong>Prix :</strong> ${product.price}</p>
+          <p class="text-gray-600 mb-1"><strong>Pharmacie :</strong> ${product.pharmacy}</p>
+          <p class="text-gray-600 mb-3"><strong>Statut :</strong> 
+            ${product.available ? '🟢 Disponible' : '🔴 En rupture'}
+          </p>
+          <a href="com_patient.html" class="w-full bg-blue-600 text-white py-2 rounded-md hover:bg-blue-700 transition">
+            Commander
+          </a>
+        `;
+        listContainer.appendChild(card);
+      });
+
+      feather.replace();
+    }
+
+    // Filtrage
+    function filterProducts() {
+      const query = searchInput.value.toLowerCase();
+      const filter = filterSelect.value;
+
+      const filtered = products.filter(p => {
+        const matchName = p.name.toLowerCase().includes(query);
+        const matchAvailability =
+          filter === "all" ||
+          (filter === "available" && p.available) ||
+          (filter === "unavailable" && !p.available);
+        return matchName && matchAvailability;
+      });
+
+      displayProducts(filtered);
+    }
+
+    // Événements
+    searchInput.addEventListener("input", filterProducts);
+    filterSelect.addEventListener("change", filterProducts);
+
+    // Affichage initial
+    displayProducts(products);
+  </script>
+</body>
+</html>

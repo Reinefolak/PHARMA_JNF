@@ -1,0 +1,384 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Gestion du Stock - PharmaLink Pro</title>
+  <script src="https://cdn.tailwindcss.com"></script>
+  <script src="https://cdn.jsdelivr.net/npm/feather-icons/dist/feather.min.js"></script>
+  <script src="https://unpkg.com/feather-icons"></script>
+  <style>
+    @import url('https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;500;600;700&display=swap');
+    body { font-family: 'Poppins', sans-serif; }
+    .low-stock { background-color: #fee2e2; }
+  </style>
+</head>
+<body class="bg-gray-50 text-gray-800">
+
+  <!-- Navigation -->
+  <nav class="bg-white shadow-sm relative z-10">
+    <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+      <div class="flex justify-between h-16">
+        <div class="flex items-center">
+          <i data-feather="package" class="h-8 w-8 text-blue-600"></i>
+          <span class="ml-2 text-xl font-bold text-blue-600">PharmaLink Pro</span>
+        </div>
+        <div class="flex items-center space-x-6">
+          <a href="proprietaire.html" class="text-gray-600 hover:text-blue-600">Accueil</a>
+          <a href="pharmacies_proprietaire.html" class="text-gray-600 hover:text-blue-600">Pharmacies</a>
+          <a href="#" class="text-blue-600 font-medium">Stock</a>
+          <a href="vente.html" class="text-gray-600 hover:text-blue-600">Ventes</a>
+          <a href="client.html" class="text-gray-600 hover:text-blue-600">Clients</a>
+          <a href="services_proprietaire.html" class="text-gray-600 hover:text-blue-600">Services</a>
+          <a href="contact_proprietaire.html" class="text-gray-600 hover:text-blue-600">Contact</a>
+          <a href="login.html" class="bg-blue-600 text-white px-4 py-2 rounded-md font-medium hover:bg-blue-700 transition">
+            <i data-feather="log-out" class="h-4 w-4 inline mr-1"></i> Déconnexion
+          </a>
+        </div>
+      </div>
+    </div>
+  </nav>
+
+  <!-- En-tête -->
+  <section class="relative py-16 bg-gradient-to-br from-blue-600 to-green-500 text-white">
+    <div class="max-w-7xl mx-auto px-6">
+      <h1 class="text-4xl font-bold mb-4">Gestion du stock</h1>
+      <p class="text-blue-100 text-lg">Contrôlez votre inventaire et évitez les ruptures de stock.</p>
+    </div>
+  </section>
+
+  <!-- Contenu principal -->
+  <section class="max-w-7xl mx-auto py-10 px-6">
+    <!-- Alertes -->
+    <div id="alertBanner" class="hidden bg-red-100 border-l-4 border-red-500 text-red-700 p-4 mb-6 rounded">
+      <div class="flex items-center">
+        <i data-feather="alert-triangle" class="mr-2"></i>
+        <p class="font-medium">Produits en rupture ou faibles en stock ! <a href="#" id="showLowStock" class="text-red-600 underline">Cliquez pour les afficher.</a></p>
+      </div>
+    </div>
+
+    <!-- Contrôles -->
+    <div class="bg-white shadow rounded-lg p-6 mb-8">
+      <div class="flex flex-col md:flex-row md:items-center md:justify-between gap-4">
+        <div class="flex-1">
+          <div class="relative">
+            <div class="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none">
+              <i data-feather="search" class="text-gray-400"></i>
+            </div>
+            <input type="text" id="searchInput" class="block w-full pl-10 pr-3 py-2 border border-gray-300 rounded-md leading-5 bg-white placeholder-gray-500 focus:outline-none focus:ring-blue-500 focus:border-blue-500 sm:text-sm" placeholder="Rechercher un produit...">
+          </div>
+        </div>
+        <div class="w-full md:w-auto">
+          <select id="categoryFilter" class="block w-full pl-3 pr-10 py-2 text-base border border-gray-300 focus:outline-none focus:ring-blue-500 focus:border-blue-500 sm:text-sm rounded-md">
+            <option value="">Toutes catégories</option>
+            <option value="Médicaments">Médicaments</option>
+            <option value="Cosmétiques">Cosmétiques</option>
+            <option value="Accessoires">Accessoires</option>
+            <option value="Hygiène">Hygiène</option>
+            <option value="Nutrition">Nutrition</option>
+          </select>
+        </div>
+        <button id="addProductBtn" class="w-full md:w-auto bg-blue-600 hover:bg-blue-700 text-white px-4 py-2 rounded-md text-sm font-medium flex items-center justify-center">
+          <i data-feather="plus" class="h-4 w-4 mr-1"></i> Ajouter
+        </button>
+      </div>
+    </div>
+
+    <!-- Tableau des produits -->
+    <div class="bg-white shadow overflow-hidden sm:rounded-lg">
+      <div class="overflow-x-auto">
+        <table class="min-w-full divide-y divide-gray-200">
+          <thead class="bg-gray-50">
+            <tr>
+              <th scope="col" class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Nom</th>
+              <th scope="col" class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Catégorie</th>
+              <th scope="col" class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Quantité</th>
+              <th scope="col" class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Seuil</th>
+              <th scope="col" class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Expiration</th>
+              <th scope="col" class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Actions</th>
+            </tr>
+          </thead>
+          <tbody id="productsTable" class="bg-white divide-y divide-gray-200">
+            <!-- Produits ajoutés dynamiquement -->
+          </tbody>
+        </table>
+      </div>
+    </div>
+  </section>
+
+  <!-- Modal Ajout/Modification -->
+  <div id="productModal" class="fixed z-10 inset-0 overflow-y-auto hidden">
+    <div class="flex items-center justify-center min-h-screen pt-4 px-4 pb-20 text-center sm:block sm:p-0">
+      <div class="fixed inset-0 transition-opacity" aria-hidden="true">
+        <div class="absolute inset-0 bg-gray-500 opacity-75"></div>
+      </div>
+      <span class="hidden sm:inline-block sm:align-middle sm:h-screen" aria-hidden="true">&#8203;</span>
+      <div class="inline-block align-bottom bg-white rounded-lg text-left overflow-hidden shadow-xl transform transition-all sm:my-8 sm:align-middle sm:max-w-lg sm:w-full">
+        <div class="bg-white px-4 pt-5 pb-4 sm:p-6 sm:pb-4">
+          <h3 class="text-lg leading-6 font-medium text-gray-900 mb-4" id="modalTitle">Ajouter un produit</h3>
+          <form id="productForm">
+            <input type="hidden" id="productId">
+            <div class="mb-4">
+              <label for="productName" class="block text-sm font-medium text-gray-700">Nom</label>
+              <input type="text" id="productName" class="mt-1 block w-full border border-gray-300 rounded-md shadow-sm py-2 px-3 focus:outline-none focus:ring-blue-500 focus:border-blue-500 sm:text-sm">
+            </div>
+            <div class="mb-4">
+              <label for="productCategory" class="block text-sm font-medium text-gray-700">Catégorie</label>
+              <select id="productCategory" class="mt-1 block w-full border border-gray-300 rounded-md shadow-sm py-2 px-3 focus:outline-none focus:ring-blue-500 focus:border-blue-500 sm:text-sm">
+                <option value="Médicaments">Médicaments</option>
+                <option value="Cosmétiques">Cosmétiques</option>
+                <option value="Accessoires">Accessoires</option>
+                <option value="Hygiène">Hygiène</option>
+                <option value="Nutrition">Nutrition</option>
+              </select>
+            </div>
+            <div class="grid grid-cols-2 gap-4 mb-4">
+              <div>
+                <label for="productQuantity" class="block text-sm font-medium text-gray-700">Quantité</label>
+                <input type="number" id="productQuantity" class="mt-1 block w-full border border-gray-300 rounded-md shadow-sm py-2 px-3 focus:outline-none focus:ring-blue-500 focus:border-blue-500 sm:text-sm">
+              </div>
+              <div>
+                <label for="productAlertThreshold" class="block text-sm font-medium text-gray-700">Seuil</label>
+                <input type="number" id="productAlertThreshold" class="mt-1 block w-full border border-gray-300 rounded-md shadow-sm py-2 px-3 focus:outline-none focus:ring-blue-500 focus:border-blue-500 sm:text-sm">
+              </div>
+            </div>
+            <div class="mb-4">
+              <label for="productExpiry" class="block text-sm font-medium text-gray-700">Expiration</label>
+              <input type="date" id="productExpiry" class="mt-1 block w-full border border-gray-300 rounded-md shadow-sm py-2 px-3 focus:outline-none focus:ring-blue-500 focus:border-blue-500 sm:text-sm">
+            </div>
+          </form>
+        </div>
+        <div class="bg-gray-50 px-4 py-3 sm:px-6 sm:flex sm:flex-row-reverse">
+          <button type="button" id="saveProductBtn" class="w-full inline-flex justify-center rounded-md border border-transparent shadow-sm px-4 py-2 bg-blue-600 text-base font-medium text-white hover:bg-blue-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-blue-500 sm:ml-3 sm:w-auto sm:text-sm">
+            Enregistrer
+          </button>
+          <button type="button" id="cancelProductBtn" class="mt-3 w-full inline-flex justify-center rounded-md border border-gray-300 shadow-sm px-4 py-2 bg-white text-base font-medium text-gray-700 hover:bg-gray-50 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-blue-500 sm:mt-0 sm:ml-3 sm:w-auto sm:text-sm">
+            Annuler
+          </button>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- Footer -->
+  <footer class="bg-gray-800 py-8 mt-12">
+    <div class="max-w-7xl mx-auto text-center text-gray-400">
+      <p>&copy; 2025 PharmaLink Pro. Tous droits réservés.</p>
+    </div>
+  </footer>
+
+  <script>
+    feather.replace();
+
+    // Données exemple
+    let products = JSON.parse(localStorage.getItem('pharmastock-products')) || [
+      { id: 1, name: "Paracétamol 500mg", category: "Médicaments", quantity: 45, alertThreshold: 20, expiry: "2024-06-30" },
+      { id: 2, name: "Vitamine C", category: "Nutrition", quantity: 12, alertThreshold: 15, expiry: "2023-12-15" },
+      { id: 3, name: "Gel hydroalcoolique", category: "Hygiène", quantity: 8, alertThreshold: 10, expiry: "2025-01-31" },
+      { id: 4, name: "Crème hydratante", category: "Cosmétiques", quantity: 22, alertThreshold: 5, expiry: "2024-03-15" }
+    ];
+
+    // Éléments DOM
+    const productsTable = document.getElementById('productsTable');
+    const searchInput = document.getElementById('searchInput');
+    const categoryFilter = document.getElementById('categoryFilter');
+    const addProductBtn = document.getElementById('addProductBtn');
+    const productModal = document.getElementById('productModal');
+    const modalTitle = document.getElementById('modalTitle');
+    const productForm = document.getElementById('productForm');
+    const productId = document.getElementById('productId');
+    const productName = document.getElementById('productName');
+    const productCategory = document.getElementById('productCategory');
+    const productQuantity = document.getElementById('productQuantity');
+    const productAlertThreshold = document.getElementById('productAlertThreshold');
+    const productExpiry = document.getElementById('productExpiry');
+    const saveProductBtn = document.getElementById('saveProductBtn');
+    const cancelProductBtn = document.getElementById('cancelProductBtn');
+    const alertBanner = document.getElementById('alertBanner');
+    const showLowStock = document.getElementById('showLowStock');
+
+    // État d'édition
+    let isEditing = false;
+    let currentProductId = null;
+
+    // Afficher les produits
+    function renderProducts(productsToRender = products) {
+      productsTable.innerHTML = '';
+      
+      if (productsToRender.length === 0) {
+        productsTable.innerHTML = `
+          <tr>
+            <td colspan="6" class="px-6 py-4 text-center text-gray-500">Aucun produit trouvé</td>
+          </tr>
+        `;
+        return;
+      }
+
+      let hasLowStock = false;
+      
+      productsToRender.forEach(product => {
+        const isLowStock = product.quantity <= product.alertThreshold;
+        if (isLowStock) hasLowStock = true;
+        
+        const row = document.createElement('tr');
+        row.className = isLowStock ? 'low-stock' : '';
+        row.innerHTML = `
+          <td class="px-6 py-4 whitespace-nowrap">
+            <div class="text-sm font-medium text-gray-900">${product.name}</div>
+          </td>
+          <td class="px-6 py-4 whitespace-nowrap">
+            <div class="text-sm text-gray-500">${product.category}</div>
+          </td>
+          <td class="px-6 py-4 whitespace-nowrap">
+            <div class="text-sm text-gray-900 ${isLowStock ? 'font-bold text-red-600' : ''}">
+              ${product.quantity} ${isLowStock ? '⚠️' : ''}
+            </div>
+          </td>
+          <td class="px-6 py-4 whitespace-nowrap">
+            <div class="text-sm text-gray-500">${product.alertThreshold}</div>
+          </td>
+          <td class="px-6 py-4 whitespace-nowrap">
+            <div class="text-sm text-gray-500">${formatDate(product.expiry)}</div>
+          </td>
+          <td class="px-6 py-4 whitespace-nowrap text-right text-sm font-medium">
+            <button class="text-blue-600 hover:text-blue-900 mr-3 edit-btn" data-id="${product.id}">
+              <i data-feather="edit" class="w-4 h-4"></i>
+            </button>
+            <button class="text-red-600 hover:text-red-900 delete-btn" data-id="${product.id}">
+              <i data-feather="trash-2" class="w-4 h-4"></i>
+            </button>
+          </td>
+        `;
+        productsTable.appendChild(row);
+      });
+
+      // Mise à jour de la bannière d'alerte
+      if (hasLowStock) {
+        alertBanner.classList.remove('hidden');
+      } else {
+        alertBanner.classList.add('hidden');
+      }
+      
+      feather.replace();
+      attachEditDeleteListeners();
+    }
+
+    // Formater la date
+    function formatDate(dateString) {
+      if (!dateString) return '';
+      const options = { year: 'numeric', month: 'short', day: 'numeric' };
+      return new Date(dateString).toLocaleDateString('fr-FR', options);
+    }
+
+    // Filtrer les produits
+    function filterProducts() {
+      const searchTerm = searchInput.value.toLowerCase();
+      const category = categoryFilter.value;
+      
+      const filtered = products.filter(product => {
+        const matchesSearch = product.name.toLowerCase().includes(searchTerm);
+        const matchesCategory = category === '' || product.category === category;
+        return matchesSearch && matchesCategory;
+      });
+      
+      renderProducts(filtered);
+    }
+
+    // Ouvrir le modal pour ajouter/modifier
+    function openProductModal(product = null) {
+      isEditing = product !== null;
+      
+      if (isEditing) {
+        modalTitle.textContent = 'Modifier le produit';
+        productId.value = product.id;
+        productName.value = product.name;
+        productCategory.value = product.category;
+        productQuantity.value = product.quantity;
+        productAlertThreshold.value = product.alertThreshold;
+        productExpiry.value = product.expiry;
+        currentProductId = product.id;
+      } else {
+        modalTitle.textContent = 'Ajouter un produit';
+        productForm.reset();
+        currentProductId = null;
+      }
+      
+      productModal.classList.remove('hidden');
+    }
+
+    // Sauvegarder le produit
+    function saveProduct() {
+      const productData = {
+        name: productName.value,
+        category: productCategory.value,
+        quantity: parseInt(productQuantity.value),
+        alertThreshold: parseInt(productAlertThreshold.value),
+        expiry: productExpiry.value
+      };
+
+      if (isEditing) {
+        const index = products.findIndex(p => p.id === currentProductId);
+        if (index !== -1) {
+          products[index] = { ...products[index], ...productData };
+        }
+      } else {
+        const newId = products.length > 0 ? Math.max(...products.map(p => p.id)) + 1 : 1;
+        products.push({ id: newId, ...productData });
+      }
+
+      localStorage.setItem('pharmastock-products', JSON.stringify(products));
+      renderProducts();
+      closeProductModal();
+    }
+
+    // Supprimer un produit
+    function deleteProduct(id) {
+      if (confirm('Êtes-vous sûr de vouloir supprimer ce produit ?')) {
+        products = products.filter(product => product.id !== id);
+        localStorage.setItem('pharmastock-products', JSON.stringify(products));
+        renderProducts();
+      }
+    }
+
+    // Fermer le modal
+    function closeProductModal() {
+      productModal.classList.add('hidden');
+    }
+
+    // Attacher les écouteurs d'édition/suppression
+    function attachEditDeleteListeners() {
+      document.querySelectorAll('.edit-btn').forEach(btn => {
+        btn.addEventListener('click', (e) => {
+          const id = parseInt(e.currentTarget.dataset.id);
+          const product = products.find(p => p.id === id);
+          if (product) openProductModal(product);
+        });
+      });
+
+      document.querySelectorAll('.delete-btn').forEach(btn => {
+        btn.addEventListener('click', (e) => {
+          const id = parseInt(e.currentTarget.dataset.id);
+          deleteProduct(id);
+        });
+      });
+    }
+
+    // Événements
+    searchInput.addEventListener('input', filterProducts);
+    categoryFilter.addEventListener('change', filterProducts);
+    addProductBtn.addEventListener('click', () => openProductModal());
+    saveProductBtn.addEventListener('click', saveProduct);
+    cancelProductBtn.addEventListener('click', closeProductModal);
+    showLowStock?.addEventListener('click', (e) => {
+      e.preventDefault();
+      categoryFilter.value = '';
+      searchInput.value = '';
+      const lowStockProducts = products.filter(p => p.quantity <= p.alertThreshold);
+      renderProducts(lowStockProducts);
+    });
+
+    // Initialisation
+    renderProducts();
+  </script>
+</body>
+</html>

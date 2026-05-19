@@ -1,0 +1,151 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Commandes - PharmaLink Pro</title>
+  <script src="https://cdn.tailwindcss.com"></script>
+  <script src="https://cdn.jsdelivr.net/npm/feather-icons/dist/feather.min.js"></script>
+  <style>
+    @import url('https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;500;600;700&display=swap');
+    body { font-family: 'Poppins', sans-serif; }
+  </style>
+</head>
+<body class="bg-gray-50 text-gray-800">
+
+  <!-- Navigation -->
+  <nav class="bg-white shadow-sm relative z-10">
+    <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+      <div class="flex justify-between h-16">
+        <div class="flex items-center">
+          <i data-feather="activity" class="h-8 w-8 text-blue-600"></i>
+          <span class="ml-2 text-xl font-bold text-blue-600">PharmaLink Pro</span>
+        </div>
+        <div class="flex items-center space-x-6">
+          <a href="livreur.html" class="text-gray-600 hover:text-blue-600">Accueil</a>
+          <a href="pharmacie_livreur.html" class="text-gray-600 hover:text-blue-600">Pharmacies</a>
+          <a href="know_livreur.html" class="text-gray-600 hover:text-blue-600">À propos</a>
+          <a href="services_livreur.html" class="text-gray-600 hover:text-blue-600">Services</a>
+          <a href="contact_livreur.html" class="text-gray-600 hover:text-blue-600">Contact</a>
+          <a href="login.html" class="bg-blue-600 text-white px-4 py-2 rounded-md font-medium hover:bg-blue-700 transition">
+            <i data-feather="log-out" class="h-4 w-4 inline mr-1"></i> Déconnexion
+          </a>
+        </div>
+      </div>
+    </div>
+  </nav>
+
+  <!-- En-tête -->
+  <section class="relative py-20 bg-gradient-to-br from-blue-600 to-green-500 text-white text-center">
+    <div class="max-w-4xl mx-auto px-6">
+      <h1 class="text-4xl font-bold mb-4">Mes commandes</h1>
+      <p class="text-blue-100 text-lg">Consultez vos commandes attribuées et acceptez-les en un clic.</p>
+    </div>
+  </section>
+
+  <!-- Liste des commandes -->
+  <section class="max-w-6xl mx-auto py-16 px-6">
+    <div class="flex justify-between items-center mb-8">
+      <h2 class="text-2xl font-bold text-gray-900">Commandes à gérer</h2>
+      <button id="refresh" class="flex items-center bg-blue-600 text-white px-4 py-2 rounded-md hover:bg-blue-700 transition">
+        <i data-feather="refresh-cw" class="h-5 w-5 mr-2"></i> Rafraîchir
+      </button>
+    </div>
+
+    <div id="ordersList" class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8">
+      <p class="col-span-full text-center text-gray-500" id="loadingMsg">📦 Chargement des commandes...</p>
+    </div>
+  </section>
+
+  <!-- Footer -->
+  <footer class="bg-gray-800 py-8">
+    <div class="max-w-7xl mx-auto text-center text-gray-400">
+      <p>&copy; 2025 PharmaLink Pro. Tous droits réservés.</p>
+    </div>
+  </footer>
+
+  <!-- Scripts -->
+  <script>
+    feather.replace();
+
+    // Exemple de données (à remplacer par un appel API réel)
+    let commandes = [
+      {
+        id: 1,
+        client: "Jean Dupont",
+        adresse: "12 Rue des Lilas, Cotonou",
+        produits: "Paracétamol x2, Aspirine x1",
+        montant: 15000,
+        statut: "En attente"
+      },
+      {
+        id: 2,
+        client: "Marie Kossi",
+        adresse: "45 Avenue des Palmiers, Porto-Novo",
+        produits: "Vitamine C x3",
+        montant: 9000,
+        statut: "En attente"
+      },
+      {
+        id: 3,
+        client: "Aliou Sossou",
+        adresse: "23 Rue du Marché, Abomey",
+        produits: "Sirop contre toux x1",
+        montant: 5000,
+        statut: "En attente"
+      }
+    ];
+
+    // Fonction pour afficher les commandes
+    function displayOrders() {
+      const listContainer = document.getElementById('ordersList');
+      listContainer.innerHTML = '';
+
+      if (commandes.length === 0) {
+        listContainer.innerHTML = `
+          <div class="col-span-full text-center py-8">
+            <i data-feather="alert-circle" class="h-12 w-12 text-yellow-500 mx-auto mb-4"></i>
+            <h3 class="text-lg font-medium text-gray-900">Aucune commande disponible</h3>
+          </div>
+        `;
+        return;
+      }
+
+      commandes.forEach(order => {
+        const card = document.createElement('div');
+        card.className = "bg-white shadow rounded-lg p-6 hover:shadow-lg transition";
+        card.innerHTML = `
+          <h3 class="text-lg font-semibold text-gray-900 mb-2">${order.client}</h3>
+          <p class="text-gray-600 mb-1"><strong>Adresse :</strong> ${order.adresse}</p>
+          <p class="text-gray-600 mb-1"><strong>Produits :</strong> ${order.produits}</p>
+          <p class="text-gray-600 mb-1"><strong>Montant :</strong> ${order.montant.toLocaleString()} FCFA</p>
+          <p class="text-gray-600 mb-4"><strong>Statut :</strong> <span id="status-${order.id}">${order.statut}</span></p>
+          <button id="accept-${order.id}" class="bg-blue-600 text-white px-4 py-2 rounded-md hover:bg-blue-700 transition w-full">
+            Accepter la commande
+          </button>
+        `;
+        listContainer.appendChild(card);
+
+        // Ajouter événement pour accepter la commande
+        document.getElementById(`accept-${order.id}`).addEventListener('click', () => {
+          order.statut = "✅ Acceptée";
+          document.getElementById(`status-${order.id}`).textContent = order.statut;
+        });
+      });
+
+      feather.replace();
+    }
+
+    // Rafraîchir la liste (ici simplement re-affiche les données, dans un vrai projet on ferait un appel API)
+    document.getElementById('refresh').addEventListener('click', () => {
+      document.getElementById('ordersList').innerHTML =
+        '<p class="col-span-full text-center text-gray-500">🔄 Mise à jour en cours...</p>';
+      setTimeout(displayOrders, 500); // Simule un temps de chargement
+    });
+
+    // Afficher les commandes au chargement
+    window.onload = displayOrders;
+  </script>
+
+</body>
+</html>

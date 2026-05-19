@@ -1,0 +1,120 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Espace Patient - PharmaLink Pro</title>
+  <script src="https://cdn.tailwindcss.com"></script>
+  <script src="https://cdn.jsdelivr.net/npm/feather-icons/dist/feather.min.js"></script>
+  <style>
+    @import url('https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;500;600;700&display=swap');
+    body { font-family: 'Poppins', sans-serif; }
+  </style>
+</head>
+<body class="bg-gray-50 text-gray-800">
+
+  <!-- Barre de navigation -->
+  <nav class="bg-white shadow-sm relative z-10">
+    <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+      <div class="flex justify-between h-16">
+        <div class="flex items-center">
+          <i data-feather="activity" class="h-8 w-8 text-blue-600"></i>
+          <span class="ml-2 text-xl font-bold text-blue-600">PharmaLink Pro</span>
+        </div>
+        <div class="flex items-center space-x-6">
+          <a href="patient.html" class="text-gray-600 hover:text-blue-600">Accueil</a>
+          <a href="pharmacies_patient.html" class="text-gray-600 hover:text-blue-600">Pharmacies</a>
+          <a href="produits.html" class="text-gray-600 hover:text-blue-600">Produits</a>
+          <a href="services_patient.html" class="text-gray-600 hover:text-blue-600">Services</a>
+          <a href="contact_patient.html" class="text-gray-600 hover:text-blue-600">Contact</a>
+           <a href="login.html" class="bg-blue-600 text-white px-4 py-2 rounded-md font-medium hover:bg-blue-700 transition">
+            <i data-feather="log-out" class="h-4 w-4 inline mr-1"></i> Déconnexion
+          </a>
+        </div>
+      </div>
+    </div>
+  </nav>
+
+  <!-- En-tête -->
+  <section class="relative py-20 bg-gradient-to-br from-blue-600 to-green-500 text-white text-center">
+    <div class="max-w-4xl mx-auto px-6">
+      <h1 class="text-4xl font-bold mb-4">Espace Patient</h1>
+      <p class="text-blue-100 text-lg">
+        Bienvenue dans votre espace personnel. Commandez vos médicaments, suivez vos commandes et trouvez les pharmacies proches de vous.
+      </p>
+    </div>
+  </section>
+
+  <!-- Tableau de bord patient -->
+  <section class="max-w-6xl mx-auto py-16 px-6 grid grid-cols-1 md:grid-cols-3 gap-10">
+    <!-- Commandes -->
+    <div class="bg-white rounded-2xl shadow-lg p-8 text-center hover:shadow-xl transition">
+      <div class="flex justify-center mb-6">
+        <div class="bg-blue-100 p-4 rounded-full">
+          <i data-feather="shopping-bag" class="h-10 w-10 text-blue-600"></i>
+        </div>
+      </div>
+      <h2 class="text-xl font-semibold text-gray-800 mb-3">Mes Commandes</h2>
+      <p class="text-gray-600 mb-6">
+        Consultez et suivez l’état de vos commandes passées et en cours directement depuis votre tableau de bord.
+      </p>
+      <a href="com_patient.html" class="bg-blue-600 text-white px-5 py-2 rounded-md hover:bg-blue-700 transition inline-block">Voir mes commandes
+      </a>
+    </div>
+
+    <!-- Pharmacies proches -->
+    <div class="bg-white rounded-2xl shadow-lg p-8 text-center hover:shadow-xl transition">
+      <div class="flex justify-center mb-6">
+        <div class="bg-green-100 p-4 rounded-full">
+          <i data-feather="map-pin" class="h-10 w-10 text-green-600"></i>
+        </div>
+      </div>
+      <h2 class="text-xl font-semibold text-gray-800 mb-3">Pharmacies à proximité</h2>
+      <p class="text-gray-600 mb-6">
+        Trouvez rapidement les pharmacies disponibles autour de vous et consultez leurs horaires en un clic.
+      </p>
+       <a href="pharmacies_patient.html" class="bg-blue-600 text-white px-5 py-2 rounded-md hover:bg-blue-700 transition inline-block">Rechercher
+      </a>
+    </div>
+
+    <!-- Suivi de livraison -->
+    <div class="bg-white rounded-2xl shadow-lg p-8 text-center hover:shadow-xl transition">
+      <div class="flex justify-center mb-6">
+        <div class="bg-yellow-100 p-4 rounded-full">
+          <i data-feather="truck" class="h-10 w-10 text-yellow-600"></i>
+        </div>
+      </div>
+      <h2 class="text-xl font-semibold text-gray-800 mb-3">Suivi de livraison</h2>
+      <p class="text-gray-600 mb-6">
+        Visualisez l’état d’avancement de votre livraison en temps réel et contactez votre livreur facilement.
+      </p>
+      <a href="suivi.html" class="bg-blue-600 text-white px-5 py-2 rounded-md hover:bg-blue-700 transition inline-bloc\
+k">Suivre ma commande
+      </a>
+    </div>
+  </section>
+
+  <!-- Section informations -->
+  <section class="text-center py-16 bg-blue-50">
+    <h2 class="text-3xl font-semibold text-blue-700 mb-4">Vos informations médicales</h2>
+    <p class="text-gray-600 max-w-3xl mx-auto mb-8">
+      Gardez un œil sur vos ordonnances, renouvellements et préférences de santé. 
+      PharmaLink Pro vous aide à mieux gérer vos traitements au quotidien.
+    </p>
+    <a href="profil_patient.html" class="bg-blue-600 text-white px-6 py-3 rounded-md font-medium hover:bg-blue-700 transition">
+      Gérer mon profil
+    </a>
+  </section>
+
+  <!-- Footer -->
+  <footer class="bg-gray-800 py-8">
+    <div class="max-w-7xl mx-auto text-center text-gray-400">
+      <p>&copy; 2025 PharmaLink Pro. Tous droits réservés.</p>
+    </div>
+  </footer>
+
+  <script>
+    feather.replace();
+  </script>
+</body>
+</html>

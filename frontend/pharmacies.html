@@ -1,0 +1,307 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Pharmacies à proximité - PharmaLink Pro</title>
+  <script src="https://cdn.tailwindcss.com"></script>
+  <script src="https://cdn.jsdelivr.net/npm/feather-icons/dist/feather.min.js"></script>
+  <style>
+    @import url('https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;500;600;700&display=swap');
+    body { font-family: 'Poppins', sans-serif; }
+  </style>
+</head>
+<body class="bg-gray-50 text-gray-800">
+
+  <!-- Navigation -->
+  <nav class="bg-white shadow-sm relative z-10">
+    <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+      <div class="flex justify-between h-16">
+        <div class="flex items-center">
+          <i data-feather="activity" class="h-8 w-8 text-blue-600"></i>
+          <span class="ml-2 text-xl font-bold text-blue-600">PharmaLink Pro</span>
+        </div>
+        <div class="flex items-center space-x-6">
+          <a href="index.html" class="text-gray-600 hover:text-blue-600">Accueil</a>
+          <a href="pharmacie.html" class="text-blue-600 font-medium">Pharmacies</a>
+          <a href="know.html" class="text-gray-600 hover:text-blue-600">À propos</a>
+          <a href="services.html" class="text-gray-600 hover:text-blue-600 px-3 py-2">Services</a>
+          <a href="contact.html" class="text-gray-600 hover:text-blue-600 px-3 py-2">Contact</a>
+          <a href="login.html" class="bg-blue-600 text-white px-4 py-2 rounded-md font-medium hover:bg-blue-700 transition">Connexion</a>
+        </div>
+      </div>
+    </div>
+  </nav>
+
+  <!-- En-tête -->
+  <section class="relative py-20 bg-gradient-to-br from-blue-600 to-green-500 text-white text-center">
+    <div class="max-w-4xl mx-auto px-6">
+      <h1 class="text-4xl font-bold mb-4">Pharmacies à proximité</h1>
+      <p class="text-blue-100 text-lg">Trouvez automatiquement les pharmacies autour de vous grâce à la géolocalisation.</p>
+    </div>
+  </section>
+
+  <!-- Liste + Carte -->
+  <section class="max-w-6xl mx-auto py-16 px-6">
+    <div class="flex justify-between items-center mb-8">
+      <h2 class="text-2xl font-bold text-gray-900">Pharmacies près de votre position</h2>
+      <button id="refresh" class="flex items-center bg-blue-600 text-white px-4 py-2 rounded-md hover:bg-blue-700 transition">
+        <i data-feather="refresh-cw" class="h-5 w-5 mr-2"></i> Rafraîchir
+      </button>
+    </div>
+
+    <!-- Carte -->
+    <div id="map" class="w-full h-96 rounded-lg shadow mb-10"></div>
+
+    <!-- Liste -->
+    <div id="pharmacyList" class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8">
+      <p class="col-span-full text-center text-gray-500" id="loadingMsg">📍 Recherche des pharmacies à proximité...</p>
+    </div>
+  </section>
+
+  <!-- Footer -->
+  <footer class="bg-gray-800 py-8">
+    <div class="max-w-7xl mx-auto text-center text-gray-400">
+      <p>&copy; 2025 PharmaLink Pro. Tous droits réservés.</p>
+    </div>
+  </footer>
+
+  <!-- Scripts -->
+  <script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"></script>
+  <link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css" />
+  <script src="https://unpkg.com/axios/dist/axios.min.js"></script>
+
+  <script>
+    feather.replace();
+
+    // Variables globales
+    let map;
+    let userMarker;
+    let watchId;
+    const API_KEY = 'YOUR_OPENCAGE_API_KEY'; // Remplacez par votre clé OpenCage
+
+    // Obtenir les pharmacies réelles via Overpass API
+    async function getNearbyPharmacies(lat, lon) {
+      try {
+        // D'abord obtenir le nom de la ville pour des résultats plus pertinents
+        const reverseGeocodeResponse = await axios.get(
+          `https://api.opencagedata.com/geocode/v1/json?q=${lat}+${lon}&key=${API_KEY}&language=fr`
+        );
+        
+        const city = reverseGeocodeResponse.data.results[0]?.components.city || 
+                    reverseGeocodeResponse.data.results[0]?.components.town ||
+                    reverseGeocodeResponse.data.results[0]?.components.village ||
+                    '';
+
+        // Ensuite chercher les pharmacies dans la zone
+        const overpassUrl = `https://overpass-api.de/api/interpreter?data=[out:json];
+          (
+            node["amenity"="pharmacy"](around:5000,${lat},${lon});
+            way["amenity"="pharmacy"](around:5000,${lat},${lon});
+            relation["amenity"="pharmacy"](around:5000,${lat},${lon});
+          );
+          out center;
+          >;
+          out skel qt;`;
+        
+        const response = await axios.get(overpassUrl);
+        const elements = response.data.elements || [];
+
+        return elements.map(element => {
+          const coords = element.center || { lat: element.lat, lon: element.lon };
+          const name = element.tags?.name || 'Pharmacie sans nom';
+          
+          // Calcul de la distance en mètres
+          const distance = calculateDistance(lat, lon, coords.lat, coords.lon);
+          
+          // Statut aléatoire pour l'exemple (dans un vrai projet, utiliser les horaires réels)
+          const statusOptions = ["🟢 Ouverte", "🟡 Ferme bientôt", "🔴 Fermée"];
+          const status = statusOptions[Math.floor(Math.random() * statusOptions.length)];
+          
+          return {
+            name,
+            lat: coords.lat,
+            lon: coords.lon,
+            status,
+            distance: Math.round(distance),
+            address: element.tags?.['addr:street'] || 'Adresse non disponible',
+            phone: element.tags?.phone || ''
+          };
+        }).sort((a, b) => a.distance - b.distance);
+
+      } catch (error) {
+        console.error("Erreur lors de la récupération des pharmacies:", error);
+        return [];
+      }
+    }
+
+    // Calcul de distance entre deux points (formule haversine)
+    function calculateDistance(lat1, lon1, lat2, lon2) {
+      const R = 6371e3; // Rayon de la Terre en mètres
+      const φ1 = lat1 * Math.PI/180;
+      const φ2 = lat2 * Math.PI/180;
+      const Δφ = (lat2-lat1) * Math.PI/180;
+      const Δλ = (lon2-lon1) * Math.PI/180;
+
+      const a = Math.sin(Δφ/2) * Math.sin(Δφ/2) +
+                Math.cos(φ1) * Math.cos(φ2) *
+                Math.sin(Δλ/2) * Math.sin(Δλ/2);
+      const c = 2 * Math.atan2(Math.sqrt(a), Math.sqrt(1-a));
+
+      return R * c;
+    }
+
+    // Initialisation de la carte
+    function initMap(lat, lon) {
+      if (map) map.remove();
+      
+      map = L.map('map').setView([lat, lon], 15);
+      L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
+        maxZoom: 19,
+        attribution: '&copy; OpenStreetMap'
+      }).addTo(map);
+
+      // Marqueur de l'utilisateur
+      if (userMarker) map.removeLayer(userMarker);
+      userMarker = L.marker([lat, lon], {icon: L.divIcon({
+        className: 'user-marker',
+        html: '<div class="user-pin"></div>',
+        iconSize: [30, 30],
+        iconAnchor: [15, 30]
+      })}).addTo(map);
+      userMarker.bindPopup("<b>Vous êtes ici</b>").openPopup();
+    }
+
+    // Afficher les pharmacies sur la carte + liste
+    function displayPharmacies(pharmacies) {
+      const listContainer = document.getElementById('pharmacyList');
+      listContainer.innerHTML = '';
+
+      if (pharmacies.length === 0) {
+        listContainer.innerHTML = `
+          <div class="col-span-full text-center py-8">
+            <i data-feather="alert-circle" class="h-12 w-12 text-yellow-500 mx-auto mb-4"></i>
+            <h3 class="text-lg font-medium text-gray-900">Aucune pharmacie trouvée à proximité</h3>
+            <p class="text-gray-600 mt-2">Essayez d'élargir votre recherche ou vérifiez votre connexion internet.</p>
+          </div>
+        `;
+        return;
+      }
+
+      pharmacies.forEach(pharmacy => {
+        // Marqueur sur la carte
+        L.marker([pharmacy.lat, pharmacy.lon]).addTo(map)
+          .bindPopup(`<b>${pharmacy.name}</b><br>${pharmacy.status}<br>Distance: ${pharmacy.distance}m`);
+
+        // Carte visuelle
+        const card = document.createElement('div');
+        card.className = "bg-white shadow rounded-lg p-6 hover:shadow-lg transition";
+        card.innerHTML = `
+          <div class="flex items-center mb-4">
+              <i data-feather="map-pin" class="text-blue-600 h-6 w-6 mr-2"></i>
+              <h3 class="text-lg font-semibold text-gray-900">${pharmacy.name}</h3>
+          </div>
+          <p class="text-gray-600 mb-2"><strong>Statut :</strong> ${pharmacy.status}</p>
+          <p class="text-gray-600 mb-2"><strong>Distance :</strong> ${pharmacy.distance}m</p>
+          <p class="text-gray-600 mb-2"><strong>Adresse :</strong> ${pharmacy.address}</p>
+          <div class="flex space-x-2">
+            <button class="bg-blue-600 text-white px-4 py-2 rounded-md flex-1 hover:bg-blue-700 transition"
+              onclick="map.flyTo([${pharmacy.lat}, ${pharmacy.lon}], 17)">
+              Voir sur la carte
+            </button>
+            ${pharmacy.phone ? `
+            <a href="tel:${pharmacy.phone}" class="bg-green-600 text-white px-4 py-2 rounded-md hover:bg-green-700 transition flex items-center justify-center">
+              <i data-feather="phone" class="h-4 w-4"></i>
+            </a>` : ''}
+          </div>
+        `;
+        listContainer.appendChild(card);
+      });
+
+      feather.replace();
+    }
+
+    // Surveillance de la position en temps réel
+    async function startPositionWatch() {
+      const loading = document.getElementById('loadingMsg');
+      
+      if (navigator.geolocation) {
+        // Arrêter toute surveillance précédente
+        if (watchId) navigator.geolocation.clearWatch(watchId);
+        
+        watchId = navigator.geolocation.watchPosition(
+          async position => {
+            const lat = position.coords.latitude;
+            const lon = position.coords.longitude;
+
+            initMap(lat, lon);
+            loading.textContent = "🔍 Recherche des pharmacies en cours...";
+            
+            try {
+              const nearbyPharmacies = await getNearbyPharmacies(lat, lon);
+              displayPharmacies(nearbyPharmacies);
+            } catch (error) {
+              loading.textContent = "⚠️ Impossible de charger les pharmacies. Vérifiez votre connexion.";
+              console.error(error);
+            }
+          },
+          error => {
+            console.error("Erreur de géolocalisation:", error);
+            loading.textContent = "❌ Impossible de détecter votre position. Activez la localisation.";
+            
+            // Position par défaut (Cotonou) si la géolocalisation échoue
+            const defaultLat = 6.3725;
+            const defaultLon = 2.3583;
+            initMap(defaultLat, defaultLon);
+            getNearbyPharmacies(defaultLat, defaultLon)
+              .then(pharmacies => displayPharmacies(pharmacies))
+              .catch(() => {
+                loading.textContent = "⚠️ Impossible de charger les pharmacies. Vérifiez votre connexion.";
+              });
+          },
+          {
+            enableHighAccuracy: true,
+            maximumAge: 10000,
+            timeout: 15000
+          }
+        );
+      } else {
+        loading.textContent = "⚠️ La géolocalisation n'est pas supportée par votre navigateur.";
+      }
+    }
+
+    // Rafraîchissement manuel
+    document.getElementById('refresh').addEventListener('click', () => {
+      document.getElementById('pharmacyList').innerHTML =
+        '<p class="col-span-full text-center text-gray-500">🔄 Mise à jour en cours...</p>';
+      startPositionWatch();
+    });
+
+    // Démarrer la surveillance au chargement
+    startPositionWatch();
+
+    // Styles pour le marqueur utilisateur
+    const style = document.createElement('style');
+    style.textContent = `
+      .user-pin {
+        width: 30px;
+        height: 30px;
+        border-radius: 50% 50% 50% 0;
+        background: #3b82f6;
+        position: relative;
+        transform: rotate(-45deg);
+      }
+      .user-pin:after {
+        content: '';
+        width: 14px;
+        height: 14px;
+        margin: 8px 0 0 8px;
+        background: #fff;
+        position: absolute;
+        border-radius: 50%;
+      }
+    `;
+    document.head.appendChild(style);
+  </script>
+</body>
+</html>

@@ -1,0 +1,330 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width,initial-scale=1" />
+  <title>Statistiques - PharmaLink Pro</title>
+
+  <!-- Tailwind -->
+  <script src="https://cdn.tailwindcss.com"></script>
+  <!-- Chart.js -->
+  <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+  <!-- Feather icons -->
+  <script src="https://cdn.jsdelivr.net/npm/feather-icons/dist/feather.min.js"></script>
+
+  <style>
+    @import url('https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;500;600;700&display=swap');
+    body { font-family: 'Poppins', sans-serif; }
+    /* small visual tweaks */
+    .card-shadow { box-shadow: 0 6px 18px rgba(15, 23, 42, 0.06); }
+    .chart-container { position: relative; height: 320px; }
+  </style>
+</head>
+<body class="bg-gray-50 text-gray-800">
+
+  <!-- Navigation -->
+  <nav class="bg-white shadow-sm relative z-10">
+    <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+      <div class="flex justify-between h-16 items-center">
+        <div class="flex items-center">
+          <i data-feather="activity" class="h-8 w-8 text-blue-600"></i>
+          <span class="ml-2 text-xl font-bold text-blue-600">PharmaLink Pro</span>
+        </div>
+        <div class="flex items-center space-x-6">
+          <a href="proprietaire.html" class="text-gray-600 hover:text-blue-600">Accueil</a>
+          <a href="pharmacies_proprietaire.html" class="text-gray-600 hover:text-blue-600">Pharmacies</a>
+          <a href="stock.html" class="text-gray-600 hover:text-blue-600">Stock</a>
+          <a href="commandes.html" class="text-gray-600 hover:text-blue-600">Commandes</a>
+          <a href="stats.html" class="text-blue-600 font-medium">Statistiques</a>
+          <a href="services_proprietaire.html" class="text-gray-600 hover:text-blue-600">Services</a>
+          <a href="contact_proprietaire.html" class="text-gray-600 hover:text-blue-600">Contact</a>
+          <a href="login.html" class="bg-blue-600 text-white px-4 py-2 rounded-md font-medium hover:bg-blue-700 transi\
+tion">
+            <i data-feather="log-out" class="h-4 w-4 inline mr-1"></i> Déconnexion
+          </a>
+        </div>
+      </div>
+    </div>
+  </nav>
+
+  <!-- Header -->
+  <header class="relative py-16 bg-gradient-to-br from-blue-600 to-green-500 text-white text-center">
+    <div class="max-w-4xl mx-auto px-6">
+      <h1 class="text-4xl font-bold mb-3">Tableau de Bord des Statistiques</h1>
+      <p class="text-blue-100 text-lg">Suivez les ventes, les revenus et la performance de votre pharmacie en un coup d'œil.</p>
+    </div>
+  </header>
+
+  <!-- Main content -->
+  <main class="max-w-7xl mx-auto py-10 px-4 sm:px-6 lg:px-8">
+
+    <!-- Top cards -->
+    <section class="grid grid-cols-1 md:grid-cols-3 gap-6 mb-8">
+      <div class="bg-white rounded-2xl p-6 card-shadow">
+        <div class="flex items-center justify-between">
+          <div>
+            <p class="text-sm text-gray-500">Ventes ce mois</p>
+            <p id="cardSalesCount" class="text-2xl font-semibold text-gray-900 mt-1">—</p>
+          </div>
+          <div class="bg-blue-100 p-3 rounded-full">
+            <i data-feather="shopping-bag" class="h-6 w-6 text-blue-600"></i>
+          </div>
+        </div>
+        <p id="cardSalesDelta" class="mt-4 text-sm text-green-600">↑ 8% vs mois dernier</p>
+      </div>
+
+      <div class="bg-white rounded-2xl p-6 card-shadow">
+        <div class="flex items-center justify-between">
+          <div>
+            <p class="text-sm text-gray-500">Revenu (FCFA)</p>
+            <p id="cardRevenue" class="text-2xl font-semibold text-gray-900 mt-1">—</p>
+          </div>
+          <div class="bg-green-100 p-3 rounded-full">
+            <i data-feather="dollar-sign" class="h-6 w-6 text-green-600"></i>
+          </div>
+        </div>
+        <p id="cardRevenueDelta" class="mt-4 text-sm text-red-500">↓ 3% vs mois dernier</p>
+      </div>
+
+      <div class="bg-white rounded-2xl p-6 card-shadow">
+        <div class="flex items-center justify-between">
+          <div>
+            <p class="text-sm text-gray-500">Clients ce mois</p>
+            <p id="cardClients" class="text-2xl font-semibold text-gray-900 mt-1">—</p>
+          </div>
+          <div class="bg-yellow-100 p-3 rounded-full">
+            <i data-feather="users" class="h-6 w-6 text-yellow-600"></i>
+          </div>
+        </div>
+        <p id="cardClientsDelta" class="mt-4 text-sm text-green-600">↑ 12% vs mois dernier</p>
+      </div>
+    </section>
+
+    <!-- Charts area -->
+    <section class="grid grid-cols-1 lg:grid-cols-2 gap-6">
+
+      <!-- Bar chart - monthly sales -->
+      <div class="bg-white rounded-2xl p-6 card-shadow">
+        <div class="flex items-center justify-between mb-4">
+          <h3 class="text-lg font-semibold text-gray-800">Ventes mensuelles</h3>
+          <div class="text-sm text-gray-500">Nombre d'items vendus par mois</div>
+        </div>
+        <div class="chart-container">
+          <canvas id="barChart"></canvas>
+        </div>
+      </div>
+
+      <!-- Pie chart - revenue breakdown -->
+      <div class="bg-white rounded-2xl p-6 card-shadow">
+        <div class="flex items-center justify-between mb-4">
+          <h3 class="text-lg font-semibold text-gray-800">Répartition du chiffre d'affaires</h3>
+          <div class="text-sm text-gray-500">Par catégorie produit</div>
+        </div>
+        <div class="chart-container">
+          <canvas id="pieChart"></canvas>
+        </div>
+      </div>
+
+      <!-- Line chart - 6 months trend -->
+      <div class="bg-white rounded-2xl p-6 card-shadow lg:col-span-2">
+        <div class="flex items-center justify-between mb-4">
+          <h3 class="text-lg font-semibold text-gray-800">Évolution (6 derniers mois)</h3>
+          <div class="text-sm text-gray-500">Tendance du chiffre d'affaires</div>
+        </div>
+        <div class="chart-container">
+          <canvas id="lineChart"></canvas>
+        </div>
+      </div>
+
+    </section>
+
+    <!-- Insights / table -->
+    <section class="mt-8">
+      <div class="bg-white rounded-2xl p-6 card-shadow">
+        <h3 class="text-lg font-semibold text-gray-800 mb-4">Top produits (par CA)</h3>
+        <div class="overflow-x-auto">
+          <table class="min-w-full divide-y divide-gray-200">
+            <thead class="bg-gray-50">
+              <tr>
+                <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Produit</th>
+                <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Ventes</th>
+                <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">CA (FCFA)</th>
+                <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Tendance</th>
+              </tr>
+            </thead>
+            <tbody id="topProducts" class="bg-white divide-y divide-gray-200">
+              <!-- Rows filled by JS -->
+            </tbody>
+          </table>
+        </div>
+      </div>
+    </section>
+
+  </main>
+
+  <!-- Footer -->
+  <footer class="bg-gray-800 py-8 mt-10">
+    <div class="max-w-7xl mx-auto text-center text-gray-400">
+      <p>&copy; 2025 PharmaLink Pro. Tous droits réservés.</p>
+    </div>
+  </footer>
+
+  <!-- Script: sample data + Chart.js rendering -->
+  <script>
+    feather.replace();
+
+    // --- Sample data (static) ---
+    const sampleMonthlyLabels = ['Jan', 'Fév', 'Mar', 'Avr', 'Mai', 'Juin', 'Juil', 'Aoû', 'Sep', 'Oct', 'Nov', 'Déc'];
+    const sampleMonthlySales = [120, 150, 170, 160, 200, 230, 210, 240, 220, 260, 280, 300]; // items
+    const sampleMonthlyRevenue = [120000, 150000, 170000, 160000, 200000, 230000, 210000, 240000, 220000, 260000, 280000, 300000]; // FCFA
+
+    // Top product breakdown (pie)
+    const productCategories = ['Médicaments', 'Hygiène', 'Cosmétiques', 'Nutrition', 'Accessoires'];
+    const revenueByCategory = [450000, 120000, 80000, 60000, 30000]; // example FCFA distribution
+
+    // 6 months trend (latest 6 months)
+    const last6MonthsLabels = ['Mai', 'Juin', 'Juil', 'Aoû', 'Sep', 'Oct'];
+    const last6MonthsRevenue = [200000, 230000, 210000, 240000, 220000, 260000];
+
+    // Top products table sample
+    const topProductsData = [
+      { name: 'Paracétamol 500mg', sales: 420, ca: 210000 },
+      { name: 'Gel hydroalcoolique', sales: 310, ca: 124000 },
+      { name: 'Vitamine C', sales: 250, ca: 100000 },
+      { name: 'Crème hydratante', sales: 190, ca: 76000 },
+      { name: 'Masques chirurgicaux', sales: 160, ca: 48000 }
+    ];
+
+    // --- Update summary cards ---
+    function updateCards() {
+      const monthIdx = (new Date()).getMonth(); // 0..11
+      const salesThisMonth = sampleMonthlySales[monthIdx] || 0;
+      const revenueThisMonth = sampleMonthlyRevenue[monthIdx] || 0;
+      const clientsThisMonth = Math.round(salesThisMonth * 0.6); // example conversion
+
+      document.getElementById('cardSalesCount').textContent = salesThisMonth + ' ventes';
+      document.getElementById('cardRevenue').textContent = revenueThisMonth.toLocaleString() + ' FCFA';
+      document.getElementById('cardClients').textContent = clientsThisMonth + ' clients';
+
+      // small delta examples (static)
+      document.getElementById('cardSalesDelta').textContent = '↑ 8% vs mois précédent';
+      document.getElementById('cardRevenueDelta').textContent = '↑ 5% vs mois précédent';
+      document.getElementById('cardClientsDelta').textContent = '↑ 12% vs mois précédent';
+    }
+
+    // --- Render top products table ---
+    function renderTopProducts() {
+      const tbody = document.getElementById('topProducts');
+      tbody.innerHTML = '';
+      topProductsData.forEach(p => {
+        const tr = document.createElement('tr');
+        tr.innerHTML = `
+          <td class="px-6 py-4 whitespace-nowrap text-sm font-medium text-gray-900">${p.name}</td>
+          <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-700">${p.sales}</td>
+          <td class="px-6 py-4 whitespace-nowrap text-sm font-semibold text-green-600">${p.ca.toLocaleString()} FCFA</td>
+          <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-500">Stable</td>
+        `;
+        tbody.appendChild(tr);
+      });
+    }
+
+    // --- Chart.js config and creation ---
+    // Global defaults (optional)
+    Chart.defaults.font.family = "'Poppins', system-ui, -apple-system, 'Segoe UI', Roboto, 'Helvetica Neue', Arial";
+    Chart.defaults.color = '#334155';
+
+    // Bar chart (monthly sales)
+    const barCtx = document.getElementById('barChart').getContext('2d');
+    const barChart = new Chart(barCtx, {
+      type: 'bar',
+      data: {
+        labels: sampleMonthlyLabels,
+        datasets: [{
+          label: 'Ventes',
+          data: sampleMonthlySales,
+          backgroundColor: sampleMonthlyLabels.map((_,i) => i === (new Date()).getMonth() ? 'rgba(37,99,235,0.9)' : 'rgba(37,99,235,0.6)'),
+          borderRadius: 6,
+          barThickness: 18
+        }]
+      },
+      options: {
+        responsive: true,
+        maintainAspectRatio: false,
+        plugins: {
+          legend: { display: false },
+          tooltip: { mode: 'index' }
+        },
+        scales: {
+          x: { grid: { display: false } },
+          y: { beginAtZero: true, ticks: { stepSize: 50 } }
+        }
+      }
+    });
+
+    // Pie chart (revenue by category)
+    const pieCtx = document.getElementById('pieChart').getContext('2d');
+    const pieChart = new Chart(pieCtx, {
+      type: 'pie',
+      data: {
+        labels: productCategories,
+        datasets: [{
+          data: revenueByCategory,
+          backgroundColor: [
+            'rgba(37,99,235,0.85)', // blue
+            'rgba(16,185,129,0.85)', // green
+            'rgba(234,88,12,0.85)',  // orange
+            'rgba(234,179,8,0.85)',  // yellow
+            'rgba(107,114,128,0.85)' // gray
+          ],
+          borderColor: '#fff',
+          borderWidth: 2
+        }]
+      },
+      options: {
+        responsive: true,
+        maintainAspectRatio: false,
+        plugins: { legend: { position: 'bottom' } }
+      }
+    });
+
+    // Line chart (6 months revenue)
+    const lineCtx = document.getElementById('lineChart').getContext('2d');
+    const lineChart = new Chart(lineCtx, {
+      type: 'line',
+      data: {
+        labels: last6MonthsLabels,
+        datasets: [{
+          label: 'Chiffre d\'affaires (FCFA)',
+          data: last6MonthsRevenue,
+          fill: true,
+          tension: 0.3,
+          backgroundColor: 'rgba(37,99,235,0.08)',
+          borderColor: 'rgba(37,99,235,0.95)',
+          pointBackgroundColor: 'rgba(37,99,235,1)',
+          pointRadius: 4
+        }]
+      },
+      options: {
+        responsive: true,
+        maintainAspectRatio: false,
+        plugins: { legend: { display: false } },
+        scales: {
+          x: { grid: { display: false } },
+          y: { beginAtZero: false, ticks: { callback: v => v.toLocaleString() } }
+        }
+      }
+    });
+
+    // --- Init UI ---
+    updateCards();
+    renderTopProducts();
+
+    // Optional: make charts responsive on theme change / resize
+    window.addEventListener('resize', () => {
+      barChart.resize();
+      pieChart.resize();
+      lineChart.resize();
+    });
+  </script>
+</body>
+</html>

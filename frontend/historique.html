@@ -1,0 +1,190 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Historique des livraisons - PharmaLink Pro</title>
+  <script src="https://cdn.tailwindcss.com"></script>
+  <script src="https://cdn.jsdelivr.net/npm/feather-icons/dist/feather.min.js"></script>
+  <style>
+    @import url('https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;500;600;700&display=swap');
+    body { font-family: 'Poppins', sans-serif; }
+  </style>
+</head>
+<body class="bg-gray-50 text-gray-800">
+
+  <!-- Navigation -->
+  <nav class="bg-white shadow-sm relative z-10">
+    <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+      <div class="flex justify-between h-16">
+        <div class="flex items-center">
+          <i data-feather="activity" class="h-8 w-8 text-blue-600"></i>
+          <span class="ml-2 text-xl font-bold text-blue-600">PharmaLink Pro</span>
+        </div>
+        <div class="flex items-center space-x-6">
+          <a href="livreur.html" class="text-gray-600 hover:text-blue-600">Accueil</a>
+          <a href="pharmacies_livreur.html" class="text-gray-600 hover:text-blue-600">Pharmacies</a>
+          <a href="know_livreur.html" class="text-gray-600 hover:text-blue-600">À propos</a>
+          <a href="services_livreur.html" class="text-gray-600 hover:text-blue-600">Services</a>
+          <a href="contact_livreur.html" class="text-gray-600 hover:text-blue-600">Contact</a>
+          <a href="login.html" class="bg-blue-600 text-white px-4 py-2 rounded-md font-medium hover:bg-blue-700 transition">
+            <i data-feather="log-out" class="h-4 w-4 inline mr-1"></i> Déconnexion
+          </a> 
+        </div>
+      </div>
+    </div>
+  </nav>
+
+  <!-- En-tête -->
+  <section class="relative py-20 bg-gradient-to-br from-blue-600 to-green-500 text-white text-center">
+    <div class="max-w-4xl mx-auto px-6">
+      <h1 class="text-4xl font-bold mb-4">Historique des livraisons</h1>
+      <p class="text-blue-100 text-lg">Consultez vos livraisons effectuées et vos statistiques personnelles de performance.</p>
+    </div>
+  </section>
+
+  <!-- Section des statistiques -->
+  <section class="max-w-6xl mx-auto py-16 px-6">
+    <div class="flex justify-between items-center mb-8">
+      <h2 class="text-2xl font-bold text-gray-900">Statistiques personnelles</h2>
+      <button id="refresh" class="flex items-center bg-blue-600 text-white px-4 py-2 rounded-md hover:bg-blue-700 transition">
+        <i data-feather="refresh-cw" class="h-5 w-5 mr-2"></i> Rafraîchir
+      </button>
+    </div>
+
+    <div class="grid grid-cols-1 md:grid-cols-3 gap-6 mb-10" id="statsContainer">
+      <!-- Statistiques seront injectées ici par JS -->
+    </div>
+
+    <h2 class="text-2xl font-bold text-gray-900 mb-6">Livraisons effectuées</h2>
+    <div id="ordersList" class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8">
+      <p class="col-span-full text-center text-gray-500" id="loadingMsg">📦 Chargement des livraisons...</p>
+    </div>
+  </section>
+
+  <!-- Footer -->
+  <footer class="bg-gray-800 py-8">
+    <div class="max-w-7xl mx-auto text-center text-gray-400">
+      <p>&copy; 2025 PharmaLink Pro. Tous droits réservés.</p>
+    </div>
+  </footer>
+
+  <!-- Scripts -->
+  <script>
+    feather.replace();
+
+    // Exemple de données de livraisons (à remplacer par un appel API réel)
+    let livraisons = [
+      {
+        id: 1,
+        client: "Jean Dupont",
+        adresse: "12 Rue des Lilas, Cotonou",
+        produits: "Paracétamol x2, Aspirine x1",
+        montant: 15000,
+        statut: "Livrée",
+        date: "2025-10-28 14:30"
+      },
+      {
+        id: 2,
+        client: "Marie Kossi",
+        adresse: "45 Avenue des Palmiers, Porto-Novo",
+        produits: "Vitamine C x3",
+        montant: 9000,
+        statut: "Livrée",
+        date: "2025-10-27 10:15"
+      },
+      {
+        id: 3,
+        client: "Aliou Sossou",
+        adresse: "23 Rue du Marché, Abomey",
+        produits: "Sirop contre toux x1",
+        montant: 5000,
+        statut: "Livrée",
+        date: "2025-10-26 16:50"
+      }
+    ];
+
+    // Fonction pour calculer les statistiques
+    function calculateStats() {
+      const totalLivraisons = livraisons.length;
+      const totalMontant = livraisons.reduce((acc, l) => acc + l.montant, 0);
+      const succesCount = livraisons.filter(l => l.statut === "Livrée").length;
+      const pourcentageSucces = totalLivraisons ? Math.round((succesCount / totalLivraisons) * 100) : 0;
+
+      return { totalLivraisons, totalMontant, pourcentageSucces };
+    }
+
+    // Fonction pour afficher les statistiques
+    function displayStats() {
+      const stats = calculateStats();
+      const container = document.getElementById('statsContainer');
+      container.innerHTML = `
+        <div class="bg-white shadow rounded-lg p-6 text-center">
+          <h3 class="text-xl font-semibold text-gray-900 mb-2">Total livraisons</h3>
+          <p class="text-gray-700 text-lg font-medium">${stats.totalLivraisons}</p>
+        </div>
+        <div class="bg-white shadow rounded-lg p-6 text-center">
+          <h3 class="text-xl font-semibold text-gray-900 mb-2">Montant total</h3>
+          <p class="text-gray-700 text-lg font-medium">${stats.totalMontant.toLocaleString()} FCFA</p>
+        </div>
+        <div class="bg-white shadow rounded-lg p-6 text-center">
+          <h3 class="text-xl font-semibold text-gray-900 mb-2">Livraisons réussies</h3>
+          <p class="text-gray-700 text-lg font-medium">${stats.pourcentageSucces}%</p>
+        </div>
+      `;
+    }
+
+    // Fonction pour afficher les livraisons
+    function displayOrders() {
+      const listContainer = document.getElementById('ordersList');
+      listContainer.innerHTML = '';
+
+      if (livraisons.length === 0) {
+        listContainer.innerHTML = `
+          <div class="col-span-full text-center py-8">
+            <i data-feather="alert-circle" class="h-12 w-12 text-yellow-500 mx-auto mb-4"></i>
+            <h3 class="text-lg font-medium text-gray-900">Aucune livraison enregistrée</h3>
+          </div>
+        `;
+        return;
+      }
+
+      // Trier les livraisons par date descendante
+      livraisons.sort((a,b) => new Date(b.date) - new Date(a.date));
+
+      livraisons.forEach(order => {
+        const card = document.createElement('div');
+        card.className = "bg-white shadow rounded-lg p-6 hover:shadow-lg transition";
+        card.innerHTML = `
+          <h3 class="text-lg font-semibold text-gray-900 mb-2">${order.client}</h3>
+          <p class="text-gray-600 mb-1"><strong>Adresse :</strong> ${order.adresse}</p>
+          <p class="text-gray-600 mb-1"><strong>Produits :</strong> ${order.produits}</p>
+          <p class="text-gray-600 mb-1"><strong>Montant :</strong> ${order.montant.toLocaleString()} FCFA</p>
+          <p class="text-gray-600 mb-1"><strong>Statut :</strong> ${order.statut}</p>
+          <p class="text-gray-600 mb-2"><strong>Date :</strong> ${order.date}</p>
+        `;
+        listContainer.appendChild(card);
+      });
+
+      feather.replace();
+    }
+
+    // Rafraîchir la liste et statistiques
+    document.getElementById('refresh').addEventListener('click', () => {
+      document.getElementById('ordersList').innerHTML =
+        '<p class="col-span-full text-center text-gray-500">🔄 Mise à jour en cours...</p>';
+      setTimeout(() => {
+        displayStats();
+        displayOrders();
+      }, 500);
+    });
+
+    // Afficher les statistiques et livraisons au chargement
+    window.onload = () => {
+      displayStats();
+      displayOrders();
+    };
+  </script>
+
+</body>
+</html>

@@ -1,0 +1,124 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Connexion - PharmaLink Pro</title>
+  <script src="https://cdn.tailwindcss.com"></script>
+  <script src="https://cdn.jsdelivr.net/npm/feather-icons/dist/feather.min.js"></script>
+  <style>
+    @import url('https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;500;600;700&display=swap');
+    body {
+      font-family: 'Poppins', sans-serif;
+      background: linear-gradient(135deg, #3b82f6 0%, #10b981 100%);
+      min-height: 100vh;
+    }
+    .login-card {
+      background-color: white;
+      box-shadow: 0 25px 35px rgba(0, 0, 0, 0.1);
+      border-radius: 1rem;
+      transition: transform 0.3s ease, box-shadow 0.3s ease;
+    }
+    .login-card:hover {
+      transform: translateY(-4px);
+      box-shadow: 0 35px 45px rgba(0, 0, 0, 0.15);
+    }
+  </style>
+</head>
+<body class="flex items-center justify-center py-12 px-4 sm:px-6 lg:px-8">
+
+  <div class="w-full max-w-md space-y-8">
+    <div class="text-center text-white">
+      <div class="flex items-center justify-center">
+        <i data-feather="activity" class="h-10 w-10 text-white"></i>
+        <span class="ml-2 text-2xl font-bold">PharmaLink Pro</span>
+      </div>
+      <h2 class="mt-6 text-3xl font-extrabold">Connexion à votre compte</h2>
+      <p class="mt-2 text-sm">
+        Ou <a href="register.html" class="font-medium underline hover:text-gray-200">créez un nouveau compte</a>
+      </p>
+    </div>
+
+    <div class="login-card p-8">
+      <form class="space-y-6" id="login-form" action="#" method="POST">
+        <div>
+          <label for="email" class="block text-sm font-medium text-gray-700">Adresse e-mail</label>
+          <div class="mt-1 relative">
+            <i data-feather="mail" class="absolute left-3 top-2.5 h-5 w-5 text-gray-400"></i>
+            <input id="email" name="email" type="email" autocomplete="email" required
+              class="pl-10 pr-3 py-2 block w-full border border-gray-300 rounded-md focus:ring-blue-500 focus:border-blue-500"
+              placeholder="exemple@email.com" />
+          </div>
+        </div>
+
+        <div>
+          <label for="password" class="block text-sm font-medium text-gray-700">Mot de passe</label>
+          <div class="mt-1 relative">
+            <i data-feather="lock" class="absolute left-3 top-2.5 h-5 w-5 text-gray-400"></i>
+            <input id="password" name="password" type="password" autocomplete="current-password" required
+              class="pl-10 pr-3 py-2 block w-full border border-gray-300 rounded-md focus:ring-blue-500 focus:border-blue-500"
+              placeholder="••••••••" />
+          </div>
+        </div>
+
+        <div class="flex items-center justify-between">
+          <div class="flex items-center">
+            <input id="remember-me" name="remember-me" type="checkbox"
+              class="h-4 w-4 text-blue-600 focus:ring-blue-500 border-gray-300 rounded">
+            <label for="remember-me" class="ml-2 text-sm text-gray-700">Se souvenir de moi</label>
+          </div>
+          <div class="text-sm">
+            <a href="#" class="font-medium text-blue-600 hover:text-blue-500">Mot de passe oublié ?</a>
+          </div>
+        </div>
+
+        <button type="submit"
+          class="group relative w-full flex justify-center py-2 px-4 border border-transparent text-sm font-medium rounded-md text-white bg-blue-600 hover:bg-blue-700 focus:ring-2 focus:ring-offset-2 focus:ring-blue-500">
+          <span class="absolute left-0 inset-y-0 flex items-center pl-3">
+            <i data-feather="log-in" class="h-5 w-5 text-blue-300 group-hover:text-blue-200"></i>
+          </span>
+          Se connecter
+        </button>
+      </form>
+
+      <div class="mt-6">
+        <div class="relative">
+          <div class="absolute inset-0 flex items-center">
+            <div class="w-full border-t border-gray-300"></div>
+          </div>
+          <div class="relative flex justify-center text-sm">
+            <span class="px-2 bg-white text-gray-500">Ou continuer avec</span>
+          </div>
+        </div>
+
+        <div class="mt-6 grid grid-cols-2 gap-3">
+          <a href="#"
+            class="w-full inline-flex justify-center py-2 px-4 border border-gray-300 rounded-md shadow-sm bg-white text-sm font-medium text-gray-500 hover:bg-gray-50">
+            <i data-feather="facebook" class="h-5 w-5 text-blue-600"></i>
+          </a>
+          <a href="#"
+            class="w-full inline-flex justify-center py-2 px-4 border border-gray-300 rounded-md shadow-sm bg-white text-sm font-medium text-gray-500 hover:bg-gray-50">
+            <i data-feather="google" class="h-5 w-5 text-red-500"></i>
+          </a>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <script>
+    feather.replace();
+
+    // Exemple de validation légère côté client
+    document.getElementById("login-form").addEventListener("submit", function(e) {
+      const email = document.getElementById("email").value.trim();
+      const password = document.getElementById("password").value.trim();
+
+      if (!email || !password) {
+        e.preventDefault();
+        alert("Veuillez remplir tous les champs avant de continuer.");
+      }
+    });
+  </script>
+
+</body>
+</html>

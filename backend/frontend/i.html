@@ -1,0 +1,256 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Dashboard Pharmacie</title>
+  <script src="https://cdn.tailwindcss.com"></script>
+  <style>
+    .section {
+      opacity: 0;
+      transition: opacity 0.3s ease-in-out;
+    }
+    .section.active {
+      opacity: 1;
+    }
+    .modal {
+      display: none;
+    }
+    .modal.active {
+      display: flex;
+    }
+  </style>
+  <script>
+    function showSection(sectionId, el) {
+      document.querySelectorAll('.section').forEach(sec => {
+        sec.classList.add('hidden');
+        sec.classList.remove('active');
+      });
+      const activeSec = document.getElementById(sectionId);
+      activeSec.classList.remove('hidden');
+      setTimeout(() => activeSec.classList.add('active'), 10);
+
+      document.querySelectorAll('.nav-btn').forEach(btn => btn.classList.remove('bg-blue-600','text-white','font-semibold'));
+      el.classList.add('bg-blue-600','text-white','font-semibold');
+    }
+
+    function openModal(modalId) {
+      document.getElementById(modalId).classList.add('active');
+    }
+
+    function closeModal(modalId) {
+      document.getElementById(modalId).classList.remove('active');
+    }
+  </script>
+</head>
+<body class="bg-gray-100 font-sans">
+  <div class="flex h-screen">
+    <!-- Sidebar -->
+    <aside class="w-64 bg-white shadow-md p-4 overflow-y-auto">
+      <h1 class="text-2xl font-bold mb-6 text-green-600">PHARMACY</h1>
+      <nav class="space-y-3">
+        <button onclick="showSection('dashboard', this)" class="nav-btn bg-blue-600 text-white font-semibold w-full text-left px-3 py-2 rounded-lg">Dashboard</button>
+        <button onclick="showSection('produits', this)" class="nav-btn w-full text-left px-3 py-2 rounded-lg">Produits</button>
+        <button onclick="showSection('pharmacies', this)" class="nav-btn w-full text-left px-3 py-2 rounded-lg">Pharmacies</button>
+        <button onclick="showSection('services', this)" class="nav-btn w-full text-left px-3 py-2 rounded-lg">Services</button>
+        <button onclick="showSection('patients', this)" class="nav-btn w-full text-left px-3 py-2 rounded-lg">Patients</button>
+        <button onclick="showSection('utilisateurs', this)" class="nav-btn w-full text-left px-3 py-2 rounded-lg">Utilisateurs</button>
+        <button onclick="showSection('roles', this)" class="nav-btn w-full text-left px-3 py-2 rounded-lg">Rôles</button>
+        <button onclick="showSection('cases', this)" class="nav-btn w-full text-left px-3 py-2 rounded-lg">Cases</button>
+      </nav>
+    </aside>
+
+    <!-- Main Content -->
+    <main class="flex-1 p-6 overflow-y-auto">
+      <!-- Dashboard Section -->
+      <section id="dashboard" class="section active">
+        <div class="flex justify-between items-center mb-6">
+          <h2 class="text-2xl font-bold">Dashboard</h2>
+          <button onclick="openModal('modalDashboard')" class="bg-blue-600 text-white px-4 py-2 rounded-lg">Ajouter</button>
+        </div>
+        <p>Bienvenue sur le tableau de bord de votre pharmacie.</p>
+      </section>
+
+      <!-- Produits -->
+      <section id="produits" class="section hidden">
+        <div class="flex justify-between items-center mb-6">
+          <h2 class="text-2xl font-bold">Produits</h2>
+          <button onclick="openModal('modalProduits')" class="bg-green-600 text-white px-4 py-2 rounded-lg">Ajouter un produit</button>
+        </div>
+        <p>Ici la liste des produits.</p>
+      </section>
+
+      <!-- Pharmacies -->
+      <section id="pharmacies" class="section hidden">
+        <div class="flex justify-between items-center mb-6">
+          <h2 class="text-2xl font-bold">Pharmacies</h2>
+          <button onclick="openModal('modalPharmacies')" class="bg-green-600 text-white px-4 py-2 rounded-lg">Ajouter une pharmacie</button>
+        </div>
+        <p>Ici la liste des pharmacies.</p>
+      </section>
+
+      <!-- Services -->
+      <section id="services" class="section hidden">
+        <div class="flex justify-between items-center mb-6">
+          <h2 class="text-2xl font-bold">Services</h2>
+          <button onclick="openModal('modalServices')" class="bg-green-600 text-white px-4 py-2 rounded-lg">Ajouter un service</button>
+        </div>
+        <p>Ici la liste des services.</p>
+      </section>
+
+      <!-- Patients -->
+      <section id="patients" class="section hidden">
+        <div class="flex justify-between items-center mb-6">
+          <h2 class="text-2xl font-bold">Patients</h2>
+          <button onclick="openModal('modalPatients')" class="bg-green-600 text-white px-4 py-2 rounded-lg">Ajouter un patient</button>
+        </div>
+        <p>Ici la liste des patients.</p>
+      </section>
+
+      <!-- Utilisateurs -->
+      <section id="utilisateurs" class="section hidden">
+        <div class="flex justify-between items-center mb-6">
+          <h2 class="text-2xl font-bold">Utilisateurs</h2>
+          <button onclick="openModal('modalUtilisateurs')" class="bg-green-600 text-white px-4 py-2 rounded-lg">Ajouter un utilisateur</button>
+        </div>
+        <p>Ici la liste des utilisateurs.</p>
+      </section>
+
+      <!-- Rôles -->
+      <section id="roles" class="section hidden">
+        <div class="flex justify-between items-center mb-6">
+          <h2 class="text-2xl font-bold">Rôles</h2>
+          <button onclick="openModal('modalRoles')" class="bg-green-600 text-white px-4 py-2 rounded-lg">Ajouter un rôle</button>
+        </div>
+        <p>Ici la liste des rôles.</p>
+      </section>
+
+      <!-- Cases -->
+      <section id="cases" class="section hidden">
+        <div class="flex justify-between items-center mb-6">
+          <h2 class="text-2xl font-bold">Cases</h2>
+          <button onclick="openModal('modalCases')" class="bg-green-600 text-white px-4 py-2 rounded-lg">Ajouter une case</button>
+        </div>
+        <p>Ici la liste des cases.</p>
+      </section>
+    </main>
+  </div>
+
+  <!-- Modales -->
+  <div id="modalDashboard" class="modal fixed inset-0 bg-black bg-opacity-50 items-center justify-center">
+    <div class="bg-white p-6 rounded-xl w-96">
+      <h3 class="text-xl font-bold mb-4">Ajouter un élément (Dashboard)</h3>
+      <form>
+        <input type="text" placeholder="Titre" class="border w-full px-3 py-2 mb-3 rounded" />
+        <textarea placeholder="Description" class="border w-full px-3 py-2 mb-3 rounded"></textarea>
+        <div class="flex justify-end space-x-2">
+          <button type="button" onclick="closeModal('modalDashboard')" class="px-4 py-2 bg-gray-400 text-white rounded">Annuler</button>
+          <button type="submit" class="px-4 py-2 bg-green-600 text-white rounded">Enregistrer</button>
+        </div>
+      </form>
+    </div>
+  </div>
+
+  <div id="modalProduits" class="modal fixed inset-0 bg-black bg-opacity-50 items-center justify-center">
+    <div class="bg-white p-6 rounded-xl w-96">
+      <h3 class="text-xl font-bold mb-4">Ajouter un produit</h3>
+      <form>
+        <input type="text" placeholder="Nom du produit" class="border w-full px-3 py-2 mb-3 rounded" />
+        <input type="number" placeholder="Prix (€)" class="border w-full px-3 py-2 mb-3 rounded" />
+        <input type="number" placeholder="Stock" class="border w-full px-3 py-2 mb-3 rounded" />
+        <div class="flex justify-end space-x-2">
+          <button type="button" onclick="closeModal('modalProduits')" class="px-4 py-2 bg-gray-400 text-white rounded">Annuler</button>
+          <button type="submit" class="px-4 py-2 bg-green-600 text-white rounded">Enregistrer</button>
+        </div>
+      </form>
+    </div>
+  </div>
+
+  <div id="modalPharmacies" class="modal fixed inset-0 bg-black bg-opacity-50 items-center justify-center">
+    <div class="bg-white p-6 rounded-xl w-96">
+      <h3 class="text-xl font-bold mb-4">Ajouter une pharmacie</h3>
+      <form>
+        <input type="text" placeholder="Nom de la pharmacie" class="border w-full px-3 py-2 mb-3 rounded" />
+        <input type="text" placeholder="Adresse" class="border w-full px-3 py-2 mb-3 rounded" />
+        <input type="tel" placeholder="Téléphone" class="border w-full px-3 py-2 mb-3 rounded" />
+        <div class="flex justify-end space-x-2">
+          <button type="button" onclick="closeModal('modalPharmacies')" class="px-4 py-2 bg-gray-400 text-white rounded">Annuler</button>
+          <button type="submit" class="px-4 py-2 bg-green-600 text-white rounded">Enregistrer</button>
+        </div>
+      </form>
+    </div>
+  </div>
+
+  <div id="modalServices" class="modal fixed inset-0 bg-black bg-opacity-50 items-center justify-center">
+    <div class="bg-white p-6 rounded-xl w-96">
+      <h3 class="text-xl font-bold mb-4">Ajouter un service</h3>
+      <form>
+        <input type="text" placeholder="Nom du service" class="border w-full px-3 py-2 mb-3 rounded" />
+        <textarea placeholder="Description" class="border w-full px-3 py-2 mb-3 rounded"></textarea>
+        <div class="flex justify-end space-x-2">
+          <button type="button" onclick="closeModal('modalServices')" class="px-4 py-2 bg-gray-400 text-white rounded">Annuler</button>
+          <button type="submit" class="px-4 py-2 bg-green-600 text-white rounded">Enregistrer</button>
+        </div>
+      </form>
+    </div>
+  </div>
+
+  <div id="modalPatients" class="modal fixed inset-0 bg-black bg-opacity-50 items-center justify-center">
+    <div class="bg-white p-6 rounded-xl w-96">
+      <h3 class="text-xl font-bold mb-4">Ajouter un patient</h3>
+      <form>
+        <input type="text" placeholder="Nom complet" class="border w-full px-3 py-2 mb-3 rounded" />
+        <input type="number" placeholder="Âge" class="border w-full px-3 py-2 mb-3 rounded" />
+        <input type="text" placeholder="Adresse" class="border w-full px-3 py-2 mb-3 rounded" />
+        <div class="flex justify-end space-x-2">
+          <button type="button" onclick="closeModal('modalPatients')" class="px-4 py-2 bg-gray-400 text-white rounded">Annuler</button>
+          <button type="submit" class="px-4 py-2 bg-green-600 text-white rounded">Enregistrer</button>
+        </div>
+      </form>
+    </div>
+  </div>
+
+  <div id="modalUtilisateurs" class="modal fixed inset-0 bg-black bg-opacity-50 items-center justify-center">
+    <div class="bg-white p-6 rounded-xl w-96">
+      <h3 class="text-xl font-bold mb-4">Ajouter un utilisateur</h3>
+      <form>
+        <input type="text" placeholder="Nom d'utilisateur" class="border w-full px-3 py-2 mb-3 rounded" />
+        <input type="email" placeholder="Email" class="border w-full px-3 py-2 mb-3 rounded" />
+        <input type="password" placeholder="Mot de passe" class="border w-full px-3 py-2 mb-3 rounded" />
+        <div class="flex justify-end space-x-2">
+          <button type="button" onclick="closeModal('modalUtilisateurs')" class="px-4 py-2 bg-gray-400 text-white rounded">Annuler</button>
+          <button type="submit" class="px-4 py-2 bg-green-600 text-white rounded">Enregistrer</button>
+        </div>
+      </form>
+    </div>
+  </div>
+
+  <div id="modalRoles" class="modal fixed inset-0 bg-black bg-opacity-50 items-center justify-center">
+    <div class="bg-white p-6 rounded-xl w-96">
+      <h3 class="text-xl font-bold mb-4">Ajouter un rôle</h3>
+      <form>
+        <input type="text" placeholder="Nom du rôle" class="border w-full px-3 py-2 mb-3 rounded" />
+        <textarea placeholder="Description" class="border w-full px-3 py-2 mb-3 rounded"></textarea>
+        <div class="flex justify-end space-x-2">
+          <button type="button" onclick="closeModal('modalRoles')" class="px-4 py-2 bg-gray-400 text-white rounded">Annuler</button>
+          <button type="submit" class="px-4 py-2 bg-green-600 text-white rounded">Enregistrer</button>
+        </div>
+      </form>
+    </div>
+  </div>
+
+  <div id="modalCases" class="modal fixed inset-0 bg-black bg-opacity-50 items-center justify-center">
+    <div class="bg-white p-6 rounded-xl w-96">
+      <h3 class="text-xl font-bold mb-4">Ajouter une case</h3>
+      <form>
+        <input type="text" placeholder="Titre de la case" class="border w-full px-3 py-2 mb-3 rounded" />
+        <textarea placeholder="Description" class="border w-full px-3 py-2 mb-3 rounded"></textarea>
+        <div class="flex justify-end space-x-2">
+          <button type="button" onclick="closeModal('modalCases')" class="px-4 py-2 bg-gray-400 text-white rounded">Annuler</button>
+          <button type="submit" class="px-4 py-2 bg-green-600 text-white rounded">Enregistrer</button>
+        </div>
+      </form>
+    </div>
+  </div>
+</body>
+</html>

@@ -1,0 +1,313 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Gestion des Ventes - PharmaLink Pro</title>
+  <script src="https://cdn.tailwindcss.com"></script>
+  <script src="https://cdn.jsdelivr.net/npm/feather-icons/dist/feather.min.js"></script>
+  <style>
+    @import url('https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;500;600;700&display=swap');
+    body { font-family: 'Poppins', sans-serif; }
+  </style>
+</head>
+<body class="bg-gray-50 text-gray-800">
+
+  <!-- Navigation -->
+  <nav class="bg-white shadow-sm relative z-10">
+    <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+      <div class="flex justify-between h-16">
+        <div class="flex items-center">
+          <i data-feather="shopping-bag" class="h-8 w-8 text-blue-600"></i>
+          <span class="ml-2 text-xl font-bold text-blue-600">PharmaLink Pro</span>
+        </div>
+        <div class="flex items-center space-x-6">
+          <a href="proprietaire.html" class="text-gray-600 hover:text-blue-600">Accueil</a>
+          <a href="pharmacies_proprietaire.html" class="text-gray-600 hover:text-blue-600">Pharmacies</a>
+          <a href="stock.html" class="text-gray-600 hover:text-blue-600">Stock</a>
+          <a href="#" class="text-blue-600 font-medium">Ventes</a>
+          <a href="client.html" class="text-gray-600 hover:text-blue-600">Clients</a>
+          <a href="services_proprietaire.html" class="text-gray-600 hover:text-blue-600">Services</a>
+          <a href="contact_proprietaire.html" class="text-gray-600 hover:text-blue-600">Contact</a>
+          <a href="login.html" class="bg-blue-600 text-white px-4 py-2 rounded-md font-medium hover:bg-blue-700 transition">
+            <i data-feather="log-out" class="h-4 w-4 inline mr-1"></i> Déconnexion
+          </a>
+        </div>
+      </div>
+    </div>
+  </nav>
+
+  <!-- En-tête -->
+  <section class="relative py-16 bg-gradient-to-br from-blue-600 to-green-500 text-white">
+    <div class="max-w-7xl mx-auto px-6">
+      <h1 class="text-4xl font-bold mb-4">Gestion des ventes</h1>
+      <p class="text-blue-100 text-lg">Suivez vos transactions et analysez vos performances.</p>
+    </div>
+  </section>
+
+  <!-- Contenu principal -->
+  <section class="max-w-7xl mx-auto py-10 px-6">
+    <!-- Contrôles -->
+    <div class="bg-white shadow rounded-lg p-6 mb-8">
+      <div class="flex flex-col md:flex-row md:items-center md:justify-between gap-4">
+        <div class="flex-1">
+          <div class="relative">
+            <div class="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none">
+              <i data-feather="search" class="text-gray-400"></i>
+            </div>
+            <input type="text" id="searchSale" class="block w-full pl-10 pr-3 py-2 border border-gray-300 rounded-md leading-5 bg-white placeholder-gray-500 focus:outline-none focus:ring-blue-500 focus:border-blue-500 sm:text-sm" placeholder="Rechercher une vente...">
+          </div>
+        </div>
+        <div class="w-full md:w-auto flex gap-2">
+          <input type="date" id="dateFilter" class="block w-full pl-3 pr-3 py-2 border border-gray-300 rounded-md text-sm focus:outline-none focus:ring-blue-500 focus:border-blue-500">
+          <button id="addSaleBtn" class="bg-blue-600 hover:bg-blue-700 text-white px-4 py-2 rounded-md text-sm font-medium flex items-center justify-center">
+            <i data-feather="plus" class="h-4 w-4 mr-1"></i> Nouvelle Vente
+          </button>
+        </div>
+      </div>
+    </div>
+
+    <!-- Tableau des ventes -->
+    <div class="bg-white shadow overflow-hidden sm:rounded-lg">
+      <div class="overflow-x-auto">
+        <table class="min-w-full divide-y divide-gray-200">
+          <thead class="bg-gray-50">
+            <tr>
+              <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Date</th>
+              <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Produit</th>
+              <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Catégorie</th>
+              <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Quantité</th>
+              <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Prix Unitaire (FCFA)</th>
+              <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Total (FCFA)</th>
+              <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Actions</th>
+            </tr>
+          </thead>
+          <tbody id="salesTable" class="bg-white divide-y divide-gray-200">
+            <!-- Ventes dynamiques -->
+          </tbody>
+          <tfoot class="bg-gray-50">
+            <tr>
+              <td colspan="5" class="px-6 py-3 text-right text-sm font-semibold text-gray-700">Total des ventes :</td>
+              <td id="totalSales" class="px-6 py-3 text-left text-sm font-bold text-green-600">0 FCFA</td>
+              <td></td>
+            </tr>
+          </tfoot>
+        </table>
+      </div>
+    </div>
+  </section>
+
+  <!-- Modal Vente -->
+  <div id="saleModal" class="fixed z-10 inset-0 overflow-y-auto hidden">
+    <div class="flex items-center justify-center min-h-screen text-center sm:block sm:p-0">
+      <div class="fixed inset-0 bg-gray-500 bg-opacity-75"></div>
+      <div class="inline-block align-bottom bg-white rounded-lg text-left overflow-hidden shadow-xl transform transition-all sm:align-middle sm:max-w-lg sm:w-full my-8">
+        <div class="bg-white px-6 py-4">
+          <h3 id="modalTitle" class="text-lg font-medium text-gray-900 mb-4">Nouvelle Vente</h3>
+          <form id="saleForm">
+            <input type="hidden" id="saleId">
+            <div class="mb-4">
+              <label class="block text-sm font-medium text-gray-700">Nom du produit</label>
+              <input type="text" id="saleProduct" class="mt-1 w-full border border-gray-300 rounded-md px-3 py-2 focus:outline-none focus:ring-blue-500 focus:border-blue-500 sm:text-sm">
+            </div>
+            <div class="mb-4">
+              <label class="block text-sm font-medium text-gray-700">Catégorie</label>
+              <select id="saleCategory" class="mt-1 w-full border border-gray-300 rounded-md px-3 py-2 focus:outline-none focus:ring-blue-500 focus:border-blue-500 sm:text-sm">
+                <option value="Médicaments">Médicaments</option>
+                <option value="Cosmétiques">Cosmétiques</option>
+                <option value="Accessoires">Accessoires</option>
+                <option value="Hygiène">Hygiène</option>
+                <option value="Nutrition">Nutrition</option>
+              </select>
+            </div>
+            <div class="grid grid-cols-2 gap-4 mb-4">
+              <div>
+                <label class="block text-sm font-medium text-gray-700">Quantité</label>
+                <input type="number" id="saleQuantity" class="mt-1 w-full border border-gray-300 rounded-md px-3 py-2 focus:outline-none focus:ring-blue-500 focus:border-blue-500 sm:text-sm">
+              </div>
+              <div>
+                <label class="block text-sm font-medium text-gray-700">Prix unitaire (FCFA)</label>
+                <input type="number" id="salePrice" class="mt-1 w-full border border-gray-300 rounded-md px-3 py-2 focus:outline-none focus:ring-blue-500 focus:border-blue-500 sm:text-sm">
+              </div>
+            </div>
+            <div class="mb-4">
+              <label class="block text-sm font-medium text-gray-700">Date de vente</label>
+              <input type="date" id="saleDate" class="mt-1 w-full border border-gray-300 rounded-md px-3 py-2 focus:outline-none focus:ring-blue-500 focus:border-blue-500 sm:text-sm">
+            </div>
+          </form>
+        </div>
+        <div class="bg-gray-50 px-4 py-3 sm:flex sm:flex-row-reverse">
+          <button id="saveSaleBtn" class="bg-blue-600 text-white px-4 py-2 rounded-md hover:bg-blue-700 font-medium">Enregistrer</button>
+          <button id="cancelSaleBtn" class="mt-3 sm:mt-0 sm:ml-3 bg-white border border-gray-300 px-4 py-2 rounded-md text-gray-700 hover:bg-gray-50 font-medium">Annuler</button>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- Footer -->
+  <footer class="bg-gray-800 py-8 mt-12">
+    <div class="max-w-7xl mx-auto text-center text-gray-400">
+      <p>&copy; 2025 PharmaLink Pro. Tous droits réservés.</p>
+    </div>
+  </footer>
+
+  <script>
+    feather.replace();
+
+    let sales = JSON.parse(localStorage.getItem('pharmalink-sales')) || [];
+
+    const salesTable = document.getElementById('salesTable');
+    const totalSales = document.getElementById('totalSales');
+    const addSaleBtn = document.getElementById('addSaleBtn');
+    const saleModal = document.getElementById('saleModal');
+    const saleForm = document.getElementById('saleForm');
+    const saleId = document.getElementById('saleId');
+    const saleProduct = document.getElementById('saleProduct');
+    const saleCategory = document.getElementById('saleCategory');
+    const saleQuantity = document.getElementById('saleQuantity');
+    const salePrice = document.getElementById('salePrice');
+    const saleDate = document.getElementById('saleDate');
+    const saveSaleBtn = document.getElementById('saveSaleBtn');
+    const cancelSaleBtn = document.getElementById('cancelSaleBtn');
+    const searchSale = document.getElementById('searchSale');
+    const dateFilter = document.getElementById('dateFilter');
+
+    let editing = false;
+    let currentId = null;
+
+    function renderSales(filteredSales = sales) {
+      salesTable.innerHTML = '';
+      let total = 0;
+
+      if (filteredSales.length === 0) {
+        salesTable.innerHTML = `
+          <tr><td colspan="7" class="px-6 py-4 text-center text-gray-500">Aucune vente enregistrée</td></tr>
+        `;
+        totalSales.textContent = "0 FCFA";
+        return;
+      }
+
+      filteredSales.forEach(sale => {
+        const totalAmount = sale.quantity * sale.price;
+        total += totalAmount;
+
+        const row = document.createElement('tr');
+        row.innerHTML = `
+          <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-700">${formatDate(sale.date)}</td>
+          <td class="px-6 py-4 whitespace-nowrap text-sm font-medium text-gray-900">${sale.product}</td>
+          <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-500">${sale.category}</td>
+          <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-500">${sale.quantity}</td>
+          <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-500">${sale.price}</td>
+          <td class="px-6 py-4 whitespace-nowrap text-sm font-bold text-green-600">${totalAmount.toLocaleString()} FCFA</td>
+          <td class="px-6 py-4 whitespace-nowrap text-right text-sm font-medium">
+            <button class="text-blue-600 hover:text-blue-900 mr-3 edit-sale" data-id="${sale.id}">
+              <i data-feather="edit" class="w-4 h-4"></i>
+            </button>
+            <button class="text-red-600 hover:text-red-900 delete-sale" data-id="${sale.id}">
+              <i data-feather="trash-2" class="w-4 h-4"></i>
+            </button>
+          </td>
+        `;
+        salesTable.appendChild(row);
+      });
+
+      totalSales.textContent = `${total.toLocaleString()} FCFA`;
+      feather.replace();
+      attachListeners();
+    }
+
+    function attachListeners() {
+      document.querySelectorAll('.edit-sale').forEach(btn => {
+        btn.addEventListener('click', e => {
+          const id = parseInt(e.currentTarget.dataset.id);
+          const sale = sales.find(s => s.id === id);
+          if (sale) openModal(sale);
+        });
+      });
+
+      document.querySelectorAll('.delete-sale').forEach(btn => {
+        btn.addEventListener('click', e => {
+          const id = parseInt(e.currentTarget.dataset.id);
+          deleteSale(id);
+        });
+      });
+    }
+
+    function openModal(sale = null) {
+      editing = sale !== null;
+      saleForm.reset();
+
+      if (editing) {
+        saleId.value = sale.id;
+        saleProduct.value = sale.product;
+        saleCategory.value = sale.category;
+        saleQuantity.value = sale.quantity;
+        salePrice.value = sale.price;
+        saleDate.value = sale.date;
+      }
+
+      saleModal.classList.remove('hidden');
+    }
+
+    function closeModal() {
+      saleModal.classList.add('hidden');
+    }
+
+    function saveSale() {
+      const newSale = {
+        product: saleProduct.value,
+        category: saleCategory.value,
+        quantity: parseInt(saleQuantity.value),
+        price: parseFloat(salePrice.value),
+        date: saleDate.value
+      };
+
+      if (editing) {
+        const id = parseInt(saleId.value);
+        const index = sales.findIndex(s => s.id === id);
+        if (index !== -1) sales[index] = { id, ...newSale };
+      } else {
+        const newId = sales.length ? Math.max(...sales.map(s => s.id)) + 1 : 1;
+        sales.push({ id: newId, ...newSale });
+      }
+
+      localStorage.setItem('pharmalink-sales', JSON.stringify(sales));
+      renderSales();
+      closeModal();
+    }
+
+    function deleteSale(id) {
+      if (confirm('Supprimer cette vente ?')) {
+        sales = sales.filter(s => s.id !== id);
+        localStorage.setItem('pharmalink-sales', JSON.stringify(sales));
+        renderSales();
+      }
+    }
+
+    function filterSales() {
+      const term = searchSale.value.toLowerCase();
+      const date = dateFilter.value;
+      const filtered = sales.filter(s =>
+        (s.product.toLowerCase().includes(term) || s.category.toLowerCase().includes(term)) &&
+        (date === '' || s.date === date)
+      );
+      renderSales(filtered);
+    }
+
+    function formatDate(dateString) {
+      if (!dateString) return '';
+      return new Date(dateString).toLocaleDateString('fr-FR');
+    }
+
+    // Événements
+    addSaleBtn.addEventListener('click', () => openModal());
+    cancelSaleBtn.addEventListener('click', closeModal);
+    saveSaleBtn.addEventListener('click', saveSale);
+    searchSale.addEventListener('input', filterSales);
+    dateFilter.addEventListener('change', filterSales);
+
+    // Initialisation
+    renderSales();
+  </script>
+</body>
+</html>

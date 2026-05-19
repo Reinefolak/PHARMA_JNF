@@ -1,0 +1,130 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Profil - PharmaLink Pro</title>
+  <script src="https://cdn.tailwindcss.com"></script>
+  <script src="https://cdn.jsdelivr.net/npm/feather-icons/dist/feather.min.js"></script>
+  <style>
+    @import url('https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;500;600;700&display=swap');
+    body { font-family: 'Poppins', sans-serif; }
+  </style>
+</head>
+<body class="bg-gray-50 text-gray-800">
+
+  <!-- Navigation -->
+  <nav class="bg-white shadow-sm relative z-10">
+    <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+      <div class="flex justify-between h-16">
+        <div class="flex items-center">
+          <i data-feather="activity" class="h-8 w-8 text-blue-600"></i>
+          <span class="ml-2 text-xl font-bold text-blue-600">PharmaLink Pro</span>
+        </div>
+        <div class="flex items-center space-x-6">
+          <a href="patient.html" class="text-gray-600 hover:text-blue-600">Accueil</a>
+          <a href="#" class="text-blue-600 font-medium">Profil</a>
+          <a href="suivi.html" class="text-gray-600 hover:text-blue-600">Suivi</a>
+          <a href="know_patient.html" class="text-gray-600 hover:text-blue-600">À propos</a>
+           <a href="login.html" class="bg-blue-600 text-white px-4 py-2 rounded-md font-medium hover:bg-blue-700 transition">
+            <i data-feather="log-out" class="h-4 w-4 inline mr-1"></i> Déconnexion
+          </a>
+        </div>
+      </div>
+    </div>
+  </nav>
+
+  <!-- En-tête -->
+  <section class="relative py-20 bg-gradient-to-br from-blue-600 to-green-500 text-white text-center">
+    <div class="max-w-4xl mx-auto px-6">
+      <h1 class="text-4xl font-bold mb-4">Mon Profil</h1>
+      <p class="text-blue-100 text-lg">Gérez vos informations personnelles et votre compte.</p>
+    </div>
+  </section>
+
+  <!-- Formulaire Profil -->
+  <section class="max-w-3xl mx-auto py-16 px-6 bg-white shadow rounded-lg -mt-16 relative z-20">
+    <div class="flex flex-col items-center mb-8">
+      <div class="w-32 h-32 mb-4 rounded-full overflow-hidden border-4 border-blue-600">
+        <img src="default-avatar.png" alt="Photo de profil" id="profilePic" class="w-full h-full object-cover">
+      </div>
+      <label for="uploadPic" class="bg-blue-600 text-white px-4 py-2 rounded-md cursor-pointer hover:bg-blue-700 transition">
+        Changer la photo
+      </label>
+      <input type="file" id="uploadPic" class="hidden" accept="image/*">
+    </div>
+
+    <form class="space-y-6">
+      <div>
+        <label class="block text-gray-700 font-medium mb-2">Prénom</label>
+        <input type="text" placeholder="Votre prénom" class="w-full border border-gray-300 rounded-md px-4 py-2 focus:outline-none focus:ring-2 focus:ring-blue-600">
+      </div>
+      <div>
+        <label class="block text-gray-700 font-medium mb-2">Nom complet</label>
+        <input type="text" placeholder="Votre nom" class="w-full border border-gray-300 rounded-md px-4 py-2 focus:outline-none focus:ring-2 focus:ring-blue-600">
+      </div>
+      <div>
+        <label class="block text-gray-700 font-medium mb-2">Date de naissance</label>
+        <input type="date" placeholder="mm/dd/yyyy" class="w-full border border-gray-300 rounded-md px-4 py-2 focus:outline-none focus:ring-2 focus:ring-blue-600">
+      </div>
+      <div>
+        <label class="block text-gray-700 font-medium mb-2">Email</label>
+        <input type="email" placeholder="exemple@mail.com" class="w-full border border-gray-300 rounded-md px-4 py-2 focus:outline-none focus:ring-2 focus:ring-blue-600">
+      </div>
+      <div>
+        <label class="block text-gray-700 font-medium mb-2">Numéro de téléphone</label>
+        <input type="tel" placeholder="+229 90 00 00 00" class="w-full border border-gray-300 rounded-md px-4 py-2 focus:outline-none focus:ring-2 focus:ring-blue-600">
+      </div>
+      <div>
+        <label class="block text-gray-700 font-medium mb-2">Adresse</label>
+        <input type="text" placeholder="Votre adresse" class="w-full border border-gray-300 rounded-md px-4 py-2 focus:outline-none focus:ring-2 focus:ring-blue-600">
+      </div>
+      
+      <div class="flex flex-col md:flex-row md:justify-between gap-4">
+        <button type="submit" class="bg-blue-600 text-white px-6 py-3 rounded-md font-medium hover:bg-blue-700 transition flex-1">
+          Enregistrer les modifications
+        </button>
+        <button type="button" id="deleteAccountBtn" class="bg-red-600 text-white px-6 py-3 rounded-md font-medium hover:bg-red-700 transition flex-1">
+          Supprimer le compte
+        </button>
+      </div>
+    </form>
+  </section>
+
+  <!-- Footer -->
+  <footer class="bg-gray-800 py-8 mt-16">
+    <div class="max-w-7xl mx-auto text-center text-gray-400">
+      <p>&copy; 2025 PharmaLink Pro. Tous droits réservés.</p>
+    </div>
+  </footer>
+
+  <script>
+    feather.replace();
+
+    // Changer la photo de profil
+    const uploadPic = document.getElementById('uploadPic');
+    const profilePic = document.getElementById('profilePic');
+
+    uploadPic.addEventListener('change', (event) => {
+      const file = event.target.files[0];
+      if (file) {
+        const reader = new FileReader();
+        reader.onload = e => profilePic.src = e.target.result;
+        reader.readAsDataURL(file);
+      }
+    });
+
+    // Confirmation de suppression du compte
+    const deleteBtn = document.getElementById('deleteAccountBtn');
+    deleteBtn.addEventListener('click', () => {
+      const confirmation = confirm("Êtes-vous sûr de vouloir supprimer votre compte ?");
+      if (confirmation) {
+        alert("Votre compte a été supprimé.");
+        // Ici, ajoute une redirection ou un appel API pour supprimer le compte
+        // Exemple : window.location.href = "index.html";
+      }
+    });
+  </script>
+
+</body>
+</html>

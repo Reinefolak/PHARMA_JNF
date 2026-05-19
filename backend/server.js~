@@ -1,0 +1,102 @@
+const express = require("express");
+const fs = require("fs");
+const cors = require("cors");
+const path = require("path");
+
+const app = express();
+const PORT = 3000;
+const DATA_PATH = path.join(__dirname, "data.json");
+
+app.use(cors());
+app.use(express.json());
+
+// --- Fonctions utilitaires ---
+function readData() {
+  if (!fs.existsSync(DATA_PATH)) {
+    fs.writeFileSync(DATA_PATH, JSON.stringify({ clients: [], pharmacies: [] }, null, 2));
+  }
+  return JSON.parse(fs.readFileSync(DATA_PATH, "utf8"));
+}
+
+function writeData(data) {
+  fs.writeFileSync(DATA_PATH, JSON.stringify(data, null, 2));
+}
+
+// --- ROUTES CLIENTS ---
+app.get("/clients", (req, res) => {
+  const data = readData();
+  const { nom } = req.query;
+  let clients = data.clients;
+  if (nom) {
+    clients = clients.filter(c => c.nom && c.nom.toLowerCase().includes(nom.toLowerCase()));
+  }
+  res.json(clients);
+});
+
+app.post("/clients", (req, res) => {
+  const data = readData();
+  const newClient = { id: Date.now(), ...req.body };
+  data.clients.push(newClient);
+  writeData(data);
+  res.status(201).json(newClient);
+});
+
+app.put("/clients/:id", (req, res) => {
+  const data = readData();
+  const id = parseInt(req.params.id);
+  const index = data.clients.findIndex(c => c.id === id);
+  if (index === -1) return res.status(404).json({ error: "Client non trouvé" });
+  data.clients[index] = { ...data.clients[index], ...req.body };
+  writeData(data);
+  res.json(data.clients[index]);
+});
+
+app.delete("/clients/:id", (req, res) => {
+  const data = readData();
+  const id = parseInt(req.params.id);
+  data.clients = data.clients.filter(c => c.id !== id);
+  writeData(data);
+  res.json({ message: "Client supprimé" });
+});
+
+// --- ROUTES PHARMACIES ---
+app.get("/pharmacies", (req, res) => {
+  const data = readData();
+  const { nom } = req.query;
+  let pharmacies = data.pharmacies;
+  if (nom) {
+    pharmacies = pharmacies.filter(p => p.nom && p.nom.toLowerCase().includes(nom.toLowerCase()));
+  }
+  res.json(pharmacies);
+});
+
+app.post("/pharmacies", (req, res) => {
+  const data = readData();
+  const newPharma = { id: Date.now(), ...req.body };
+  data.pharmacies.push(newPharma);
+  writeData(data);
+  res.status(201).json(newPharma);
+});
+
+app.put("/pharmacies/:id", (req, res) => {
+  const data = readData();
+  const id = parseInt(req.params.id);
+  const index = data.pharmacies.findIndex(p => p.id === id);
+  if (index === -1) return res.status(404).json({ error: "Pharmacie non trouvée" });
+  data.pharmacies[index] = { ...data.pharmacies[index], ...req.body };
+  writeData(data);
+  res.json(data.pharmacies[index]);
+});
+
+app.delete("/pharmacies/:id", (req, res) => {
+  const data = readData();
+  const id = parseInt(req.params.id);
+  data.pharmacies = data.pharmacies.filter(p => p.id !== id);
+  writeData(data);
+  res.json({ message: "Pharmacie supprimée" });
+});
+
+// --- Démarrage du serveur ---
+app.listen(PORT, () => {
+  console.log(`✅ Serveur démarré sur http://localhost:${PORT}`);
+});

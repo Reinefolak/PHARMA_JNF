@@ -1,0 +1,294 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Gestion des Clients - PharmaLink Pro</title>
+  <script src="https://cdn.tailwindcss.com"></script>
+  <script src="https://cdn.jsdelivr.net/npm/feather-icons/dist/feather.min.js"></script>
+  <style>
+    @import url('https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;500;600;700&display=swap');
+    body { font-family: 'Poppins', sans-serif; }
+  </style>
+</head>
+<body class="bg-gray-50 text-gray-800">
+
+  <!-- Navigation -->
+  <nav class="bg-white shadow-sm relative z-10">
+    <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+      <div class="flex justify-between h-16">
+        <div class="flex items-center">
+          <i data-feather="users" class="h-8 w-8 text-blue-600"></i>
+          <span class="ml-2 text-xl font-bold text-blue-600">PharmaLink Pro</span>
+        </div>
+        <div class="flex items-center space-x-6">
+          <a href="proprietaire.html" class="text-gray-600 hover:text-blue-600">Accueil</a>
+          <a href="pharmacies_proprietaire.html" class="text-gray-600 hover:text-blue-600">Pharmacies</a>
+          <a href="stock.html" class="text-gray-600 hover:text-blue-600">Stock</a>
+          <a href="vente.html" class="text-gray-600 hover:text-blue-600">Ventes</a>
+          <a href="client.html" class="text-blue-600 font-medium">Clients</a>
+          <a href="services_proprietaire.html" class="text-gray-600 hover:text-blue-600">Services</a>
+          <a href="contact_proprietaire.html" class="text-gray-600 hover:text-blue-600">Contact</a>
+          <a href="login.html" class="bg-blue-600 text-white px-4 py-2 rounded-md font-medium hover:bg-blue-700 transition">
+            <i data-feather="log-out" class="h-4 w-4 inline mr-1"></i> Déconnexion
+          </a>
+        </div>
+      </div>
+    </div>
+  </nav>
+
+  <!-- En-tête -->
+  <section class="relative py-16 bg-gradient-to-br from-blue-600 to-green-500 text-white">
+    <div class="max-w-7xl mx-auto px-6">
+      <h1 class="text-4xl font-bold mb-4">Gestion des clients</h1>
+      <p class="text-blue-100 text-lg">Suivez vos ventes et consultez les informations sur vos clients fidèles.</p>
+    </div>
+  </section>
+
+  <!-- Contenu principal -->
+  <section class="max-w-7xl mx-auto py-10 px-6">
+    <!-- Contrôles -->
+    <div class="bg-white shadow rounded-lg p-6 mb-8">
+      <div class="flex flex-col md:flex-row md:items-center md:justify-between gap-4">
+        <div class="flex-1">
+          <div class="relative">
+            <div class="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none">
+              <i data-feather="search" class="text-gray-400"></i>
+            </div>
+            <input type="text" id="searchClient" class="block w-full pl-10 pr-3 py-2 border border-gray-300 rounded-md leading-5 bg-white placeholder-gray-500 focus:outline-none focus:ring-blue-500 focus:border-blue-500 sm:text-sm" placeholder="Rechercher un client...">
+          </div>
+        </div>
+        <button id="addClientBtn" class="w-full md:w-auto bg-blue-600 hover:bg-blue-700 text-white px-4 py-2 rounded-md text-sm font-medium flex items-center justify-center">
+          <i data-feather="plus" class="h-4 w-4 mr-1"></i> Ajouter une vente
+        </button>
+      </div>
+    </div>
+
+    <!-- Tableau des clients -->
+    <div class="bg-white shadow overflow-hidden sm:rounded-lg">
+      <div class="overflow-x-auto">
+        <table class="min-w-full divide-y divide-gray-200">
+          <thead class="bg-gray-50">
+            <tr>
+              <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Nom du client</th>
+              <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Produit acheté</th>
+              <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Quantité</th>
+              <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Date d'achat</th>
+              <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Actions</th>
+            </tr>
+          </thead>
+          <tbody id="clientsTable" class="bg-white divide-y divide-gray-200">
+            <!-- Clients ajoutés dynamiquement -->
+          </tbody>
+        </table>
+      </div>
+    </div>
+  </section>
+
+  <!-- Modal d'ajout de client -->
+  <div id="clientModal" class="fixed z-10 inset-0 overflow-y-auto hidden">
+    <div class="flex items-center justify-center min-h-screen text-center sm:block sm:p-0">
+      <div class="fixed inset-0 bg-gray-500 opacity-75" aria-hidden="true"></div>
+      <span class="hidden sm:inline-block sm:align-middle sm:h-screen">&#8203;</span>
+      <div class="inline-block bg-white rounded-lg text-left overflow-hidden shadow-xl transform transition-all sm:max-w-lg sm:w-full">
+        <div class="bg-white px-6 py-4">
+          <h3 class="text-lg font-medium text-gray-900 mb-4" id="modalTitle">Nouvelle vente</h3>
+          <form id="clientForm">
+            <input type="hidden" id="clientId">
+            <div class="mb-4">
+              <label class="block text-sm font-medium text-gray-700">Nom du client</label>
+              <input type="text" id="clientName" class="mt-1 block w-full border border-gray-300 rounded-md shadow-sm py-2 px-3 focus:outline-none focus:ring-blue-500 focus:border-blue-500 sm:text-sm">
+            </div>
+            <div class="mb-4">
+              <label class="block text-sm font-medium text-gray-700">Produit acheté</label>
+              <input type="text" id="productBought" class="mt-1 block w-full border border-gray-300 rounded-md shadow-sm py-2 px-3 focus:outline-none focus:ring-blue-500 focus:border-blue-500 sm:text-sm">
+            </div>
+            <div class="mb-4">
+              <label class="block text-sm font-medium text-gray-700">Quantité</label>
+              <input type="number" id="quantityBought" class="mt-1 block w-full border border-gray-300 rounded-md shadow-sm py-2 px-3 focus:outline-none focus:ring-blue-500 focus:border-blue-500 sm:text-sm">
+            </div>
+            <div class="mb-4">
+              <label class="block text-sm font-medium text-gray-700">Date d'achat</label>
+              <input type="date" id="purchaseDate" class="mt-1 block w-full border border-gray-300 rounded-md shadow-sm py-2 px-3 focus:outline-none focus:ring-blue-500 focus:border-blue-500 sm:text-sm">
+            </div>
+          </form>
+        </div>
+        <div class="bg-gray-50 px-6 py-3 sm:flex sm:flex-row-reverse">
+          <button id="saveClientBtn" class="w-full sm:w-auto inline-flex justify-center rounded-md border border-transparent shadow-sm px-4 py-2 bg-blue-600 text-base font-medium text-white hover:bg-blue-700 focus:ring-2 focus:ring-offset-2 focus:ring-blue-500 sm:text-sm">
+            Enregistrer
+          </button>
+          <button id="cancelClientBtn" class="mt-3 w-full sm:w-auto inline-flex justify-center rounded-md border border-gray-300 shadow-sm px-4 py-2 bg-white text-base font-medium text-gray-700 hover:bg-gray-50 focus:ring-2 focus:ring-offset-2 focus:ring-blue-500 sm:text-sm sm:ml-3">
+            Annuler
+          </button>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- Footer -->
+  <footer class="bg-gray-800 py-8 mt-12">
+    <div class="max-w-7xl mx-auto text-center text-gray-400">
+      <p>&copy; 2025 PharmaLink Pro. Tous droits réservés.</p>
+    </div>
+  </footer>
+
+  <script>
+    feather.replace();
+
+    // Données clients (localStorage)
+    let clients = JSON.parse(localStorage.getItem('pharmalink-clients')) || [
+      { id: 1, name: "Jean Dupont", product: "Paracétamol 500mg", quantity: 2, date: "2024-01-10" },
+      { id: 2, name: "Marie Curie", product: "Vitamine C", quantity: 1, date: "2024-02-12" },
+      { id: 3, name: "Paul Zinsou", product: "Crème hydratante", quantity: 3, date: "2024-03-20" }
+    ];
+
+    const clientsTable = document.getElementById('clientsTable');
+    const searchClient = document.getElementById('searchClient');
+    const addClientBtn = document.getElementById('addClientBtn');
+    const clientModal = document.getElementById('clientModal');
+    const saveClientBtn = document.getElementById('saveClientBtn');
+    const cancelClientBtn = document.getElementById('cancelClientBtn');
+    const clientForm = document.getElementById('clientForm');
+    const clientId = document.getElementById('clientId');
+    const clientName = document.getElementById('clientName');
+    const productBought = document.getElementById('productBought');
+    const quantityBought = document.getElementById('quantityBought');
+    const purchaseDate = document.getElementById('purchaseDate');
+
+    let isEditing = false;
+    let currentClientId = null;
+
+    // Affichage
+    function renderClients(list = clients) {
+      clientsTable.innerHTML = '';
+
+      if (list.length === 0) {
+        clientsTable.innerHTML = `
+          <tr>
+            <td colspan="5" class="px-6 py-4 text-center text-gray-500">Aucun client trouvé</td>
+          </tr>
+        `;
+        return;
+      }
+
+      list.forEach(client => {
+        const row = document.createElement('tr');
+        row.innerHTML = `
+          <td class="px-6 py-4 text-sm text-gray-900 font-medium">${client.name}</td>
+          <td class="px-6 py-4 text-sm text-gray-500">${client.product}</td>
+          <td class="px-6 py-4 text-sm text-gray-500">${client.quantity}</td>
+          <td class="px-6 py-4 text-sm text-gray-500">${formatDate(client.date)}</td>
+          <td class="px-6 py-4 text-right text-sm font-medium">
+            <button class="text-blue-600 hover:text-blue-900 mr-3 edit-btn" data-id="${client.id}">
+              <i data-feather="edit" class="w-4 h-4"></i>
+            </button>
+            <button class="text-red-600 hover:text-red-900 delete-btn" data-id="${client.id}">
+              <i data-feather="trash-2" class="w-4 h-4"></i>
+            </button>
+          </td>
+        `;
+        clientsTable.appendChild(row);
+      });
+
+      feather.replace();
+      attachClientListeners();
+    }
+
+    // Formater date
+    function formatDate(dateString) {
+      if (!dateString) return '';
+      return new Date(dateString).toLocaleDateString('fr-FR', { year: 'numeric', month: 'short', day: 'numeric' });
+    }
+
+    // Recherche
+    searchClient.addEventListener('input', () => {
+      const term = searchClient.value.toLowerCase();
+      const filtered = clients.filter(c =>
+        c.name.toLowerCase().includes(term) ||
+        c.product.toLowerCase().includes(term)
+      );
+      renderClients(filtered);
+    });
+
+    // Ouvrir modal
+    function openClientModal(client = null) {
+      isEditing = !!client;
+      if (isEditing) {
+        document.getElementById('modalTitle').textContent = "Modifier la vente";
+        clientId.value = client.id;
+        clientName.value = client.name;
+        productBought.value = client.product;
+        quantityBought.value = client.quantity;
+        purchaseDate.value = client.date;
+        currentClientId = client.id;
+      } else {
+        document.getElementById('modalTitle').textContent = "Nouvelle vente";
+        clientForm.reset();
+        currentClientId = null;
+      }
+      clientModal.classList.remove('hidden');
+    }
+
+    // Fermer modal
+    function closeClientModal() {
+      clientModal.classList.add('hidden');
+    }
+
+    // Sauvegarde
+    function saveClient() {
+      const newData = {
+        name: clientName.value,
+        product: productBought.value,
+        quantity: parseInt(quantityBought.value),
+        date: purchaseDate.value
+      };
+
+      if (isEditing) {
+        const index = clients.findIndex(c => c.id === currentClientId);
+        if (index !== -1) clients[index] = { id: currentClientId, ...newData };
+      } else {
+        const newId = clients.length > 0 ? Math.max(...clients.map(c => c.id)) + 1 : 1;
+        clients.push({ id: newId, ...newData });
+      }
+
+      localStorage.setItem('pharmalink-clients', JSON.stringify(clients));
+      renderClients();
+      closeClientModal();
+    }
+
+    // Supprimer
+    function deleteClient(id) {
+      if (confirm("Voulez-vous supprimer cette vente ?")) {
+        clients = clients.filter(c => c.id !== id);
+        localStorage.setItem('pharmalink-clients', JSON.stringify(clients));
+        renderClients();
+      }
+    }
+
+    // Attacher les événements des boutons
+    function attachClientListeners() {
+      document.querySelectorAll('.edit-btn').forEach(btn => {
+        btn.addEventListener('click', (e) => {
+          const id = parseInt(e.currentTarget.dataset.id);
+          const client = clients.find(c => c.id === id);
+          openClientModal(client);
+        });
+      });
+      document.querySelectorAll('.delete-btn').forEach(btn => {
+        btn.addEventListener('click', (e) => {
+          const id = parseInt(e.currentTarget.dataset.id);
+          deleteClient(id);
+        });
+      });
+    }
+
+    // Événements principaux
+    addClientBtn.addEventListener('click', () => openClientModal());
+    cancelClientBtn.addEventListener('click', closeClientModal);
+    saveClientBtn.addEventListener('click', saveClient);
+
+    // Initialisation
+    renderClients();
+  </script>
+</body>
+</html>

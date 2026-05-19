@@ -1,0 +1,79 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Email envoyé - PharmaLink Pro</title>
+  <script src="https://cdn.tailwindcss.com"></script>
+  <script src="https://cdn.jsdelivr.net/npm/feather-icons/dist/feather.min.js"></script>
+  <style>
+    @import url('https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;500;600;700&display=swap');
+    body {
+      font-family: 'Poppins', sans-serif;
+      background: linear-gradient(135deg, #3b82f6 0%, #10b981 100%);
+      min-height: 100vh;
+    }
+    .card {
+      background-color: white;
+      box-shadow: 0 25px 35px rgba(0, 0, 0, 0.1);
+      border-radius: 1rem;
+      transition: transform 0.3s ease, box-shadow 0.3s ease;
+    }
+    .card:hover {
+      transform: translateY(-4px);
+      box-shadow: 0 35px 45px rgba(0, 0, 0, 0.15);
+    }
+  </style>
+</head>
+<body class="flex items-center justify-center px-6 py-12">
+
+  <div class="w-full max-w-md text-center">
+    <div class="text-white mb-8">
+      <div class="flex justify-center items-center mb-3">
+        <i data-feather="activity" class="h-10 w-10 text-white"></i>
+        <span class="ml-2 text-2xl font-bold">PharmaLink Pro</span>
+      </div>
+      <h2 class="text-3xl font-extrabold">Vérifiez votre boîte mail</h2>
+      <p class="mt-2 text-sm text-white/90">
+        Nous avons envoyé un lien de réinitialisation à votre adresse e-mail.
+      </p>
+    </div>
+
+    <div class="card p-8">
+      <div class="flex justify-center mb-4">
+        <div class="bg-green-100 text-green-600 p-3 rounded-full">
+          <i data-feather="mail" class="h-8 w-8"></i>
+        </div>
+      </div>
+      <h3 class="text-xl font-semibold text-gray-800">E-mail envoyé avec succès</h3>
+      <p class="mt-2 text-gray-600 text-sm">
+        Si l’adresse que vous avez fournie correspond à un compte existant, vous recevrez un message contenant un lien pour réinitialiser votre mot de passe.
+      </p>
+
+      <div class="mt-6">
+        <a href="https://mail.google.com" target="_blank"
+           class="inline-flex justify-center items-center px-4 py-2 border border-transparent text-sm font-medium rounded-md text-white bg-blue-600 hover:bg-blue-700 focus:ring-2 focus:ring-offset-2 focus:ring-blue-500">
+          <i data-feather="inbox" class="h-5 w-5 mr-2"></i>
+          Ouvrir ma boîte mail
+        </a>
+      </div>
+
+      <p class="mt-6 text-sm text-gray-500">
+        Vous n’avez pas reçu d’e-mail ? <br>
+        <a href="#" class="text-blue-600 hover:text-blue-500 font-medium">Renvoyer le lien</a> ou
+        <a href="reset-request.html" class="text-blue-600 hover:text-blue-500 font-medium">utiliser une autre adresse</a>.
+      </p>
+
+      <div class="mt-6">
+        <a href="login.html" class="text-sm text-gray-600 hover:text-gray-800 flex items-center justify-center gap-1">
+          <i data-feather="arrow-left" class="h-4 w-4"></i> Retour à la connexion
+        </a>
+      </div>
+    </div>
+  </div>
+
+  <script>
+    feather.replace();
+  </script>
+</body>
+</html>
