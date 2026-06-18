@@ -3,122 +3,462 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>Espace Livreur - PharmaLink Pro</title>
+  <title>Tableau de Bord - Espace Livreur</title>
   <script src="https://cdn.tailwindcss.com"></script>
   <script src="https://cdn.jsdelivr.net/npm/feather-icons/dist/feather.min.js"></script>
+  <script>
+    tailwind.config = {
+      darkMode: 'class',
+      theme: {
+        extend: {
+          colors: {
+            brand: {
+              50: '#fffbeb', 100: '#fef3c7', 200: '#fde68a', 300: '#fcd34d', 400: '#fbbf24',
+              500: '#f59e0b', 600: '#d97706', 700: '#b45309', 800: '#92400e', 900: '#78350f',
+            }
+          }
+        }
+      }
+    }
+  </script>
   <style>
-    @import url('https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;500;600;700&display=swap');
-    body { font-family: 'Poppins', sans-serif; }
+    @import url('https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap');
+    body { font-family: 'Inter', sans-serif; transition: background-color 0.3s, color 0.3s; }
+    
+    ::-webkit-scrollbar { width: 6px; }
+    ::-webkit-scrollbar-track { background: transparent; }
+    ::-webkit-scrollbar-thumb { background: #cbd5e1; border-radius: 10px; }
+    .dark ::-webkit-scrollbar-thumb { background: #475569; }
+
+    .glass { background: rgba(255, 255, 255, 0.7); backdrop-filter: blur(10px); border-bottom: 1px solid rgba(255, 255, 255, 0.3); }
+    .dark .glass { background: rgba(30, 41, 59, 0.7); border-bottom: 1px solid rgba(255, 255, 255, 0.1); }
+
+    .timeline-step { position: relative; }
+    .timeline-step::before {
+      content: ''; position: absolute; left: 1.25rem; top: 2.5rem; bottom: -1rem; width: 2px;
+      background: #e2e8f0; z-index: 0;
+    }
+    .dark .timeline-step::before { background: #334155; }
+    .timeline-step:last-child::before { display: none; }
+    
+    .timeline-step.completed::before { background: #10b981; }
+    .timeline-step.active::before { background: #e2e8f0; }
+    .dark .timeline-step.active::before { background: #334155; }
+    
+    .tab-btn.active { color: #d97706; border-bottom: 2px solid #d97706; }
+    .dark .tab-btn.active { color: #fbbf24; border-bottom: 2px solid #fbbf24; }
   </style>
 </head>
-<body class="bg-gray-50 text-gray-800">
+<body class="bg-gray-50 text-gray-800 dark:bg-slate-900 dark:text-slate-200">
 
-  <!-- Barre de navigation -->
-  <nav class="bg-white shadow-sm relative z-10">
+  <!-- Navbar -->
+  <nav class="sticky top-0 z-50 glass">
     <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
       <div class="flex justify-between h-16">
-        <div class="flex items-center">
-          <i data-feather="activity" class="h-8 w-8 text-blue-600"></i>
-          <span class="ml-2 text-xl font-bold text-blue-600">PharmaLink Pro</span>
+        <div class="flex items-center gap-3">
+          <div class="bg-brand-500 p-2 rounded-lg">
+            <i data-feather="truck" class="h-6 w-6 text-white"></i>
+          </div>
+          <span class="text-xl font-bold bg-clip-text text-transparent bg-gradient-to-r from-brand-600 to-yellow-400 dark:from-yellow-400 dark:to-brand-300 hidden sm:block">PharmaLink Pro</span>
         </div>
-        <div class="flex items-center space-x-6">
-          <a href="livreur.html" class="text-gray-600 hover:text-blue-600">Accueil</a>
-          <a href="pharmacies_livreur.html" class="text-gray-600 hover:text-blue-600">Pharmacies</a>
-          <a href="suivi_livreur.html" class="text-gray-600 hover:text-blue-600">Suivi</a>
-          <a href="services_livreur.html" class="text-gray-600 hover:text-blue-600">Services</a>
-          <a href="contact_livreur.html" class="text-gray-600 hover:text-blue-600">Contact</a>
-           <a href="login.html" class="bg-blue-600 text-white px-4 py-2 rounded-md font-medium hover:bg-blue-700 transition">
-            <i data-feather="log-out" class="h-4 w-4 inline mr-1"></i> Déconnexion
-          </a>
+        <div class="flex items-center gap-3 sm:gap-4">
+          <!-- Navigation Links -->
+          <div class="hidden md:flex items-center space-x-6 mr-4">
+            <a href="livreur.html" class="text-brand-600 dark:text-yellow-400 font-medium">Tableau de bord</a>
+            <a href="commande_livreur.html" class="text-gray-600 dark:text-slate-300 hover:text-brand-600 dark:hover:text-yellow-400 transition">Nouvelles courses</a>
+            <a href="tournee.html" class="text-gray-600 dark:text-slate-300 hover:text-brand-600 dark:hover:text-yellow-400 transition">Ma Tournée</a>
+          </div>
+
+          <!-- Dark Mode Toggle -->
+          <button id="themeToggle" class="p-2 rounded-full hover:bg-gray-200 dark:hover:bg-slate-800 transition text-gray-600 dark:text-slate-300 focus:outline-none">
+            <i data-feather="moon" id="themeIcon" class="h-5 w-5"></i>
+          </button>
+
+          <!-- Notifications -->
+          <div class="relative">
+            <button id="notifBtn" class="p-2 rounded-full hover:bg-gray-200 dark:hover:bg-slate-800 transition text-gray-600 dark:text-slate-300 focus:outline-none relative">
+              <i data-feather="bell" class="h-5 w-5"></i>
+              <span class="absolute top-1 right-1 h-2.5 w-2.5 bg-red-500 rounded-full border-2 border-white dark:border-slate-900 animate-pulse"></span>
+            </button>
+            <div id="notifDropdown" class="hidden absolute right-0 mt-2 w-80 bg-white dark:bg-slate-800 rounded-xl shadow-lg border border-gray-100 dark:border-slate-700 overflow-hidden z-50">
+              <div class="p-4 border-b border-gray-100 dark:border-slate-700 flex justify-between items-center bg-gray-50 dark:bg-slate-800/50">
+                <h3 class="font-semibold text-gray-800 dark:text-white">Notifications</h3>
+                <button class="text-xs text-brand-600 dark:text-yellow-400 hover:underline">Tout marquer lu</button>
+              </div>
+              <div class="max-h-64 overflow-y-auto">
+                <div class="p-4 border-b border-gray-50 dark:border-slate-700/50 hover:bg-gray-50 dark:hover:bg-slate-700/30 transition cursor-pointer flex gap-3">
+                  <div class="bg-brand-100 dark:bg-brand-900/30 p-2 rounded-full h-8 w-8 flex items-center justify-center shrink-0">
+                    <i data-feather="map-pin" class="h-4 w-4 text-brand-600 dark:text-yellow-500"></i>
+                  </div>
+                  <div>
+                    <p class="text-sm text-gray-800 dark:text-slate-200 font-medium">Nouvelle course disponible</p>
+                    <p class="text-xs text-gray-500 dark:text-slate-400 mt-0.5">Une livraison est requise depuis la Pharmacie du Soleil.</p>
+                    <span class="text-[10px] text-gray-400 mt-1 block">Il y a 2 min</span>
+                  </div>
+                </div>
+                <div class="p-4 border-b border-gray-50 dark:border-slate-700/50 hover:bg-gray-50 dark:hover:bg-slate-700/30 transition cursor-pointer flex gap-3">
+                  <div class="bg-green-100 dark:bg-green-900/30 p-2 rounded-full h-8 w-8 flex items-center justify-center shrink-0">
+                    <i data-feather="package" class="h-4 w-4 text-green-600 dark:text-green-400"></i>
+                  </div>
+                  <div>
+                    <p class="text-sm text-gray-800 dark:text-slate-200 font-medium">Commande prête à récupérer</p>
+                    <p class="text-xs text-gray-500 dark:text-slate-400 mt-0.5">La commande #CMD-098 vous attend au comptoir.</p>
+                    <span class="text-[10px] text-gray-400 mt-1 block">Il y a 10 min</span>
+                  </div>
+                </div>
+              </div>
+            </div>
+          </div>
+
+          <!-- User Menu -->
+          <div class="relative">
+            <button id="userBtn" class="flex items-center gap-2 pl-2 pr-3 py-1.5 bg-white dark:bg-slate-800 border border-gray-200 dark:border-slate-700 rounded-full hover:shadow-md transition focus:outline-none">
+              <div class="h-8 w-8 rounded-full bg-gradient-to-tr from-brand-500 to-red-400 text-white flex items-center justify-center font-bold text-sm" id="userInitials">LI</div>
+              <span class="text-sm font-medium hidden sm:block" id="userName">Livreur</span>
+              <i data-feather="chevron-down" class="h-4 w-4 text-gray-500"></i>
+            </button>
+            <div id="userDropdown" class="hidden absolute right-0 mt-2 w-48 bg-white dark:bg-slate-800 rounded-xl shadow-lg border border-gray-100 dark:border-slate-700 overflow-hidden z-50 py-1">
+              <a href="profil_livreur.html" class="flex items-center gap-2 px-4 py-2 text-sm text-gray-700 dark:text-slate-300 hover:bg-gray-50 dark:hover:bg-slate-700 transition">
+                <i data-feather="user" class="h-4 w-4"></i> Mon Profil
+              </a>
+              <a href="tournee.html" class="flex items-center gap-2 px-4 py-2 text-sm text-gray-700 dark:text-slate-300 hover:bg-gray-50 dark:hover:bg-slate-700 transition">
+                <i data-feather="map" class="h-4 w-4"></i> Ma tournée
+              </a>
+              <hr class="my-1 border-gray-100 dark:border-slate-700">
+              <button onclick="Auth.logout()" class="w-full flex items-center gap-2 px-4 py-2 text-sm text-red-600 dark:text-red-400 hover:bg-red-50 dark:hover:bg-red-900/20 transition text-left">
+                <i data-feather="log-out" class="h-4 w-4"></i> Déconnexion
+              </button>
+            </div>
+          </div>
         </div>
       </div>
     </div>
   </nav>
 
-  <!-- En-tête -->
-  <section class="relative py-20 bg-gradient-to-br from-blue-600 to-green-500 text-white text-center">
-    <div class="max-w-4xl mx-auto px-6">
-      <h1 class="text-4xl font-bold mb-4">Espace Livreur</h1>
-      <p class="text-blue-100 text-lg">
-        Gérer vos livraisons, suivre vos trajets et valider les commandes livrées facilement.
-      </p>
-    </div>
-  </section>
-
-  <!-- Tableau de bord livreur -->
-  <section class="max-w-6xl mx-auto py-16 px-6 grid grid-cols-1 md:grid-cols-3 gap-10">
-    <!-- Commandes à livrer -->
-    <div class="bg-white rounded-2xl shadow-lg p-8 text-center hover:shadow-xl transition">
-      <div class="flex justify-center mb-6">
-        <div class="bg-blue-100 p-4 rounded-full">
-          <i data-feather="shopping-cart" class="h-10 w-10 text-blue-600"></i>
+  <!-- Main Content -->
+  <main class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8 space-y-8">
+    
+    <!-- Welcome & Top Stats -->
+    <div class="flex flex-col xl:flex-row gap-6">
+      <!-- Welcome Card -->
+      <div class="flex-1 bg-gradient-to-br from-brand-500 to-red-500 dark:from-brand-800 dark:to-red-900 rounded-2xl p-8 text-white shadow-xl relative overflow-hidden">
+        <div class="absolute top-0 right-0 -mt-10 -mr-10 opacity-20 pointer-events-none">
+          <i data-feather="map" class="w-64 h-64"></i>
+        </div>
+        <div class="relative z-10">
+          <h1 class="text-3xl font-bold mb-2">Bonjour, <span id="welcomeName">Livreur</span> ! 👋</h1>
+          <p class="text-orange-50 mb-6 max-w-lg">Bienvenue sur votre espace de navigation. Gérez vos courses, optimisez votre tournée et suivez vos gains en un clin d'œil.</p>
+          <div class="flex flex-wrap gap-4">
+            <a href="commande_livreur.html" class="bg-white text-brand-600 px-5 py-2.5 rounded-lg font-semibold shadow hover:bg-orange-50 transition transform hover:-translate-y-0.5">
+              Trouver une course
+            </a>
+            <a href="tournee.html" class="bg-brand-700 bg-opacity-40 hover:bg-opacity-60 text-white border border-brand-400 px-5 py-2.5 rounded-lg font-semibold transition backdrop-blur-sm">
+              Ma carte de tournée
+            </a>
+          </div>
         </div>
       </div>
-      <h2 class="text-xl font-semibold text-gray-800 mb-3">Commandes à livrer</h2>
-      <p class="text-gray-600 mb-6">
-        Consultez la liste des commandes qui vous sont attribuées et acceptez-les en un clic.
-      </p>
-      <a href="commande_livreur.html" class="bg-blue-600 text-white px-5 py-2 rounded-md hover:bg-blue-700 transition inline-block">Voir les commandes
-      </a>
-    </div>
 
-    <!-- Trajets en cours -->
-    <div class="bg-white rounded-2xl shadow-lg p-8 text-center hover:shadow-xl transition">
-      <div class="flex justify-center mb-6">
-        <div class="bg-green-100 p-4 rounded-full">
-          <i data-feather="map" class="h-10 w-10 text-green-600"></i>
+      <!-- Quick Stats -->
+      <div class="xl:w-1/3 grid grid-cols-2 gap-4">
+        <div class="bg-white dark:bg-slate-800 rounded-2xl p-5 shadow-sm border border-gray-100 dark:border-slate-700 flex flex-col justify-center">
+          <div class="flex items-center gap-3 mb-2">
+            <div class="p-2 bg-blue-100 dark:bg-blue-900/30 text-blue-600 dark:text-blue-400 rounded-lg"><i data-feather="check-circle" class="h-5 w-5"></i></div>
+            <span class="text-gray-500 dark:text-slate-400 text-sm font-medium">Courses validées</span>
+          </div>
+          <p class="text-3xl font-bold text-gray-800 dark:text-white">42</p>
+          <p class="text-xs text-green-500 mt-2 flex items-center gap-1"><i data-feather="trending-up" class="h-3 w-3"></i> Ce mois-ci</p>
+        </div>
+        <div class="bg-white dark:bg-slate-800 rounded-2xl p-5 shadow-sm border border-gray-100 dark:border-slate-700 flex flex-col justify-center">
+          <div class="flex items-center gap-3 mb-2">
+            <div class="p-2 bg-brand-100 dark:bg-brand-900/30 text-brand-600 dark:text-yellow-500 rounded-lg"><i data-feather="dollar-sign" class="h-5 w-5"></i></div>
+            <span class="text-gray-500 dark:text-slate-400 text-sm font-medium">Gains (Mois)</span>
+          </div>
+          <p class="text-2xl sm:text-3xl font-bold text-gray-800 dark:text-white">85 400 F</p>
+        </div>
+        <div class="bg-white dark:bg-slate-800 rounded-2xl p-5 shadow-sm border border-gray-100 dark:border-slate-700 col-span-2 flex items-center justify-between">
+          <div>
+            <div class="flex items-center gap-2 mb-1">
+              <div class="p-1.5 bg-yellow-100 dark:bg-yellow-900/30 text-yellow-600 dark:text-yellow-500 rounded-lg"><i data-feather="clock" class="h-4 w-4"></i></div>
+              <span class="text-gray-500 dark:text-slate-400 text-sm font-medium">Prochaine collecte prévue</span>
+            </div>
+            <p class="text-lg font-bold text-gray-800 dark:text-white mt-1">Immédiate (Zogbo)</p>
+          </div>
+          <a href="#timeline-section" class="text-brand-600 dark:text-yellow-400 bg-brand-50 dark:bg-brand-900/20 p-2 rounded-full hover:bg-brand-100 dark:hover:bg-brand-900/40 transition">
+            <i data-feather="arrow-right" class="h-5 w-5"></i>
+          </a>
         </div>
       </div>
-      <h2 class="text-xl font-semibold text-gray-800 mb-3">Trajets en cours</h2>
-      <p class="text-gray-600 mb-6">
-        Suivez vos itinéraires de livraison et recevez les mises à jour en temps réel sur votre parcours.
-      </p>
-        <a href="suivi_livreur.html" class="bg-blue-600 text-white px-5 py-2 rounded-md hover:bg-blue-700 transition inline-block">Suivre le trajet
-      </a>
     </div>
 
-    <!-- Historique -->
-    <div class="bg-white rounded-2xl shadow-lg p-8 text-center hover:shadow-xl transition">
-      <div class="flex justify-center mb-6">
-        <div class="bg-yellow-100 p-4 rounded-full">
-          <i data-feather="clock" class="h-10 w-10 text-yellow-600"></i>
+    <div class="grid grid-cols-1 lg:grid-cols-3 gap-8">
+      
+      <!-- Left Column (Wider) -->
+      <div class="lg:col-span-2 space-y-8">
+        
+        <!-- Live Timeline Section -->
+        <div id="timeline-section" class="bg-white dark:bg-slate-800 rounded-2xl p-6 shadow-sm border border-gray-100 dark:border-slate-700">
+          <div class="flex flex-col sm:flex-row sm:justify-between sm:items-center mb-6 gap-4">
+            <h2 class="text-xl font-bold text-gray-800 dark:text-white flex items-center gap-2">
+              <i data-feather="navigation" class="text-brand-500 dark:text-yellow-400 h-5 w-5"></i> Course en cours
+            </h2>
+            <span class="px-3 py-1 bg-brand-100 text-brand-800 dark:bg-brand-900/30 dark:text-yellow-400 rounded-full text-xs font-semibold uppercase tracking-wide self-start sm:self-auto">En route</span>
+          </div>
+          
+          <div class="bg-gray-50 dark:bg-slate-900/50 rounded-xl p-5 border border-gray-100 dark:border-slate-700 mb-6 flex flex-col sm:flex-row justify-between gap-4">
+            <div>
+              <p class="text-sm text-gray-500 dark:text-slate-400">Mission <span class="font-bold text-gray-800 dark:text-slate-200">#CMD-098</span></p>
+              <p class="text-gray-800 dark:text-slate-300 font-medium mt-1">Pharmacie du Soleil &rarr; Domicile Client</p>
+            </div>
+            <div class="sm:text-right">
+              <p class="text-sm text-gray-500 dark:text-slate-400">Client</p>
+              <p class="text-brand-600 dark:text-yellow-500 font-medium flex items-center sm:justify-end gap-1">Paul D. <i data-feather="phone" class="h-3 w-3"></i></p>
+            </div>
+          </div>
+
+          <!-- Vertical Timeline -->
+          <div class="pl-2">
+            <div class="timeline-step completed flex items-start gap-4 mb-8">
+              <div class="z-10 bg-green-500 p-2 rounded-full text-white shadow-md shadow-green-500/30 mt-1">
+                <i data-feather="check" class="h-4 w-4"></i>
+              </div>
+              <div>
+                <h4 class="font-semibold text-gray-800 dark:text-slate-200">Course acceptée</h4>
+                <p class="text-sm text-gray-500 dark:text-slate-400">Aujourd'hui, 13:50</p>
+              </div>
+            </div>
+            
+            <div class="timeline-step completed flex items-start gap-4 mb-8">
+              <div class="z-10 bg-green-500 p-2 rounded-full text-white shadow-md shadow-green-500/30 mt-1">
+                <i data-feather="package" class="h-4 w-4"></i>
+              </div>
+              <div>
+                <h4 class="font-semibold text-gray-800 dark:text-slate-200">Colis récupéré en pharmacie</h4>
+                <p class="text-sm text-gray-500 dark:text-slate-400">Aujourd'hui, 14:05</p>
+              </div>
+            </div>
+
+            <div class="timeline-step active flex items-start gap-4 mb-8">
+              <div class="z-10 bg-brand-500 p-2 rounded-full text-white shadow-md shadow-brand-500/30 mt-1 animate-pulse">
+                <i data-feather="navigation" class="h-4 w-4"></i>
+              </div>
+              <div>
+                <h4 class="font-semibold text-brand-600 dark:text-yellow-500">En route vers le client</h4>
+                <p class="text-sm text-gray-500 dark:text-slate-400">Distance : 2.5 km</p>
+                <div class="mt-3 flex gap-2">
+                  <button class="bg-brand-500 text-white px-3 py-1.5 rounded-lg text-xs font-semibold hover:bg-brand-600 transition shadow-sm">Signaler l'arrivée</button>
+                  <button class="bg-white dark:bg-slate-700 text-gray-700 dark:text-slate-200 border border-gray-200 dark:border-slate-600 px-3 py-1.5 rounded-lg text-xs font-semibold hover:bg-gray-50 dark:hover:bg-slate-600 transition shadow-sm">GPS</button>
+                </div>
+              </div>
+            </div>
+
+            <div class="timeline-step flex items-start gap-4">
+              <div class="z-10 bg-gray-200 dark:bg-slate-700 p-2 rounded-full text-gray-400 dark:text-slate-500 mt-1">
+                <i data-feather="home" class="h-4 w-4"></i>
+              </div>
+              <div>
+                <h4 class="font-medium text-gray-500 dark:text-slate-400">Livrée</h4>
+                <p class="text-sm text-gray-400 dark:text-slate-500">En attente de signature</p>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <!-- History Tabs -->
+        <div class="bg-white dark:bg-slate-800 rounded-2xl p-6 shadow-sm border border-gray-100 dark:border-slate-700">
+          <div class="flex justify-between items-center mb-6">
+            <h2 class="text-xl font-bold text-gray-800 dark:text-white flex items-center gap-2">
+              <i data-feather="folder" class="text-brand-500 dark:text-yellow-500 h-5 w-5"></i> Historique
+            </h2>
+            <a href="historique.html" class="text-sm text-brand-500 dark:text-yellow-500 hover:underline">Voir tout</a>
+          </div>
+
+          <div class="flex overflow-x-auto border-b border-gray-200 dark:border-slate-700 mb-4 pb-px hide-scrollbar">
+            <button class="tab-btn active px-4 py-2 font-medium text-sm focus:outline-none whitespace-nowrap" onclick="switchTab('livraisons', this)">Courses effectuées</button>
+            <button class="tab-btn text-gray-500 dark:text-slate-400 hover:text-gray-700 dark:hover:text-slate-300 px-4 py-2 font-medium text-sm focus:outline-none transition whitespace-nowrap" onclick="switchTab('annules', this)">Livraisons annulées</button>
+          </div>
+
+          <!-- Courses effectuées Content -->
+          <div id="tab-livraisons" class="space-y-4">
+            <div class="flex flex-col sm:flex-row sm:items-center justify-between p-4 bg-gray-50 dark:bg-slate-900/50 rounded-xl hover:bg-gray-100 dark:hover:bg-slate-800 transition gap-4">
+              <div class="flex items-center gap-4">
+                <div class="bg-white dark:bg-slate-800 p-2 rounded shadow-sm border border-gray-100 dark:border-slate-700">
+                  <i data-feather="check-circle" class="text-green-500 h-6 w-6"></i>
+                </div>
+                <div>
+                  <h4 class="font-semibold text-gray-800 dark:text-slate-200">Course #CMD-095</h4>
+                  <p class="text-xs text-gray-500 dark:text-slate-400">Pharmacie du Centre &rarr; Akpakpa</p>
+                </div>
+              </div>
+              <div class="sm:text-right flex justify-between sm:block items-center">
+                <div>
+                  <p class="font-bold text-gray-800 dark:text-white">1 500 F</p>
+                  <p class="text-xs text-gray-500 dark:text-slate-400 mb-1">Aujourd'hui, 11:30</p>
+                </div>
+                <span class="px-2 py-0.5 bg-green-100 text-green-800 dark:bg-green-900/30 dark:text-green-400 rounded text-[10px] font-bold uppercase text-center block w-fit">Livrée</span>
+              </div>
+            </div>
+            
+            <div class="flex flex-col sm:flex-row sm:items-center justify-between p-4 bg-gray-50 dark:bg-slate-900/50 rounded-xl hover:bg-gray-100 dark:hover:bg-slate-800 transition gap-4">
+              <div class="flex items-center gap-4">
+                <div class="bg-white dark:bg-slate-800 p-2 rounded shadow-sm border border-gray-100 dark:border-slate-700">
+                  <i data-feather="check-circle" class="text-green-500 h-6 w-6"></i>
+                </div>
+                <div>
+                  <h4 class="font-semibold text-gray-800 dark:text-slate-200">Course #CMD-082</h4>
+                  <p class="text-xs text-gray-500 dark:text-slate-400">Pharmacie Les Anges &rarr; Cadjehoun</p>
+                </div>
+              </div>
+              <div class="sm:text-right flex justify-between sm:block items-center">
+                <div>
+                  <p class="font-bold text-gray-800 dark:text-white">2 000 F</p>
+                  <p class="text-xs text-gray-500 dark:text-slate-400 mb-1">Hier, 16:20</p>
+                </div>
+                <span class="px-2 py-0.5 bg-green-100 text-green-800 dark:bg-green-900/30 dark:text-green-400 rounded text-[10px] font-bold uppercase text-center block w-fit">Livrée</span>
+              </div>
+            </div>
+          </div>
+
+          <!-- Livraisons Annulées Content -->
+          <div id="tab-annules" class="space-y-4 hidden">
+            <div class="flex flex-col sm:flex-row sm:items-center justify-between p-4 bg-gray-50 dark:bg-slate-900/50 rounded-xl hover:bg-gray-100 dark:hover:bg-slate-800 transition gap-4">
+              <div class="flex items-center gap-4">
+                <div class="bg-white dark:bg-slate-800 p-2 rounded shadow-sm border border-gray-100 dark:border-slate-700">
+                  <i data-feather="x-circle" class="text-red-500 h-6 w-6"></i>
+                </div>
+                <div>
+                  <h4 class="font-semibold text-gray-800 dark:text-slate-200">Course #CMD-071</h4>
+                  <p class="text-xs text-gray-500 dark:text-slate-400">Client absent - Retour Pharmacie</p>
+                </div>
+              </div>
+              <div class="sm:text-right flex justify-between sm:block items-center">
+                <p class="text-xs text-gray-500 dark:text-slate-400 mb-1">04/06/2026</p>
+                <span class="px-2 py-0.5 bg-red-100 text-red-800 dark:bg-red-900/30 dark:text-red-400 rounded text-[10px] font-bold uppercase text-center block w-fit">Annulée</span>
+              </div>
+            </div>
+          </div>
         </div>
       </div>
-      <h2 class="text-xl font-semibold text-gray-800 mb-3">Historique</h2>
-      <p class="text-gray-600 mb-6">
-        Consultez vos livraisons effectuées et vos statistiques personnelles de performance.
-      </p>
-      <a href="historique.html" class="bg-blue-600 text-white px-5 py-2 rounded-md hover:bg-blue-700 transition\
- inline-block">Voir mon historique
-      </a>
+
+      <!-- Right Column (Sidebar) -->
+      <div class="space-y-8">
+        
+        <!-- Zone de travail -->
+        <div class="bg-white dark:bg-slate-800 rounded-2xl p-6 shadow-sm border border-gray-100 dark:border-slate-700">
+          <h2 class="text-xl font-bold text-gray-800 dark:text-white flex items-center gap-2 mb-5">
+            <i data-feather="map-pin" class="text-brand-500 h-5 w-5"></i> Ma Zone Actuelle
+          </h2>
+
+          <div class="bg-brand-50 dark:bg-brand-900/20 border border-brand-100 dark:border-brand-800/50 rounded-xl p-4 text-center">
+            <h3 class="font-bold text-brand-700 dark:text-brand-400">Cotonou Ouest</h3>
+            <p class="text-xs text-brand-600/80 dark:text-brand-300 mt-1">Fidjrossè, Cadjehoun, Haie-Vive</p>
+            <div class="mt-4 flex justify-center">
+              <span class="px-3 py-1 bg-green-100 text-green-700 dark:bg-green-900/40 dark:text-green-400 rounded-full text-xs font-bold uppercase flex items-center gap-2 shadow-sm">
+                <span class="relative flex h-2 w-2">
+                  <span class="animate-ping absolute inline-flex h-full w-full rounded-full bg-green-400 opacity-75"></span>
+                  <span class="relative inline-flex rounded-full h-2 w-2 bg-green-500"></span>
+                </span>
+                En ligne et disponible
+              </span>
+            </div>
+          </div>
+        </div>
+
+        <!-- Mini Profil Véhicule -->
+        <div class="bg-gradient-to-br from-orange-50 to-amber-50 dark:from-slate-800 dark:to-slate-800 rounded-2xl p-6 shadow-sm border border-orange-100 dark:border-slate-700 relative overflow-hidden">
+          <div class="absolute -right-4 -bottom-4 opacity-10 pointer-events-none">
+            <i data-feather="truck" class="w-32 h-32 text-orange-500"></i>
+          </div>
+          <h2 class="text-xl font-bold text-gray-800 dark:text-white flex items-center gap-2 mb-4 relative z-10">
+            <i data-feather="settings" class="text-orange-600 dark:text-orange-400 h-5 w-5"></i> Mon Véhicule
+          </h2>
+          
+          <div class="space-y-4 relative z-10">
+            <div>
+              <p class="text-xs text-gray-500 dark:text-slate-400 mb-1 uppercase font-semibold">Type de véhicule</p>
+              <div class="flex items-center gap-2">
+                <span class="text-sm font-medium text-gray-800 dark:text-slate-200">Moto (Scooter)</span>
+                <span class="px-2 py-0.5 bg-blue-100 text-blue-700 dark:bg-blue-900/30 dark:text-blue-400 rounded text-[10px] font-bold">Immat: BJ-4567</span>
+              </div>
+            </div>
+            <div>
+              <p class="text-xs text-gray-500 dark:text-slate-400 mb-1 uppercase font-semibold">Documents Actifs</p>
+              <a href="profil_livreur.html" class="flex items-center justify-between bg-white dark:bg-slate-700 p-2.5 rounded-lg border border-orange-100 dark:border-slate-600 hover:shadow-md transition">
+                <div class="flex items-center gap-2 text-sm text-gray-800 dark:text-slate-200 font-medium">
+                  <i data-feather="file-text" class="h-4 w-4 text-orange-500"></i> Permis & Assurance
+                </div>
+                <span class="text-xs text-green-600 dark:text-green-400 font-bold">À jour</span>
+              </a>
+            </div>
+            <a href="profil_livreur.html" class="block text-center w-full mt-2 text-sm font-semibold text-orange-600 dark:text-orange-400 hover:underline">
+              Gérer mon profil
+            </a>
+          </div>
+        </div>
+
+      </div>
     </div>
-  </section>
+  </main>
 
-  <!-- Section bonus -->
-  <section class="text-center py-16 bg-blue-50">
-    <h2 class="text-3xl font-semibold text-blue-700 mb-4">Livrez facilement et en toute sécurité</h2>
-    <p class="text-gray-600 max-w-3xl mx-auto mb-8">
-      PharmaLink Pro accompagne les livreurs pour simplifier la gestion des tournées et optimiser les trajets.
-    </p>
-    <a href="tournee.html" class="bg-blue-600 text-white px-6 py-3 rounded-md font-medium hover:bg-blue-700 transition">
-      Démarrer ma tournée
-    </a>
-  </section>
-  <section  class="text-center py-16 bg-blue-50">
-    <a href="profil_livreur.html" class="bg-blue-600 text-white px-6 py-3 rounded-md font-medium hover:bg-blue-700 transition">
-      Gérer mon Profil
-    </a>
-    </section>
-
-  <!-- Footer -->
-  <footer class="bg-gray-800 py-8">
-    <div class="max-w-7xl mx-auto text-center text-gray-400">
-      <p>&copy; 2025 PharmaLink Pro. Tous droits réservés.</p>
-    </div>
-  </footer>
-
+  <script src="auth.js"></script>
   <script>
     feather.replace();
+
+    // ---- AUTH & USER DATA ----
+    const user = Auth.requireAuth('livreur');
+    if (user) {
+      document.getElementById('userName').textContent = user.prenom || 'Livreur';
+      document.getElementById('welcomeName').textContent = user.prenom || 'Livreur';
+      const initials = ((user.prenom || '?')[0] + (user.nom || '?')[0]).toUpperCase();
+      document.getElementById('userInitials').textContent = initials;
+    }
+
+    // ---- DROPDOWNS ----
+    function setupDropdown(btnId, dropdownId) {
+      const btn = document.getElementById(btnId);
+      const dropdown = document.getElementById(dropdownId);
+      btn.addEventListener('click', (e) => {
+        e.stopPropagation();
+        dropdown.classList.toggle('hidden');
+      });
+      document.addEventListener('click', (e) => {
+        if (!dropdown.contains(e.target)) dropdown.classList.add('hidden');
+      });
+    }
+    setupDropdown('notifBtn', 'notifDropdown');
+    setupDropdown('userBtn', 'userDropdown');
+
+    // ---- DARK MODE ----
+    const themeToggle = document.getElementById('themeToggle');
+    const themeIcon = document.getElementById('themeIcon');
+    const htmlClass = document.documentElement.classList;
+
+    if (localStorage.getItem('theme') === 'dark' || (!('theme' in localStorage) && window.matchMedia('(prefers-color-scheme: dark)').matches)) {
+      htmlClass.add('dark');
+      themeIcon.setAttribute('data-feather', 'sun');
+    }
+
+    themeToggle.addEventListener('click', () => {
+      htmlClass.toggle('dark');
+      const isDark = htmlClass.contains('dark');
+      localStorage.setItem('theme', isDark ? 'dark' : 'light');
+      themeIcon.setAttribute('data-feather', isDark ? 'sun' : 'moon');
+      feather.replace();
+    });
+
+    // ---- TABS HISTORIQUE ----
+    function switchTab(tabId, btn) {
+      document.querySelectorAll('.tab-btn').forEach(b => {
+        b.classList.remove('active', 'text-brand-600', 'border-b-2', 'border-brand-600', 'dark:text-yellow-400', 'dark:border-yellow-400');
+        b.classList.add('text-gray-500', 'dark:text-slate-400');
+      });
+      btn.classList.add('active', 'text-brand-600', 'border-b-2', 'border-brand-600', 'dark:text-yellow-400', 'dark:border-yellow-400');
+      btn.classList.remove('text-gray-500', 'dark:text-slate-400');
+
+      document.getElementById('tab-livraisons').classList.add('hidden');
+      document.getElementById('tab-annules').classList.add('hidden');
+      document.getElementById(`tab-${tabId}`).classList.remove('hidden');
+    }
   </script>
 </body>
 </html>

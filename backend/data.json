@@ -1,4 +1,33 @@
 {
+  "users": [
+    {
+      "id": 1781538793226,
+      "prenom": "Alice",
+      "nom": "Dupont",
+      "email": "alice@gmail.com",
+      "password": "ef797c8118f02dfb649607dd5d3f8c7623048c9c063d532cc95c5ed7a898a64f",
+      "role": "patient",
+      "createdAt": "2026-06-15T15:53:13.228Z"
+    },
+    {
+      "id": 1781539061418,
+      "prenom": "Mitsuri",
+      "nom": "faw",
+      "email": "mitsurifaw@gmail.com",
+      "password": "ef797c8118f02dfb649607dd5d3f8c7623048c9c063d532cc95c5ed7a898a64f",
+      "role": "livreur",
+      "createdAt": "2026-06-15T15:57:41.418Z"
+    },
+    {
+      "id": 1781539159619,
+      "prenom": "julio",
+      "nom": "dossou",
+      "email": "reineaye28@gmail.com",
+      "password": "ef797c8118f02dfb649607dd5d3f8c7623048c9c063d532cc95c5ed7a898a64f",
+      "role": "proprietaire",
+      "createdAt": "2026-06-15T15:59:19.619Z"
+    }
+  ],
   "clients": [],
   "pharmacies": []
 }

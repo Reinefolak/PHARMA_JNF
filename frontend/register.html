@@ -23,9 +23,72 @@
       transform: translateY(-4px);
       box-shadow: 0 35px 45px rgba(0, 0, 0, 0.15);
     }
+    .role-card {
+      cursor: pointer;
+      border: 2px solid #e5e7eb;
+      border-radius: 0.75rem;
+      padding: 1rem;
+      text-align: center;
+      transition: all 0.2s ease;
+    }
+    .role-card:hover {
+      border-color: #3b82f6;
+      background-color: #eff6ff;
+    }
+    .role-card.selected {
+      border-color: #3b82f6;
+      background-color: #eff6ff;
+    }
+    .role-card.selected .role-icon {
+      color: #3b82f6;
+    }
+    .role-icon {
+      color: #9ca3af;
+      transition: color 0.2s;
+    }
+    .spinner {
+      display: none;
+      width: 20px;
+      height: 20px;
+      border: 3px solid rgba(255,255,255,0.3);
+      border-top-color: #fff;
+      border-radius: 50%;
+      animation: spin 0.8s linear infinite;
+      margin: 0 auto;
+    }
+    @keyframes spin { to { transform: rotate(360deg); } }
+    .btn-loading .spinner { display: inline-block; }
+    .btn-loading .btn-text { display: none; }
+
+    .toast {
+      position: fixed;
+      top: 1.5rem;
+      right: 1.5rem;
+      padding: 0.9rem 1.4rem;
+      border-radius: 0.75rem;
+      color: white;
+      font-size: 0.9rem;
+      font-weight: 500;
+      z-index: 9999;
+      transform: translateX(120%);
+      transition: transform 0.4s cubic-bezier(0.34, 1.56, 0.64, 1);
+      display: flex;
+      align-items: center;
+      gap: 0.5rem;
+      box-shadow: 0 4px 20px rgba(0,0,0,0.15);
+    }
+    .toast.show { transform: translateX(0); }
+    .toast.success { background: linear-gradient(135deg, #10b981, #059669); }
+    .toast.error { background: linear-gradient(135deg, #ef4444, #dc2626); }
   </style>
 </head>
 <body class="flex items-center justify-center py-12 px-4 sm:px-6 lg:px-8">
+
+  <!-- Toast notification -->
+  <div id="toast" class="toast">
+    <i id="toast-icon" data-feather="check-circle" class="h-5 w-5"></i>
+    <span id="toast-msg"></span>
+  </div>
 
   <div class="w-full max-w-md space-y-8">
     <div class="text-center text-white">
@@ -35,31 +98,37 @@
       </div>
       <h2 class="mt-6 text-3xl font-extrabold">Créer un nouveau compte</h2>
       <p class="mt-2 text-sm">
-        Vous avez déjà un compte ? 
+        Vous avez déjà un compte ?
         <a href="login.html" class="font-medium underline hover:text-gray-200">Se connecter</a>
       </p>
     </div>
 
     <div class="register-card p-8">
-      <form class="mt-4 space-y-4" id="register-form">
+      <form class="mt-4 space-y-5" id="register-form" novalidate>
+
+        <!-- Prénom / Nom -->
         <div class="grid grid-cols-1 gap-4 sm:grid-cols-2">
           <div>
             <label for="first-name" class="block text-sm font-medium text-gray-700">Prénom</label>
             <div class="relative mt-1">
               <i data-feather="user" class="absolute left-3 top-2.5 h-5 w-5 text-gray-400"></i>
-              <input id="first-name" name="first-name" type="text" required
+              <input id="first-name" name="prenom" type="text" required
                 class="pl-10 pr-3 py-2 w-full border border-gray-300 rounded-md focus:ring-blue-500 focus:border-blue-500"
                 placeholder="Jean" />
             </div>
           </div>
           <div>
             <label for="last-name" class="block text-sm font-medium text-gray-700">Nom</label>
-            <input id="last-name" name="last-name" type="text" required
-              class="py-2 px-3 w-full border border-gray-300 rounded-md focus:ring-blue-500 focus:border-blue-500"
-              placeholder="Dupont" />
+            <div class="relative mt-1">
+              <i data-feather="user" class="absolute left-3 top-2.5 h-5 w-5 text-gray-400"></i>
+              <input id="last-name" name="nom" type="text" required
+                class="pl-10 pr-3 py-2 w-full border border-gray-300 rounded-md focus:ring-blue-500 focus:border-blue-500"
+                placeholder="Dupont" />
+            </div>
           </div>
         </div>
 
+        <!-- Email -->
         <div>
           <label for="email" class="block text-sm font-medium text-gray-700">Adresse e-mail</label>
           <div class="relative mt-1">
@@ -70,94 +139,202 @@
           </div>
         </div>
 
+        <!-- Choix du rôle -->
         <div>
-          <label for="account-type" class="block text-sm font-medium text-gray-700">Type de compte</label>
-          <select id="account-type" name="account-type"
-            class="mt-1 py-2 px-3 w-full border border-gray-300 rounded-md focus:ring-blue-500 focus:border-blue-500">
-            <option>Patient</option>
-            <option>Propriétaire de pharmacie</option>
-            <option>Livreur</option>
-          </select>
+          <label class="block text-sm font-medium text-gray-700 mb-2">Je suis un(e)…</label>
+          <input type="hidden" id="role" name="role" value="" />
+          <div class="grid grid-cols-3 gap-3" id="role-cards">
+
+            <div class="role-card" data-role="patient" onclick="selectRole('patient')">
+              <div class="flex justify-center mb-2">
+                <i data-feather="heart" class="role-icon h-7 w-7"></i>
+              </div>
+              <span class="text-sm font-medium text-gray-700">Patient</span>
+            </div>
+
+            <div class="role-card" data-role="livreur" onclick="selectRole('livreur')">
+              <div class="flex justify-center mb-2">
+                <i data-feather="truck" class="role-icon h-7 w-7"></i>
+              </div>
+              <span class="text-sm font-medium text-gray-700">Livreur</span>
+            </div>
+
+            <div class="role-card" data-role="proprietaire" onclick="selectRole('proprietaire')">
+              <div class="flex justify-center mb-2">
+                <i data-feather="home" class="role-icon h-7 w-7"></i>
+              </div>
+              <span class="text-sm font-medium text-gray-700">Propriétaire</span>
+            </div>
+          </div>
+          <p id="role-error" class="text-red-500 text-xs mt-1 hidden">Veuillez choisir un type de compte.</p>
         </div>
 
+        <!-- Mot de passe -->
         <div>
           <label for="password" class="block text-sm font-medium text-gray-700">Mot de passe</label>
           <div class="relative mt-1">
             <i data-feather="lock" class="absolute left-3 top-2.5 h-5 w-5 text-gray-400"></i>
             <input id="password" name="password" type="password" required
-              class="pl-10 pr-3 py-2 w-full border border-gray-300 rounded-md focus:ring-blue-500 focus:border-blue-500"
+              class="pl-10 pr-10 py-2 w-full border border-gray-300 rounded-md focus:ring-blue-500 focus:border-blue-500"
               placeholder="••••••••" />
+            <button type="button" onclick="togglePassword('password', 'eye-pwd')"
+              class="absolute right-3 top-2.5 text-gray-400 hover:text-gray-600">
+              <i id="eye-pwd" data-feather="eye" class="h-5 w-5"></i>
+            </button>
           </div>
-          <p class="mt-1 text-xs text-gray-500">Utilisez au moins 8 caractères avec des lettres, chiffres et symboles.</p>
+          <p class="mt-1 text-xs text-gray-500">Au moins 8 caractères.</p>
         </div>
 
+        <!-- Confirmer mot de passe -->
         <div>
           <label for="confirm-password" class="block text-sm font-medium text-gray-700">Confirmer le mot de passe</label>
           <div class="relative mt-1">
             <i data-feather="lock" class="absolute left-3 top-2.5 h-5 w-5 text-gray-400"></i>
             <input id="confirm-password" name="confirm-password" type="password" required
-              class="pl-10 pr-3 py-2 w-full border border-gray-300 rounded-md focus:ring-blue-500 focus:border-blue-500"
+              class="pl-10 pr-10 py-2 w-full border border-gray-300 rounded-md focus:ring-blue-500 focus:border-blue-500"
               placeholder="••••••••" />
+            <button type="button" onclick="togglePassword('confirm-password', 'eye-confirm')"
+              class="absolute right-3 top-2.5 text-gray-400 hover:text-gray-600">
+              <i id="eye-confirm" data-feather="eye" class="h-5 w-5"></i>
+            </button>
           </div>
           <p id="error-message" class="text-red-500 text-xs mt-1 hidden">Les mots de passe ne correspondent pas.</p>
         </div>
 
+        <!-- CGU -->
         <div class="flex items-center">
           <input id="terms" name="terms" type="checkbox"
             class="h-4 w-4 text-blue-600 focus:ring-blue-500 border-gray-300 rounded" required />
           <label for="terms" class="ml-2 text-sm text-gray-700">
-            J'accepte les 
-            <a href="#" class="text-blue-600 hover:text-blue-500">Conditions d'utilisation</a> et la 
+            J'accepte les
+            <a href="#" class="text-blue-600 hover:text-blue-500">Conditions d'utilisation</a> et la
             <a href="#" class="text-blue-600 hover:text-blue-500">Politique de confidentialité</a>.
           </label>
         </div>
 
-        <button type="submit"
-          class="group relative w-full flex justify-center py-2 px-4 border border-transparent text-sm font-medium rounded-md text-white bg-blue-600 hover:bg-blue-700 focus:ring-2 focus:ring-offset-2 focus:ring-blue-500">
-          <span class="absolute left-0 inset-y-0 flex items-center pl-3">
+        <!-- Bouton -->
+        <button type="submit" id="submit-btn"
+          class="group relative w-full flex justify-center py-2.5 px-4 border border-transparent text-sm font-medium rounded-md text-white bg-blue-600 hover:bg-blue-700 focus:ring-2 focus:ring-offset-2 focus:ring-blue-500 transition">
+          <span class="spinner"></span>
+          <span class="btn-text flex items-center gap-2">
             <i data-feather="user-plus" class="h-5 w-5 text-blue-300 group-hover:text-blue-200"></i>
+            S'inscrire
           </span>
-          S'inscrire
         </button>
       </form>
-
-      <div class="mt-6">
-        <div class="relative">
-          <div class="absolute inset-0 flex items-center">
-            <div class="w-full border-t border-gray-300"></div>
-          </div>
-          <div class="relative flex justify-center text-sm">
-            <span class="px-2 bg-white text-gray-500">Ou inscrivez-vous avec</span>
-          </div>
-        </div>
-
-        <div class="mt-6 grid grid-cols-2 gap-3">
-          <a href="#"
-            class="w-full inline-flex justify-center py-2 px-4 border border-gray-300 rounded-md shadow-sm bg-white text-sm font-medium text-gray-500 hover:bg-gray-50">
-            <i data-feather="facebook" class="h-5 w-5 text-blue-600"></i>
-          </a>
-          <a href="#"
-            class="w-full inline-flex justify-center py-2 px-4 border border-gray-300 rounded-md shadow-sm bg-white text-sm font-medium text-gray-500 hover:bg-gray-50">
-            <i data-feather="google" class="h-5 w-5 text-red-500"></i>
-          </a>
-        </div>
-      </div>
     </div>
   </div>
 
+  <script src="auth.js"></script>
   <script>
+    // Si déjà connecté, rediriger
+    if (Auth.isLoggedIn()) {
+      Auth.redirectByRole(Auth.getUser().role);
+    }
+
     feather.replace();
 
-    document.getElementById("register-form").addEventListener("submit", function(e) {
-      const pass = document.getElementById("password").value;
-      const confirm = document.getElementById("confirm-password").value;
-      const errorMsg = document.getElementById("error-message");
+    function selectRole(role) {
+      document.getElementById('role').value = role;
+      document.querySelectorAll('.role-card').forEach(card => {
+        card.classList.toggle('selected', card.dataset.role === role);
+      });
+      document.getElementById('role-error').classList.add('hidden');
+    }
 
-      if (pass !== confirm) {
-        e.preventDefault();
-        errorMsg.classList.remove("hidden");
+    function togglePassword(inputId, iconId) {
+      const input = document.getElementById(inputId);
+      const icon = document.getElementById(iconId);
+      if (input.type === 'password') {
+        input.type = 'text';
+        icon.setAttribute('data-feather', 'eye-off');
       } else {
-        errorMsg.classList.add("hidden");
+        input.type = 'password';
+        icon.setAttribute('data-feather', 'eye');
+      }
+      feather.replace();
+    }
+
+    function showToast(message, type = 'success') {
+      const toast = document.getElementById('toast');
+      const toastMsg = document.getElementById('toast-msg');
+      const toastIcon = document.getElementById('toast-icon');
+
+      toastMsg.textContent = message;
+      toast.className = `toast ${type}`;
+      toastIcon.setAttribute('data-feather', type === 'success' ? 'check-circle' : 'alert-circle');
+      feather.replace();
+
+      toast.classList.add('show');
+      setTimeout(() => toast.classList.remove('show'), 4000);
+    }
+
+    document.getElementById('register-form').addEventListener('submit', async function(e) {
+      e.preventDefault();
+
+      const prenom = document.getElementById('first-name').value.trim();
+      const nom = document.getElementById('last-name').value.trim();
+      const email = document.getElementById('email').value.trim();
+      const role = document.getElementById('role').value;
+      const password = document.getElementById('password').value;
+      const confirm = document.getElementById('confirm-password').value;
+      const terms = document.getElementById('terms').checked;
+      const errorMsg = document.getElementById('error-message');
+      const roleError = document.getElementById('role-error');
+
+      // Validation rôle
+      if (!role) {
+        roleError.classList.remove('hidden');
+        return;
+      }
+
+      // Validation mots de passe
+      if (password !== confirm) {
+        errorMsg.classList.remove('hidden');
+        return;
+      }
+      errorMsg.classList.add('hidden');
+
+      if (password.length < 8) {
+        showToast('Le mot de passe doit contenir au moins 8 caractères.', 'error');
+        return;
+      }
+
+      if (!terms) {
+        showToast('Vous devez accepter les conditions d\'utilisation.', 'error');
+        return;
+      }
+
+      // Loading
+      const btn = document.getElementById('submit-btn');
+      btn.classList.add('btn-loading');
+      btn.disabled = true;
+
+      try {
+        const response = await fetch('/api/register', {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({ prenom, nom, email, password, role })
+        });
+
+        const data = await response.json();
+
+        if (data.success) {
+          // Sauvegarder l'utilisateur et rediriger
+          Auth.setUser(data.user);
+          showToast('Compte créé avec succès ! Redirection...', 'success');
+          setTimeout(() => {
+            Auth.redirectByRole(data.user.role);
+          }, 1500);
+        } else {
+          showToast(data.message, 'error');
+          btn.classList.remove('btn-loading');
+          btn.disabled = false;
+        }
+      } catch (err) {
+        showToast('Erreur réseau. Vérifiez votre connexion.', 'error');
+        btn.classList.remove('btn-loading');
+        btn.disabled = false;
       }
     });
   </script>

@@ -3,6 +3,7 @@ const express = require('express');
 const fs = require('fs');
 const path = require('path');
 const cors = require('cors');
+const crypto = require('crypto');
 
 const app = express();
 const PORT = 3000;
@@ -21,9 +22,9 @@ const dataFile = path.join(__dirname, 'data.json');
 function readData() {
   try {
     const data = fs.readFileSync(dataFile, 'utf8');
-    return JSON.parse(data || '{"clients": [], "pharmacies": []}');
+    return JSON.parse(data || '{"users":[],"clients": [], "pharmacies": []}');
   } catch {
-    return { clients: [], pharmacies: [] };
+    return { users: [], clients: [], pharmacies: [] };
   }
 }
 
@@ -31,6 +32,122 @@ function readData() {
 function writeData(data) {
   fs.writeFileSync(dataFile, JSON.stringify(data, null, 2));
 }
+
+// Hash simple du mot de passe (sha256)
+function hashPassword(password) {
+  return crypto.createHash('sha256').update(password).digest('hex');
+}
+
+// -------------------- ROUTES AUTH --------------------
+
+// Inscription
+app.post('/api/register', (req, res) => {
+  const { prenom, nom, email, password, role } = req.body;
+
+  if (!prenom || !nom || !email || !password || !role) {
+    return res.status(400).json({ success: false, message: 'Tous les champs sont requis.' });
+  }
+
+  const validRoles = ['patient', 'livreur', 'proprietaire'];
+  if (!validRoles.includes(role)) {
+    return res.status(400).json({ success: false, message: 'Rôle invalide.' });
+  }
+
+  const data = readData();
+  if (!data.users) data.users = [];
+
+  // Vérifier si l'email existe déjà
+  const existing = data.users.find(u => u.email === email);
+  if (existing) {
+    return res.status(409).json({ success: false, message: 'Un compte avec cet email existe déjà.' });
+  }
+
+  const newUser = {
+    id: Date.now(),
+    prenom,
+    nom,
+    email,
+    password: hashPassword(password),
+    role,
+    createdAt: new Date().toISOString()
+  };
+
+  data.users.push(newUser);
+  writeData(data);
+
+  // Ne pas renvoyer le mot de passe
+  const { password: _, ...userSafe } = newUser;
+  res.status(201).json({ success: true, message: 'Compte créé avec succès.', user: userSafe });
+});
+
+// Connexion
+app.post('/api/login', (req, res) => {
+  const { email, password } = req.body;
+
+  if (!email || !password) {
+    return res.status(400).json({ success: false, message: 'Email et mot de passe requis.' });
+  }
+
+  const data = readData();
+  if (!data.users) data.users = [];
+
+  const user = data.users.find(u => u.email === email && u.password === hashPassword(password));
+
+  if (!user) {
+    return res.status(401).json({ success: false, message: 'Email ou mot de passe incorrect.' });
+  }
+
+  const { password: _, ...userSafe } = user;
+  res.json({ success: true, message: 'Connexion réussie.', user: userSafe });
+});
+
+// Récupérer les infos d'un utilisateur par email (pour le profil)
+app.get('/api/user/:email', (req, res) => {
+  const data = readData();
+  if (!data.users) return res.status(404).json({ success: false, message: 'Utilisateur non trouvé.' });
+
+  const user = data.users.find(u => u.email === req.params.email);
+  if (!user) return res.status(404).json({ success: false, message: 'Utilisateur non trouvé.' });
+
+  const { password: _, ...userSafe } = user;
+  res.json({ success: true, user: userSafe });
+});
+
+// Mise à jour du profil
+app.put('/api/user/:id', (req, res) => {
+  const data = readData();
+  if (!data.users) return res.status(404).json({ success: false, message: 'Utilisateur non trouvé.' });
+
+  const id = Number(req.params.id);
+  const index = data.users.findIndex(u => u.id === id);
+  if (index === -1) return res.status(404).json({ success: false, message: 'Utilisateur non trouvé.' });
+
+  // Ne pas écraser le mot de passe ou le rôle sauf si explicitement fourni
+  const { password, role, ...updates } = req.body;
+  data.users[index] = { ...data.users[index], ...updates };
+
+  if (password) {
+    data.users[index].password = hashPassword(password);
+  }
+
+  writeData(data);
+  const { password: _, ...userSafe } = data.users[index];
+  res.json({ success: true, message: 'Profil mis à jour.', user: userSafe });
+});
+
+// Suppression de compte (désinscription)
+app.delete('/api/user/:id', (req, res) => {
+  const data = readData();
+  if (!data.users) return res.status(404).json({ success: false, message: 'Utilisateur non trouvé.' });
+
+  const id = Number(req.params.id);
+  const index = data.users.findIndex(u => u.id === id);
+  if (index === -1) return res.status(404).json({ success: false, message: 'Utilisateur non trouvé.' });
+
+  data.users.splice(index, 1);
+  writeData(data);
+  res.json({ success: true, message: 'Compte supprimé avec succès.' });
+});
 
 // -------------------- ROUTES CLIENTS --------------------
 app.get('/clients', (req, res) => {
@@ -114,7 +231,7 @@ app.delete('/pharmacies/:id', (req, res) => {
 
 // -------------------- SERVIR LE FRONTEND --------------------
 app.get('/', (req, res) => {
-  res.sendFile(path.join(__dirname, '../frontend/c.html'));
+  res.sendFile(path.join(__dirname, '../frontend/index.html'));
 });
 
 // Lancer le serveur
