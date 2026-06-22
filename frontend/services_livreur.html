@@ -5,88 +5,115 @@
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <title>Nos Services - PharmaLink Pro</title>
   <script src="https://cdn.tailwindcss.com"></script>
+  <script>
+    tailwind.config = {
+      darkMode: 'class',
+      theme: {
+        extend: {
+          colors: {
+            brand: {
+              50: '#f0fdf4', 100: '#dcfce7', 200: '#bbf7d0', 300: '#86efac', 400: '#4ade80',
+              500: '#22c55e', 600: '#16a34a', 700: '#15803d', 800: '#166534', 900: '#14532d',
+            }
+          }
+        }
+      }
+    }
+  </script>
   <script src="https://cdn.jsdelivr.net/npm/feather-icons/dist/feather.min.js"></script>
   <style>
-    @import url('https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;500;600;700&display=swap');
-    body { font-family: 'Poppins', sans-serif; }
+    @import url('https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap');
+    body { font-family: 'Inter', sans-serif; transition: background-color 0.3s, color 0.3s; }
+    
+    ::-webkit-scrollbar { width: 6px; }
+    ::-webkit-scrollbar-track { background: transparent; }
+    ::-webkit-scrollbar-thumb { background: #cbd5e1; border-radius: 10px; }
+    .dark ::-webkit-scrollbar-thumb { background: #475569; }
+
+    .glass { background: rgba(255, 255, 255, 0.8); backdrop-filter: blur(12px); border-bottom: 1px solid rgba(255, 255, 255, 0.3); }
+    .dark .glass { background: rgba(30, 41, 59, 0.8); border-bottom: 1px solid rgba(255, 255, 255, 0.1); }
+
   </style>
 </head>
-<body class="bg-gray-50 text-gray-800">
+<body class="bg-slate-50 text-slate-800 dark:bg-slate-900 dark:text-slate-200">
 
   <!-- Barre de navigation -->
-  <nav class="bg-white shadow-sm relative z-10">
+  <nav class="sticky top-0 z-40 glass">
     <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
       <div class="flex justify-between h-16">
         <div class="flex items-center">
-          <i data-feather="activity" class="h-8 w-8 text-blue-600"></i>
-          <span class="ml-2 text-xl font-bold text-blue-600">PharmaLink Pro</span>
+          <i data-feather="activity" class="h-8 w-8 text-brand-600 dark:text-brand-400"></i>
+          <span class="ml-2 text-xl font-bold text-brand-600 dark:text-brand-400">PharmaLink Pro</span>
         </div>
         <div class="flex items-center space-x-6">
-          <a href="livreur.html" class="text-gray-600 hover:text-blue-600">Accueil</a>
-          <a href="pharmacies_livreur.html" class="text-gray-600 hover:text-blue-600">Pharmacies</a>
-          <a href="services_livreur.html" class="text-blue-600 font-medium">Services</a>
-          <a href="know_livreur.html" class="text-gray-600 hover:text-blue-600">À propos</a>
-          <a href="contact_livreur.html" class="text-gray-600 hover:text-blue-600 px-3 py-2">Contact</a>
-          <a href="login.html" class="bg-blue-600 text-white px-4 py-2 rounded-md font-medium hover:bg-blue-700 transition">Connexion</a>
+          <a href="livreur.html" class="text-slate-600 dark:text-slate-300 hover:text-brand-600 dark:text-brand-400">Accueil</a>
+          <a href="pharmacies_livreur.html" class="text-slate-600 dark:text-slate-300 hover:text-brand-600 dark:text-brand-400">Pharmacies</a>
+          <a href="services_livreur.html" class="text-brand-600 dark:text-brand-400 font-medium">Services</a>
+          <a href="know_livreur.html" class="text-slate-600 dark:text-slate-300 hover:text-brand-600 dark:text-brand-400">À propos</a>
+          <a href="contact_livreur.html" class="text-slate-600 dark:text-slate-300 hover:text-brand-600 dark:text-brand-400 px-3 py-2">Contact</a>
+          <button id="themeToggle" class="p-2 rounded-full hover:bg-slate-200 dark:hover:bg-slate-800 transition text-slate-600 dark:text-slate-300 focus:outline-none ml-4 mr-2">
+            <i data-feather="moon" id="themeIcon" class="h-5 w-5"></i>
+          </button>
+          <a href="login.html" class="bg-brand-600 text-white px-4 py-2 rounded-md font-medium hover:bg-blue-700 transition">Connexion</a>
         </div>
       </div>
     </div>
   </nav>
 
   <!-- En-tête -->
-  <section class="relative py-20 bg-gradient-to-br from-blue-600 to-green-500 text-white text-center">
+  <section class="relative py-20 bg-gradient-to-br from-brand-600 to-green-500 dark:from-brand-800 dark:to-green-900 text-white text-center">
     <div class="max-w-4xl mx-auto px-6">
       <h1 class="text-4xl font-bold mb-4">Nos Services</h1>
-      <p class="text-blue-100 text-lg">PharmaLink Pro connecte patients, pharmacies et livreurs pour un service rapide et efficace.</p>
+      <p class="text-brand-100 dark:text-brand-200 text-lg">PharmaLink Pro connecte patients, pharmacies et livreurs pour un service rapide et efficace.</p>
     </div>
   </section>
 
   <!-- Liste des services -->
   <section class="max-w-6xl mx-auto py-16 px-6 grid grid-cols-1 md:grid-cols-3 gap-10">
     <!-- Service 1 : Patients -->
-    <div class="bg-white rounded-2xl shadow-lg p-8 text-center hover:shadow-xl transition">
+    <div class="bg-white dark:bg-slate-800 shadow-xl border border-slate-100 dark:border-slate-700 rounded-2xl p-8 text-center hover:shadow-xl transition">
       <div class="flex justify-center mb-6">
         <div class="bg-blue-100 p-4 rounded-full">
-          <i data-feather="user" class="h-10 w-10 text-blue-600"></i>
+          <i data-feather="user" class="h-10 w-10 text-brand-600 dark:text-brand-400"></i>
         </div>
       </div>
-      <h2 class="text-xl font-semibold text-gray-800 mb-3">Pour les Patients</h2>
-      <p class="text-gray-600 mb-6">
+      <h2 class="text-xl font-semibold text-slate-800 dark:text-slate-200 mb-3">Pour les Patients</h2>
+      <p class="text-slate-600 dark:text-slate-300 mb-6">
         Commandez vos médicaments en ligne, trouvez la pharmacie la plus proche, et suivez la livraison en temps réel.
       </p>
-       <a href="register.html" class="bg-blue-600 text-white px-5 py-2 rounded-md hover:bg-blue-700 transition">
+       <a href="register.html" class="bg-brand-600 text-white px-5 py-2 rounded-md hover:bg-blue-700 transition">
          En savoir plus
        </a>
     </div>
 
     <!-- Service 2 : Pharmacies -->
-    <div class="bg-white rounded-2xl shadow-lg p-8 text-center hover:shadow-xl transition">
+    <div class="bg-white dark:bg-slate-800 shadow-xl border border-slate-100 dark:border-slate-700 rounded-2xl p-8 text-center hover:shadow-xl transition">
       <div class="flex justify-center mb-6">
         <div class="bg-green-100 p-4 rounded-full">
           <i data-feather="home" class="h-10 w-10 text-green-600"></i>
         </div>
       </div>
-      <h2 class="text-xl font-semibold text-gray-800 mb-3">Pour les Pharmacies</h2>
-      <p class="text-gray-600 mb-6">
+      <h2 class="text-xl font-semibold text-slate-800 dark:text-slate-200 mb-3">Pour les Pharmacies</h2>
+      <p class="text-slate-600 dark:text-slate-300 mb-6">
         Gérez vos stocks, vos commandes et vos ventes depuis un tableau de bord intuitif et connecté à vos clients.
       </p>
-       <a href="register.html" class="bg-blue-600 text-white px-5 py-2 rounded-md hover:bg-blue-700 transition">
+       <a href="register.html" class="bg-brand-600 text-white px-5 py-2 rounded-md hover:bg-blue-700 transition">
          Découvrir
        </a>
     </div>
 
     <!-- Service 3 : Livreurs -->
-    <div class="bg-white rounded-2xl shadow-lg p-8 text-center hover:shadow-xl transition">
+    <div class="bg-white dark:bg-slate-800 shadow-xl border border-slate-100 dark:border-slate-700 rounded-2xl p-8 text-center hover:shadow-xl transition">
       <div class="flex justify-center mb-6">
         <div class="bg-yellow-100 p-4 rounded-full">
           <i data-feather="truck" class="h-10 w-10 text-yellow-600"></i>
         </div>
       </div>
-      <h2 class="text-xl font-semibold text-gray-800 mb-3">Pour les Livreurs</h2>
-      <p class="text-gray-600 mb-6">
+      <h2 class="text-xl font-semibold text-slate-800 dark:text-slate-200 mb-3">Pour les Livreurs</h2>
+      <p class="text-slate-600 dark:text-slate-300 mb-6">
         Recevez les commandes à livrer, suivez les trajets et bénéficiez d’un système de gestion des livraisons simple et rapide.
       </p>
-       <a href="register.html" class="bg-blue-600 text-white px-5 py-2 rounded-md hover:bg-blue-700 transition">
+       <a href="register.html" class="bg-brand-600 text-white px-5 py-2 rounded-md hover:bg-blue-700 transition">
          Démarrer
        </a>
     </div>
@@ -95,11 +122,11 @@
   <!-- Section bonus -->
   <section class="text-center py-16 bg-blue-50">
     <h2 class="text-3xl font-semibold text-blue-700 mb-4">Un service, trois acteurs, un seul objectif</h2>
-    <p class="text-gray-600 max-w-3xl mx-auto mb-8">
+    <p class="text-slate-600 dark:text-slate-300 max-w-3xl mx-auto mb-8">
       Chez PharmaLink Pro, nous unissons les patients, les pharmacies et les livreurs pour faciliter l’accès aux soins, 
       améliorer la gestion des stocks et rendre la livraison plus rapide et fiable.
     </p>
-    <a href="register.html" class="bg-blue-600 text-white px-6 py-3 rounded-md font-medium hover:bg-blue-700 transition">
+    <a href="register.html" class="bg-brand-600 text-white px-6 py-3 rounded-md font-medium hover:bg-blue-700 transition">
       Rejoignez-nous maintenant
     </a>
   </section>
@@ -112,6 +139,23 @@
   </footer>
 
   <script>
+    
+    // Dark Mode Theme init
+    const themeToggle = document.getElementById('themeToggle');
+    const themeIcon = document.getElementById('themeIcon');
+    const htmlClass = document.documentElement.classList;
+    if (localStorage.getItem('theme') === 'dark' || (!('theme' in localStorage) && window.matchMedia('(prefers-color-scheme: dark)').matches)) {
+      htmlClass.add('dark'); if(themeIcon) themeIcon.setAttribute('data-feather', 'sun');
+    }
+    if (themeToggle) {
+      themeToggle.addEventListener('click', () => {
+        htmlClass.toggle('dark');
+        const isDark = htmlClass.contains('dark');
+        localStorage.setItem('theme', isDark ? 'dark' : 'light');
+        if(themeIcon) themeIcon.setAttribute('data-feather', isDark ? 'sun' : 'moon');
+        feather.replace();
+      });
+    }
     feather.replace();
   </script>
 </body>

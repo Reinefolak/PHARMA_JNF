@@ -5,30 +5,57 @@
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <title>Tournée - PharmaLink Pro</title>
   <script src="https://cdn.tailwindcss.com"></script>
+  <script>
+    tailwind.config = {
+      darkMode: 'class',
+      theme: {
+        extend: {
+          colors: {
+            brand: {
+              50: '#f0fdf4', 100: '#dcfce7', 200: '#bbf7d0', 300: '#86efac', 400: '#4ade80',
+              500: '#22c55e', 600: '#16a34a', 700: '#15803d', 800: '#166534', 900: '#14532d',
+            }
+          }
+        }
+      }
+    }
+  </script>
   <script src="https://cdn.jsdelivr.net/npm/feather-icons/dist/feather.min.js"></script>
   <link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css" />
   <script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"></script>
   <script src="https://unpkg.com/axios/dist/axios.min.js"></script>
   <style>
-    @import url('https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;500;600;700&display=swap');
-    body { font-family: 'Poppins', sans-serif; }
+    @import url('https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap');
+    body { font-family: 'Inter', sans-serif; transition: background-color 0.3s, color 0.3s; }
+    
+    ::-webkit-scrollbar { width: 6px; }
+    ::-webkit-scrollbar-track { background: transparent; }
+    ::-webkit-scrollbar-thumb { background: #cbd5e1; border-radius: 10px; }
+    .dark ::-webkit-scrollbar-thumb { background: #475569; }
+
+    .glass { background: rgba(255, 255, 255, 0.8); backdrop-filter: blur(12px); border-bottom: 1px solid rgba(255, 255, 255, 0.3); }
+    .dark .glass { background: rgba(30, 41, 59, 0.8); border-bottom: 1px solid rgba(255, 255, 255, 0.1); }
+
   </style>
 </head>
-<body class="bg-gray-50 text-gray-800">
+<body class="bg-slate-50 text-slate-800 dark:bg-slate-900 dark:text-slate-200">
 
   <!-- Navigation -->
-  <nav class="bg-white shadow-sm relative z-10">
+  <nav class="sticky top-0 z-40 glass">
     <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
       <div class="flex justify-between h-16">
         <div class="flex items-center">
-          <i data-feather="activity" class="h-8 w-8 text-blue-600"></i>
-          <span class="ml-2 text-xl font-bold text-blue-600">PharmaLink Pro</span>
+          <i data-feather="activity" class="h-8 w-8 text-brand-600 dark:text-brand-400"></i>
+          <span class="ml-2 text-xl font-bold text-brand-600 dark:text-brand-400">PharmaLink Pro</span>
         </div>
         <div class="flex items-center space-x-6">
-          <a href="livreur.html" class="text-gray-600 hover:text-blue-600">Accueil</a>
-          <a href="pharmacies_livreur.html" class="text-blue-600 font-medium">Pharmacies</a>
-          <a href="know_livreur.html" class="text-gray-600 hover:text-blue-600">À propos</a>
-          <a href="login.html" class="bg-blue-600 text-white px-4 py-2 rounded-md font-medium hover:bg-blue-700 transition">
+          <a href="livreur.html" class="text-slate-600 dark:text-slate-300 hover:text-brand-600 dark:text-brand-400">Accueil</a>
+          <a href="pharmacies_livreur.html" class="text-brand-600 dark:text-brand-400 font-medium">Pharmacies</a>
+          <a href="know_livreur.html" class="text-slate-600 dark:text-slate-300 hover:text-brand-600 dark:text-brand-400">À propos</a>
+          <button id="themeToggle" class="p-2 rounded-full hover:bg-slate-200 dark:hover:bg-slate-800 transition text-slate-600 dark:text-slate-300 focus:outline-none ml-4 mr-2">
+            <i data-feather="moon" id="themeIcon" class="h-5 w-5"></i>
+          </button>
+          <a href="login.html" class="bg-brand-600 text-white px-4 py-2 rounded-md font-medium hover:bg-blue-700 transition">
             <i data-feather="log-out" class="h-4 w-4 inline mr-1"></i> Déconnexion
           </a>
         </div>
@@ -37,18 +64,18 @@
   </nav>
 
   <!-- En-tête -->
-  <section class="relative py-20 bg-gradient-to-br from-blue-600 to-green-500 text-white text-center">
+  <section class="relative py-20 bg-gradient-to-br from-brand-600 to-green-500 dark:from-brand-800 dark:to-green-900 text-white text-center">
     <div class="max-w-4xl mx-auto px-6">
       <h1 class="text-4xl font-bold mb-4">Gérer ma tournée</h1>
-      <p class="text-blue-100 text-lg">Commencez votre course et gérez vos livraisons facilement.</p>
+      <p class="text-brand-100 dark:text-brand-200 text-lg">Commencez votre course et gérez vos livraisons facilement.</p>
     </div>
   </section>
 
   <!-- Tournée -->
   <section class="max-w-6xl mx-auto py-16 px-6">
     <div class="flex justify-between items-center mb-8">
-      <h2 class="text-2xl font-bold text-gray-900">Liste des livraisons</h2>
-      <button id="startTournee" class="flex items-center bg-blue-600 text-white px-4 py-2 rounded-md hover:bg-blue-700 transition">
+      <h2 class="text-2xl font-bold text-slate-900 dark:text-white">Liste des livraisons</h2>
+      <button id="startTournee" class="flex items-center bg-brand-600 text-white px-4 py-2 rounded-md hover:bg-blue-700 transition">
         <i data-feather="play-circle" class="h-5 w-5 mr-2"></i> Commencer la tournée
       </button>
     </div>
@@ -58,7 +85,7 @@
 
     <!-- Liste des livraisons -->
     <div id="livraisonList" class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8">
-      <p class="col-span-full text-center text-gray-500" id="loadingMsg">🚚 Chargement des livraisons...</p>
+      <p class="col-span-full text-center text-slate-500 dark:text-slate-400" id="loadingMsg">🚚 Chargement des livraisons...</p>
     </div>
   </section>
 
@@ -103,7 +130,7 @@
       listContainer.innerHTML = '';
 
       if(deliveries.length === 0) {
-        listContainer.innerHTML = `<p class="col-span-full text-center text-gray-500">🚚 Aucune livraison programmée</p>`;
+        listContainer.innerHTML = `<p class="col-span-full text-center text-slate-500 dark:text-slate-400">🚚 Aucune livraison programmée</p>`;
         return;
       }
 
@@ -112,16 +139,16 @@
           .bindPopup(`<b>${delivery.patient}</b><br>${delivery.address}<br>${delivery.statut}`);
 
         const card = document.createElement('div');
-        card.className = "bg-white shadow rounded-lg p-6 hover:shadow-lg transition";
+        card.className = "bg-white dark:bg-slate-800 shadow-sm border border-slate-100 dark:border-slate-700 rounded-2xl p-6 hover:shadow-lg transition";
         card.innerHTML = `
-          <h3 class="text-lg font-semibold text-gray-900 mb-2">${delivery.patient}</h3>
-          <p class="text-gray-600 mb-1"><strong>Adresse:</strong> ${delivery.address}</p>
-          <p class="text-gray-600 mb-1"><strong>Produits:</strong> ${delivery.produits}</p>
-          <p class="text-gray-600 mb-2"><strong>Statut:</strong> ${delivery.statut}</p>
+          <h3 class="text-lg font-semibold text-slate-900 dark:text-white mb-2">${delivery.patient}</h3>
+          <p class="text-slate-600 dark:text-slate-300 mb-1"><strong>Adresse:</strong> ${delivery.address}</p>
+          <p class="text-slate-600 dark:text-slate-300 mb-1"><strong>Produits:</strong> ${delivery.produits}</p>
+          <p class="text-slate-600 dark:text-slate-300 mb-2"><strong>Statut:</strong> ${delivery.statut}</p>
           <div class="flex space-x-2">
             ${delivery.phone ? `<a href="tel:${delivery.phone}" class="bg-green-600 text-white px-4 py-2 rounded-md hover:bg-green-700 transition flex items-center justify-center">
               <i data-feather="phone" class="h-4 w-4 mr-1"></i> Appeler</a>` : ''}
-            <button class="bg-blue-600 text-white px-4 py-2 rounded-md flex-1 hover:bg-blue-700 transition"
+            <button class="bg-brand-600 text-white px-4 py-2 rounded-md flex-1 hover:bg-blue-700 transition"
               onclick="markDelivered(${delivery.id})">Livrée</button>
             <button class="bg-red-500 text-white px-4 py-2 rounded-md flex-1 hover:bg-red-600 transition"
               onclick="cancelDelivery(${delivery.id})">Annulée</button>

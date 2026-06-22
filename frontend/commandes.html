@@ -4,38 +4,62 @@
   <meta charset="utf-8" />
   <meta name="viewport" content="width=device-width,initial-scale=1" />
   <title>Gestion des Commandes - PharmaLink Pro</title>
-
-  <!-- Tailwind -->
   <script src="https://cdn.tailwindcss.com"></script>
-  <!-- Feather icons -->
   <script src="https://cdn.jsdelivr.net/npm/feather-icons/dist/feather.min.js"></script>
-
+  <script>
+    tailwind.config = {
+      darkMode: 'class',
+      theme: {
+        extend: {
+          colors: {
+            brand: {
+              50: '#f0fdf4', 100: '#dcfce7', 200: '#bbf7d0', 300: '#86efac', 400: '#4ade80',
+              500: '#22c55e', 600: '#16a34a', 700: '#15803d', 800: '#166534', 900: '#14532d',
+            }
+          }
+        }
+      }
+    }
+  </script>
   <style>
-    @import url('https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;500;600;700&display=swap');
-    body { font-family: 'Poppins', sans-serif; }
-    /* Tiny helper to animate modal */
-    .modal-show { display: flex; }
+    @import url('https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap');
+    body { font-family: 'Inter', sans-serif; transition: background-color 0.3s, color 0.3s; }
+    
+    ::-webkit-scrollbar { width: 6px; }
+    ::-webkit-scrollbar-track { background: transparent; }
+    ::-webkit-scrollbar-thumb { background: #cbd5e1; border-radius: 10px; }
+    .dark ::-webkit-scrollbar-thumb { background: #475569; }
+
+    .glass { background: rgba(255, 255, 255, 0.8); backdrop-filter: blur(12px); border-bottom: 1px solid rgba(255, 255, 255, 0.3); }
+    .dark .glass { background: rgba(30, 41, 59, 0.8); border-bottom: 1px solid rgba(255, 255, 255, 0.1); }
   </style>
 </head>
-<body class="bg-gray-50 text-gray-800">
+<body class="bg-slate-50 text-slate-800 dark:bg-slate-900 dark:text-slate-200">
 
-  <!-- Navigation -->
-  <nav class="bg-white shadow-sm relative z-10">
+  <!-- Navbar -->
+  <nav class="sticky top-0 z-40 glass">
     <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-      <div class="flex justify-between h-16 items-center">
-        <div class="flex items-center">
-          <i data-feather="activity" class="h-8 w-8 text-blue-600"></i>
-          <span class="ml-2 text-xl font-bold text-blue-600">PharmaLink Pro</span>
+      <div class="flex justify-between h-16">
+        <div class="flex items-center gap-3">
+          <div class="bg-brand-600 p-2 rounded-lg">
+            <i data-feather="activity" class="h-6 w-6 text-white"></i>
+          </div>
+          <span class="text-xl font-bold bg-clip-text text-transparent bg-gradient-to-r from-brand-600 to-green-400 dark:from-green-400 dark:to-brand-200 hidden sm:block">PharmaLink Pro</span>
         </div>
-        <div class="flex items-center space-x-6">
-          <a href="proprietaire.html" class="text-gray-600 hover:text-blue-600">Accueil</a>
-          <a href="pharmacies_proprietaire.html" class="text-gray-600 hover:text-blue-600">Pharmacies</a>
-          <a href="stock.html" class="text-gray-600 hover:text-blue-600">Stock</a>
-          <a href="commandes.html" class="text-blue-600 font-medium">Commandes</a>
-          <a href="services_proprietaire.html" class="text-gray-600 hover:text-blue-600">Services</a>
-          <a href="contact_proprietaire.html" class="text-gray-600 hover:text-blue-600">Contact</a>
-          <a href="login.html" class="bg-blue-600 text-white px-4 py-2 rounded-md font-medium hover:bg-blue-700 transition">
-            <i data-feather="log-out" class="h-4 w-4 inline mr-1"></i> Déconnexion
+        <div class="flex items-center gap-3 sm:gap-4">
+          <div class="hidden md:flex items-center space-x-6 mr-4">
+            <a href="proprietaire.html" class="text-slate-600 dark:text-slate-300 hover:text-brand-600 dark:hover:text-green-400 transition">Tableau de bord</a>
+            <a href="stock.html" class="text-slate-600 dark:text-slate-300 hover:text-brand-600 dark:hover:text-green-400 transition">Stock</a>
+            <a href="commandes.html" class="text-brand-600 dark:text-green-400 font-medium transition">Commandes</a>
+            <a href="vente.html" class="text-slate-600 dark:text-slate-300 hover:text-brand-600 dark:hover:text-green-400 transition">Ventes</a>
+          </div>
+
+          <button id="themeToggle" class="p-2 rounded-full hover:bg-slate-200 dark:hover:bg-slate-800 transition text-slate-600 dark:text-slate-300 focus:outline-none">
+            <i data-feather="moon" id="themeIcon" class="h-5 w-5"></i>
+          </button>
+
+          <a href="login.html" class="hidden sm:flex items-center gap-2 px-4 py-2 bg-slate-900 text-white dark:bg-white dark:text-slate-900 rounded-full font-semibold hover:opacity-90 transition text-sm">
+            <i data-feather="log-out" class="h-4 w-4"></i> Déconnexion
           </a>
         </div>
       </div>
@@ -43,28 +67,28 @@
   </nav>
 
   <!-- Header -->
-  <header class="relative py-16 bg-gradient-to-br from-blue-600 to-green-500 text-white text-center">
-    <div class="max-w-4xl mx-auto px-6">
-      <h1 class="text-4xl font-bold mb-3">Gestion des Commandes Clients</h1>
-      <p class="text-blue-100 text-lg">Consultez les commandes reçues, préparez-les et assignez un livreur pour chaque commande.</p>
+  <header class="relative py-12 bg-gradient-to-br from-brand-600 to-green-500 dark:from-brand-800 dark:to-green-900 text-white overflow-hidden">
+    <div class="absolute top-0 right-0 -mt-10 -mr-10 opacity-10 pointer-events-none">
+      <i data-feather="shopping-cart" class="w-64 h-64"></i>
+    </div>
+    <div class="max-w-7xl mx-auto px-6 relative z-10">
+      <h1 class="text-3xl sm:text-4xl font-bold mb-2">Gestion des Commandes</h1>
+      <p class="text-green-50 text-lg">Consultez, préparez et assignez un livreur pour chaque commande client.</p>
     </div>
   </header>
 
-  <!-- Main -->
-  <main class="max-w-7xl mx-auto py-10 px-4 sm:px-6 lg:px-8">
+  <!-- Main Content -->
+  <main class="max-w-7xl mx-auto py-8 px-4 sm:px-6 lg:px-8 space-y-6">
 
     <!-- Controls -->
-    <div class="bg-white shadow rounded-lg p-6 mb-6">
-      <div class="flex flex-col md:flex-row md:items-center md:justify-between gap-4">
-        <div class="flex-1 flex gap-3">
-          <div class="relative flex-1">
-            <div class="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none">
-              <i data-feather="search" class="text-gray-400"></i>
-            </div>
-            <input id="searchOrders" type="text" placeholder="Rechercher par client, produit..." class="block w-full pl-10 pr-3 py-2 border border-gray-300 rounded-md bg-white placeholder-gray-500 focus:outline-none focus:ring-blue-500 focus:border-blue-500 sm:text-sm">
+    <div class="bg-white dark:bg-slate-800 shadow-sm border border-slate-100 dark:border-slate-700 rounded-2xl p-6">
+      <div class="flex flex-col lg:flex-row lg:items-center justify-between gap-4">
+        <div class="flex-1 flex flex-col sm:flex-row gap-3">
+          <div class="relative flex-1 max-w-sm">
+            <i data-feather="search" class="absolute left-4 top-1/2 -translate-y-1/2 h-5 w-5 text-slate-400"></i>
+            <input id="searchOrders" type="text" placeholder="Rechercher (client, produit...)" class="w-full pl-12 pr-4 py-2.5 bg-slate-50 dark:bg-slate-900/50 border border-slate-200 dark:border-slate-700 rounded-xl focus:ring-2 focus:ring-brand-500 outline-none text-sm dark:text-white transition">
           </div>
-
-          <select id="statusFilter" class="w-48 pl-3 pr-10 py-2 border border-gray-300 rounded-md text-sm focus:outline-none focus:ring-blue-500 focus:border-blue-500">
+          <select id="statusFilter" class="px-4 py-2.5 bg-slate-50 dark:bg-slate-900/50 border border-slate-200 dark:border-slate-700 rounded-xl focus:ring-2 focus:ring-brand-500 outline-none text-sm dark:text-white transition cursor-pointer max-w-[200px]">
             <option value="">Tous statuts</option>
             <option value="En attente">En attente</option>
             <option value="En préparation">En préparation</option>
@@ -75,149 +99,145 @@
         </div>
 
         <div class="flex gap-3 items-center">
-          <button id="refreshBtn" class="flex items-center bg-blue-600 text-white px-4 py-2 rounded-md hover:bg-blue-700 transition">
-            <i data-feather="refresh-cw" class="h-4 w-4 mr-2"></i> Actualiser les commandes
+          <button id="refreshBtn" class="flex items-center gap-2 bg-slate-100 hover:bg-slate-200 dark:bg-slate-700 dark:hover:bg-slate-600 text-slate-700 dark:text-slate-200 px-4 py-2.5 rounded-xl font-medium transition text-sm">
+            <i data-feather="refresh-cw" class="h-4 w-4"></i> <span class="hidden sm:inline">Actualiser</span>
           </button>
-
-          <button id="newOrderBtn" class="flex items-center bg-green-600 text-white px-4 py-2 rounded-md hover:bg-green-700 transition">
-            <i data-feather="plus" class="h-4 w-4 mr-2"></i> Nouvelle commande
+          <button id="newOrderBtn" class="flex items-center gap-2 bg-brand-600 hover:bg-brand-700 text-white px-5 py-2.5 rounded-xl font-semibold shadow-md shadow-brand-500/30 transition transform hover:-translate-y-0.5 text-sm">
+            <i data-feather="plus" class="h-4 w-4"></i> Nouvelle commande
           </button>
         </div>
       </div>
     </div>
 
     <!-- Orders list -->
-    <div class="bg-white shadow overflow-hidden sm:rounded-lg">
+    <div class="bg-white dark:bg-slate-800 shadow-sm border border-slate-100 dark:border-slate-700 rounded-2xl overflow-hidden">
       <div class="overflow-x-auto">
-        <table class="min-w-full divide-y divide-gray-200">
-          <thead class="bg-gray-50">
+        <table class="min-w-full divide-y divide-slate-200 dark:divide-slate-700">
+          <thead class="bg-slate-50 dark:bg-slate-900/50">
             <tr>
-              <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">#</th>
-              <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Client</th>
-              <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Produit</th>
-              <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Quantité</th>
-              <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Date</th>
-              <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Statut</th>
-              <th class="px-6 py-3 text-right text-xs font-medium text-gray-500 uppercase tracking-wider">Actions</th>
+              <th class="px-6 py-4 text-left text-xs font-bold text-slate-500 dark:text-slate-400 uppercase tracking-wider">#</th>
+              <th class="px-6 py-4 text-left text-xs font-bold text-slate-500 dark:text-slate-400 uppercase tracking-wider">Client</th>
+              <th class="px-6 py-4 text-left text-xs font-bold text-slate-500 dark:text-slate-400 uppercase tracking-wider">Produit / Qté</th>
+              <th class="px-6 py-4 text-left text-xs font-bold text-slate-500 dark:text-slate-400 uppercase tracking-wider">Date</th>
+              <th class="px-6 py-4 text-left text-xs font-bold text-slate-500 dark:text-slate-400 uppercase tracking-wider">Statut & Livreur</th>
+              <th class="px-6 py-4 text-right text-xs font-bold text-slate-500 dark:text-slate-400 uppercase tracking-wider">Actions</th>
             </tr>
           </thead>
-          <tbody id="ordersTable" class="bg-white divide-y divide-gray-200">
-            <!-- rows inserted by JS -->
+          <tbody id="ordersTable" class="divide-y divide-slate-200 dark:divide-slate-700 bg-white dark:bg-slate-800">
+            <!-- inserted by JS -->
           </tbody>
         </table>
       </div>
     </div>
   </main>
 
-  <!-- Assign modal -->
-  <div id="assignModal" class="fixed inset-0 z-30 hidden items-center justify-center">
-    <div class="absolute inset-0 bg-black opacity-40"></div>
-    <div class="relative bg-white rounded-lg shadow-xl w-full max-w-md mx-4 p-6 z-40">
-      <h3 class="text-lg font-medium text-gray-900 mb-4">Assigner un livreur</h3>
-      <p class="text-sm text-gray-600 mb-4">Choisis un livreur disponible pour cette commande.</p>
-
-      <div class="mb-4">
-        <label class="block text-sm font-medium text-gray-700">Livreur</label>
-        <select id="courierSelect" class="mt-1 block w-full border border-gray-300 rounded-md py-2 px-3 focus:outline-none focus:ring-blue-500 focus:border-blue-500 sm:text-sm">
+  <!-- Assign Modal -->
+  <div id="assignModal" class="fixed inset-0 z-50 hidden items-center justify-center p-4">
+    <div class="absolute inset-0 bg-slate-900/50 backdrop-blur-sm"></div>
+    <div class="relative bg-white dark:bg-slate-800 rounded-2xl shadow-xl w-full max-w-md overflow-hidden transform transition-all">
+      <div class="p-6 border-b border-slate-100 dark:border-slate-700">
+        <h3 class="text-xl font-bold text-slate-900 dark:text-white">Assigner un livreur</h3>
+        <p class="text-sm text-slate-500 dark:text-slate-400 mt-1">Choisissez un livreur disponible pour cette commande.</p>
+      </div>
+      <div class="p-6">
+        <label class="block text-xs font-bold text-slate-600 dark:text-slate-400 uppercase tracking-wide mb-2">Sélectionner le livreur</label>
+        <select id="courierSelect" class="w-full bg-slate-50 dark:bg-slate-900/50 border border-slate-200 dark:border-slate-700 rounded-xl px-4 py-2.5 focus:ring-2 focus:ring-brand-500 outline-none text-sm dark:text-white transition cursor-pointer">
           <!-- options via JS -->
         </select>
       </div>
-
-      <div class="flex justify-end gap-3">
-        <button id="cancelAssign" class="bg-white border border-gray-300 px-4 py-2 rounded-md hover:bg-gray-50">Annuler</button>
-        <button id="confirmAssign" class="bg-green-600 text-white px-4 py-2 rounded-md hover:bg-green-700">Valider l'assignation</button>
+      <div class="p-6 bg-slate-50 dark:bg-slate-800/50 border-t border-slate-100 dark:border-slate-700 flex justify-end gap-3">
+        <button id="cancelAssign" class="px-5 py-2.5 bg-white dark:bg-slate-700 border border-slate-200 dark:border-slate-600 text-slate-700 dark:text-slate-200 rounded-xl font-semibold hover:bg-slate-50 dark:hover:bg-slate-600 transition text-sm">Annuler</button>
+        <button id="confirmAssign" class="px-5 py-2.5 bg-brand-600 text-white rounded-xl font-semibold hover:bg-brand-700 transition shadow-md shadow-brand-500/30 text-sm">Valider l'assignation</button>
       </div>
     </div>
   </div>
 
-  <!-- New/Edit order modal -->
-  <div id="orderModal" class="fixed inset-0 z-30 hidden items-center justify-center">
-    <div class="absolute inset-0 bg-black opacity-40"></div>
-    <div class="relative bg-white rounded-lg shadow-xl w-full max-w-lg mx-4 p-6 z-40">
-      <h3 id="orderModalTitle" class="text-lg font-medium text-gray-900 mb-4">Nouvelle commande</h3>
-
-      <form id="orderForm" class="space-y-4">
-        <input type="hidden" id="orderId" />
-
-        <div>
-          <label class="block text-sm font-medium text-gray-700">Nom du client</label>
-          <input id="orderClient" type="text" class="mt-1 block w-full border border-gray-300 rounded-md px-3 py-2 focus:outline-none focus:ring-blue-500 focus:border-blue-500 sm:text-sm" required>
-        </div>
-
-        <div class="grid grid-cols-2 gap-4">
+  <!-- New/Edit Order Modal -->
+  <div id="orderModal" class="fixed inset-0 z-50 hidden items-center justify-center p-4">
+    <div class="absolute inset-0 bg-slate-900/50 backdrop-blur-sm"></div>
+    <div class="relative bg-white dark:bg-slate-800 rounded-2xl shadow-xl w-full max-w-lg overflow-hidden transform transition-all">
+      <div class="p-6 border-b border-slate-100 dark:border-slate-700">
+        <h3 id="orderModalTitle" class="text-xl font-bold text-slate-900 dark:text-white">Nouvelle commande</h3>
+      </div>
+      <div class="p-6">
+        <form id="orderForm" class="space-y-4">
+          <input type="hidden" id="orderId" />
           <div>
-            <label class="block text-sm font-medium text-gray-700">Produit</label>
-            <input id="orderProduct" type="text" class="mt-1 block w-full border border-gray-300 rounded-md px-3 py-2 focus:outline-none focus:ring-blue-500 focus:border-blue-500 sm:text-sm" required>
+            <label class="block text-xs font-bold text-slate-600 dark:text-slate-400 uppercase tracking-wide mb-2">Nom du client</label>
+            <input id="orderClient" type="text" class="w-full bg-slate-50 dark:bg-slate-900/50 border border-slate-200 dark:border-slate-700 rounded-xl px-4 py-2.5 focus:ring-2 focus:ring-brand-500 outline-none text-sm dark:text-white transition" required>
           </div>
-
-          <div>
-            <label class="block text-sm font-medium text-gray-700">Quantité</label>
-            <input id="orderQty" type="number" min="1" value="1" class="mt-1 block w-full border border-gray-300 rounded-md px-3 py-2 focus:outline-none focus:ring-blue-500 focus:border-blue-500 sm:text-sm" required>
+          <div class="grid grid-cols-3 gap-4">
+            <div class="col-span-2">
+              <label class="block text-xs font-bold text-slate-600 dark:text-slate-400 uppercase tracking-wide mb-2">Produit</label>
+              <input id="orderProduct" type="text" class="w-full bg-slate-50 dark:bg-slate-900/50 border border-slate-200 dark:border-slate-700 rounded-xl px-4 py-2.5 focus:ring-2 focus:ring-brand-500 outline-none text-sm dark:text-white transition" required>
+            </div>
+            <div>
+              <label class="block text-xs font-bold text-slate-600 dark:text-slate-400 uppercase tracking-wide mb-2">Qté</label>
+              <input id="orderQty" type="number" min="1" value="1" class="w-full bg-slate-50 dark:bg-slate-900/50 border border-slate-200 dark:border-slate-700 rounded-xl px-4 py-2.5 focus:ring-2 focus:ring-brand-500 outline-none text-sm dark:text-white transition" required>
+            </div>
           </div>
-        </div>
-
-        <div class="grid grid-cols-2 gap-4">
-          <div>
-            <label class="block text-sm font-medium text-gray-700">Date de commande</label>
-            <input id="orderDate" type="date" class="mt-1 block w-full border border-gray-300 rounded-md px-3 py-2 focus:outline-none focus:ring-blue-500 focus:border-blue-500 sm:text-sm">
+          <div class="grid grid-cols-2 gap-4">
+            <div>
+              <label class="block text-xs font-bold text-slate-600 dark:text-slate-400 uppercase tracking-wide mb-2">Date</label>
+              <input id="orderDate" type="date" class="w-full bg-slate-50 dark:bg-slate-900/50 border border-slate-200 dark:border-slate-700 rounded-xl px-4 py-2.5 focus:ring-2 focus:ring-brand-500 outline-none text-sm dark:text-white transition">
+            </div>
+            <div>
+              <label class="block text-xs font-bold text-slate-600 dark:text-slate-400 uppercase tracking-wide mb-2">Statut</label>
+              <select id="orderStatus" class="w-full bg-slate-50 dark:bg-slate-900/50 border border-slate-200 dark:border-slate-700 rounded-xl px-4 py-2.5 focus:ring-2 focus:ring-brand-500 outline-none text-sm dark:text-white transition cursor-pointer">
+                <option>En attente</option>
+                <option>En préparation</option>
+                <option>En livraison</option>
+                <option>Livrée</option>
+                <option>Annulée</option>
+              </select>
+            </div>
           </div>
-          <div>
-            <label class="block text-sm font-medium text-gray-700">Statut</label>
-            <select id="orderStatus" class="mt-1 block w-full border border-gray-300 rounded-md px-3 py-2 focus:outline-none focus:ring-blue-500 focus:border-blue-500 sm:text-sm">
-              <option>En attente</option>
-              <option>En préparation</option>
-              <option>En livraison</option>
-              <option>Livrée</option>
-              <option>Annulée</option>
-            </select>
-          </div>
-        </div>
-
-        <div class="flex justify-end gap-3">
-          <button type="button" id="cancelOrder" class="bg-white border border-gray-300 px-4 py-2 rounded-md hover:bg-gray-50">Annuler</button>
-          <button type="submit" id="saveOrder" class="bg-blue-600 text-white px-4 py-2 rounded-md hover:bg-blue-700">Enregistrer</button>
-        </div>
-      </form>
+        </form>
+      </div>
+      <div class="p-6 bg-slate-50 dark:bg-slate-800/50 border-t border-slate-100 dark:border-slate-700 flex justify-end gap-3">
+        <button type="button" id="cancelOrder" class="px-5 py-2.5 bg-white dark:bg-slate-700 border border-slate-200 dark:border-slate-600 text-slate-700 dark:text-slate-200 rounded-xl font-semibold hover:bg-slate-50 dark:hover:bg-slate-600 transition text-sm">Annuler</button>
+        <button type="submit" form="orderForm" id="saveOrder" class="px-5 py-2.5 bg-brand-600 text-white rounded-xl font-semibold hover:bg-brand-700 transition shadow-md shadow-brand-500/30 text-sm">Enregistrer</button>
+      </div>
     </div>
   </div>
 
-  <!-- Footer -->
-  <footer class="bg-gray-800 py-8 mt-10">
-    <div class="max-w-7xl mx-auto text-center text-gray-400">
-      <p>&copy; 2025 PharmaLink Pro. Tous droits réservés.</p>
-    </div>
-  </footer>
-
-  <!-- Scripts -->
   <script>
     feather.replace();
 
-    // Sample couriers (simulated)
+    // Dark Mode Theme init
+    const themeToggle = document.getElementById('themeToggle');
+    const themeIcon = document.getElementById('themeIcon');
+    const htmlClass = document.documentElement.classList;
+    if (localStorage.getItem('theme') === 'dark' || (!('theme' in localStorage) && window.matchMedia('(prefers-color-scheme: dark)').matches)) {
+      htmlClass.add('dark'); themeIcon.setAttribute('data-feather', 'sun'); feather.replace();
+    }
+    themeToggle.addEventListener('click', () => {
+      htmlClass.toggle('dark');
+      const isDark = htmlClass.contains('dark');
+      localStorage.setItem('theme', isDark ? 'dark' : 'light');
+      themeIcon.setAttribute('data-feather', isDark ? 'sun' : 'moon');
+      feather.replace();
+    });
+
     const couriers = [
-      { id: 1, name: 'Livreur A (BeninExpress)' },
-      { id: 2, name: 'Marie - Indépendant' },
-      { id: 3, name: 'Koffi - MotoRapid' }
+      { id: 1, name: 'Livreur A (BeninExpress)' }, { id: 2, name: 'Marie - Indépendant' }, { id: 3, name: 'Koffi - MotoRapid' }
     ];
 
-    // Sample orders (will be replaced by localStorage if present)
     let orders = JSON.parse(localStorage.getItem('pharmalink-orders')) || [
       { id: 1, client: 'Jean Dupont', product: 'Paracétamol 500mg', qty: 2, date: '2025-10-20', status: 'En attente', courier: '' },
       { id: 2, client: 'Amina T.', product: 'Gel hydroalcoolique', qty: 1, date: '2025-10-19', status: 'En préparation', courier: '' },
       { id: 3, client: 'Paul Z.', product: 'Crème hydratante', qty: 3, date: '2025-10-18', status: 'En livraison', courier: 'Koffi - MotoRapid' }
     ];
 
-    // DOM refs
     const ordersTable = document.getElementById('ordersTable');
     const statusFilter = document.getElementById('statusFilter');
     const searchOrders = document.getElementById('searchOrders');
     const refreshBtn = document.getElementById('refreshBtn');
     const newOrderBtn = document.getElementById('newOrderBtn');
-
     const assignModal = document.getElementById('assignModal');
     const courierSelect = document.getElementById('courierSelect');
     const cancelAssign = document.getElementById('cancelAssign');
     const confirmAssign = document.getElementById('confirmAssign');
-
     const orderModal = document.getElementById('orderModal');
     const orderForm = document.getElementById('orderForm');
     const orderModalTitle = document.getElementById('orderModalTitle');
@@ -229,247 +249,149 @@
     const orderStatus = document.getElementById('orderStatus');
     const cancelOrder = document.getElementById('cancelOrder');
 
-    // State for assignment
     let orderToAssignId = null;
 
-    // Helpers
-    function saveOrders() {
-      localStorage.setItem('pharmalink-orders', JSON.stringify(orders));
-    }
+    function saveOrders() { localStorage.setItem('pharmalink-orders', JSON.stringify(orders)); }
 
     function formatDate(d) {
-      if (!d) return '';
-      const dt = new Date(d);
-      if (isNaN(dt)) return d;
-      return dt.toLocaleDateString('fr-FR');
+      if (!d) return '-'; const dt = new Date(d);
+      return isNaN(dt) ? d : dt.toLocaleDateString('fr-FR');
     }
 
     function statusBadge(status) {
       switch (status) {
-        case 'En attente': return '<span class="inline-flex items-center px-2 py-1 rounded-full text-xs font-semibold bg-yellow-100 text-yellow-800">En attente</span>';
-        case 'En préparation': return '<span class="inline-flex items-center px-2 py-1 rounded-full text-xs font-semibold bg-blue-100 text-blue-800">En préparation</span>';
-        case 'En livraison': return '<span class="inline-flex items-center px-2 py-1 rounded-full text-xs font-semibold bg-indigo-100 text-indigo-800">En livraison</span>';
-        case 'Livrée': return '<span class="inline-flex items-center px-2 py-1 rounded-full text-xs font-semibold bg-green-100 text-green-800">Livrée</span>';
-        case 'Annulée': return '<span class="inline-flex items-center px-2 py-1 rounded-full text-xs font-semibold bg-red-100 text-red-800">Annulée</span>';
-        default: return `<span class="inline-flex items-center px-2 py-1 rounded-full text-xs font-semibold bg-gray-100 text-gray-800">${status}</span>`;
+        case 'En attente': return '<span class="inline-flex items-center px-2.5 py-1 rounded-lg text-xs font-bold bg-yellow-100 text-yellow-800 dark:bg-yellow-900/40 dark:text-yellow-400">En attente</span>';
+        case 'En préparation': return '<span class="inline-flex items-center px-2.5 py-1 rounded-lg text-xs font-bold bg-blue-100 text-blue-800 dark:bg-blue-900/40 dark:text-blue-400">En préparation</span>';
+        case 'En livraison': return '<span class="inline-flex items-center px-2.5 py-1 rounded-lg text-xs font-bold bg-indigo-100 text-indigo-800 dark:bg-indigo-900/40 dark:text-indigo-400">En livraison</span>';
+        case 'Livrée': return '<span class="inline-flex items-center px-2.5 py-1 rounded-lg text-xs font-bold bg-green-100 text-green-800 dark:bg-green-900/40 dark:text-green-400">Livrée</span>';
+        case 'Annulée': return '<span class="inline-flex items-center px-2.5 py-1 rounded-lg text-xs font-bold bg-red-100 text-red-800 dark:bg-red-900/40 dark:text-red-400">Annulée</span>';
+        default: return `<span class="inline-flex items-center px-2.5 py-1 rounded-lg text-xs font-bold bg-slate-100 text-slate-800 dark:bg-slate-700 dark:text-slate-300">${status}</span>`;
       }
     }
 
-    // Render couriers in modal
     function populateCouriers() {
       courierSelect.innerHTML = '';
       couriers.forEach(c => {
         const opt = document.createElement('option');
-        opt.value = c.name;
-        opt.textContent = c.name;
+        opt.value = c.name; opt.textContent = c.name;
         courierSelect.appendChild(opt);
       });
     }
 
-    // Render orders table
     function renderOrders(list = orders) {
       ordersTable.innerHTML = '';
       if (!list.length) {
-        ordersTable.innerHTML = '<tr><td colspan="7" class="px-6 py-4 text-center text-gray-500">Aucune commande trouvée</td></tr>';
+        ordersTable.innerHTML = '<tr><td colspan="6" class="px-6 py-8 text-center text-slate-500 dark:text-slate-400">Aucune commande trouvée</td></tr>';
         return;
       }
-
       list.forEach((o) => {
         const tr = document.createElement('tr');
+        tr.className = 'hover:bg-slate-50 dark:hover:bg-slate-700/50 transition';
         tr.innerHTML = `
-          <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-700">${o.id}</td>
-          <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-900 font-medium">${o.client}</td>
-          <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-700">${o.product}</td>
-          <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-700">${o.qty}</td>
-          <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-500">${formatDate(o.date)}</td>
-          <td class="px-6 py-4 whitespace-nowrap text-sm">${statusBadge(o.status)} ${o.courier ? '<div class="text-xs text-gray-500 mt-1">Livreur: ' + o.courier + '</div>' : ''}</td>
-          <td class="px-6 py-4 whitespace-nowrap text-right text-sm font-medium">
-            <button class="prepareBtn text-blue-600 hover:text-blue-900 mr-3" data-id="${o.id}" title="Marquer en préparation"><i data-feather="box" class="w-4 h-4"></i></button>
-            <button class="assignBtn text-green-600 hover:text-green-900 mr-3" data-id="${o.id}" title="Assigner un livreur"><i data-feather="truck" class="w-4 h-4"></i></button>
-            <button class="editBtn text-gray-600 hover:text-gray-900 mr-3" data-id="${o.id}" title="Modifier"><i data-feather="edit" class="w-4 h-4"></i></button>
-            <button class="deleteBtn text-red-600 hover:text-red-900" data-id="${o.id}" title="Supprimer"><i data-feather="trash-2" class="w-4 h-4"></i></button>
+          <td class="px-6 py-4 whitespace-nowrap text-sm font-medium text-slate-500 dark:text-slate-400">#${o.id}</td>
+          <td class="px-6 py-4 whitespace-nowrap text-sm font-bold text-slate-900 dark:text-white">${o.client}</td>
+          <td class="px-6 py-4 whitespace-nowrap">
+            <div class="text-sm font-medium text-slate-800 dark:text-slate-200">${o.product}</div>
+            <div class="text-xs text-slate-500 dark:text-slate-400 mt-0.5">Quantité: ${o.qty}</div>
+          </td>
+          <td class="px-6 py-4 whitespace-nowrap text-sm text-slate-500 dark:text-slate-400">${formatDate(o.date)}</td>
+          <td class="px-6 py-4 whitespace-nowrap">
+            ${statusBadge(o.status)}
+            ${o.courier ? `<div class="text-xs font-medium text-slate-500 dark:text-slate-400 mt-2 flex items-center gap-1"><i data-feather="truck" class="w-3 h-3"></i> ${o.courier}</div>` : ''}
+          </td>
+          <td class="px-6 py-4 whitespace-nowrap text-right text-sm">
+            <button class="prepareBtn text-blue-600 dark:text-blue-400 hover:text-blue-800 bg-blue-50 dark:bg-blue-900/30 p-2 rounded-lg mr-2 transition" data-id="${o.id}" title="Marquer en préparation"><i data-feather="box" class="w-4 h-4"></i></button>
+            <button class="assignBtn text-indigo-600 dark:text-indigo-400 hover:text-indigo-800 bg-indigo-50 dark:bg-indigo-900/30 p-2 rounded-lg mr-2 transition" data-id="${o.id}" title="Assigner livreur"><i data-feather="truck" class="w-4 h-4"></i></button>
+            <button class="editBtn text-slate-600 dark:text-slate-400 hover:text-slate-800 bg-slate-100 dark:bg-slate-700 p-2 rounded-lg mr-2 transition" data-id="${o.id}" title="Modifier"><i data-feather="edit-2" class="w-4 h-4"></i></button>
+            <button class="deleteBtn text-red-600 dark:text-red-400 hover:text-red-800 bg-red-50 dark:bg-red-900/30 p-2 rounded-lg transition" data-id="${o.id}" title="Supprimer"><i data-feather="trash-2" class="w-4 h-4"></i></button>
           </td>
         `;
         ordersTable.appendChild(tr);
       });
-
-      feather.replace();
-      attachOrderListeners();
+      feather.replace(); attachOrderListeners();
     }
 
-    // Attach listeners to action buttons
     function attachOrderListeners() {
-      document.querySelectorAll('.prepareBtn').forEach(btn => {
-        btn.onclick = () => {
-          const id = parseInt(btn.dataset.id);
-          markPreparing(id);
-        };
-      });
-
-      document.querySelectorAll('.assignBtn').forEach(btn => {
-        btn.onclick = () => {
-          const id = parseInt(btn.dataset.id);
-          openAssignModal(id);
-        };
-      });
-
-      document.querySelectorAll('.editBtn').forEach(btn => {
-        btn.onclick = () => {
-          const id = parseInt(btn.dataset.id);
-          openEditOrder(id);
-        };
-      });
-
-      document.querySelectorAll('.deleteBtn').forEach(btn => {
-        btn.onclick = () => {
-          const id = parseInt(btn.dataset.id);
-          if (confirm('Supprimer cette commande ?')) {
-            orders = orders.filter(o => o.id !== id);
-            saveOrders();
-            renderOrders(applyFilters());
-          }
-        };
+      document.querySelectorAll('.prepareBtn').forEach(btn => btn.onclick = () => markPreparing(parseInt(btn.dataset.id)));
+      document.querySelectorAll('.assignBtn').forEach(btn => btn.onclick = () => openAssignModal(parseInt(btn.dataset.id)));
+      document.querySelectorAll('.editBtn').forEach(btn => btn.onclick = () => openEditOrder(parseInt(btn.dataset.id)));
+      document.querySelectorAll('.deleteBtn').forEach(btn => btn.onclick = () => {
+        if (confirm('Supprimer cette commande ?')) {
+          orders = orders.filter(o => o.id !== parseInt(btn.dataset.id));
+          saveOrders(); renderOrders(applyFilters());
+        }
       });
     }
 
-    // Mark as preparing
     function markPreparing(id) {
       const idx = orders.findIndex(o => o.id === id);
-      if (idx === -1) return;
-      orders[idx].status = 'En préparation';
-      saveOrders();
-      renderOrders(applyFilters());
+      if (idx !== -1) { orders[idx].status = 'En préparation'; saveOrders(); renderOrders(applyFilters()); }
     }
 
-    // Open assign modal
     function openAssignModal(id) {
-      orderToAssignId = id;
-      populateCouriers();
-      assignModal.classList.remove('hidden');
-      assignModal.classList.add('modal-show');
+      orderToAssignId = id; populateCouriers();
+      assignModal.classList.remove('hidden'); assignModal.classList.add('flex');
     }
-
     function closeAssignModal() {
-      orderToAssignId = null;
-      assignModal.classList.add('hidden');
-      assignModal.classList.remove('modal-show');
+      orderToAssignId = null; assignModal.classList.add('hidden'); assignModal.classList.remove('flex');
     }
 
-    // Confirm assign
     confirmAssign.addEventListener('click', () => {
       if (!orderToAssignId) return;
-      const picked = courierSelect.value;
       const idx = orders.findIndex(o => o.id === orderToAssignId);
-      if (idx === -1) return;
-      orders[idx].courier = picked;
-      orders[idx].status = 'En livraison';
-      saveOrders();
-      renderOrders(applyFilters());
+      if (idx !== -1) { orders[idx].courier = courierSelect.value; orders[idx].status = 'En livraison'; saveOrders(); renderOrders(applyFilters()); }
       closeAssignModal();
     });
-
     cancelAssign.addEventListener('click', closeAssignModal);
 
-    // New order / Edit order modal handlers
-    newOrderBtn.addEventListener('click', () => openNewOrderModal());
-
-    function openNewOrderModal() {
-      orderModalTitle.textContent = 'Nouvelle commande';
-      orderForm.reset();
-      orderIdInput.value = '';
-      orderModal.classList.remove('hidden');
-      orderModal.classList.add('modal-show');
-    }
+    newOrderBtn.addEventListener('click', () => {
+      orderModalTitle.textContent = 'Nouvelle commande'; orderForm.reset(); orderIdInput.value = '';
+      orderModal.classList.remove('hidden'); orderModal.classList.add('flex');
+    });
 
     function openEditOrder(id) {
       const o = orders.find(x => x.id === id);
       if (!o) return;
-      orderModalTitle.textContent = 'Modifier la commande';
-      orderIdInput.value = o.id;
-      orderClient.value = o.client;
-      orderProduct.value = o.product;
-      orderQty.value = o.qty;
-      orderDate.value = o.date;
-      orderStatus.value = o.status;
-      orderModal.classList.remove('hidden');
-      orderModal.classList.add('modal-show');
+      orderModalTitle.textContent = 'Modifier la commande'; orderIdInput.value = o.id; orderClient.value = o.client;
+      orderProduct.value = o.product; orderQty.value = o.qty; orderDate.value = o.date; orderStatus.value = o.status;
+      orderModal.classList.remove('hidden'); orderModal.classList.add('flex');
     }
 
-    cancelOrder.addEventListener('click', () => {
-      orderModal.classList.add('hidden');
-      orderModal.classList.remove('modal-show');
-    });
+    cancelOrder.addEventListener('click', () => { orderModal.classList.add('hidden'); orderModal.classList.remove('flex'); });
 
     orderForm.addEventListener('submit', (e) => {
       e.preventDefault();
       const idVal = orderIdInput.value ? parseInt(orderIdInput.value) : null;
       const data = {
-        client: orderClient.value.trim(),
-        product: orderProduct.value.trim(),
-        qty: parseInt(orderQty.value),
-        date: orderDate.value || new Date().toISOString().slice(0,10),
-        status: orderStatus.value,
-        courier: ''
+        client: orderClient.value.trim(), product: orderProduct.value.trim(), qty: parseInt(orderQty.value),
+        date: orderDate.value || new Date().toISOString().slice(0,10), status: orderStatus.value, courier: ''
       };
-
       if (idVal) {
         const idx = orders.findIndex(o => o.id === idVal);
-        if (idx !== -1) {
-          orders[idx] = { id: idVal, ...data, courier: orders[idx].courier || '' };
-        }
+        if (idx !== -1) orders[idx] = { id: idVal, ...data, courier: orders[idx].courier || '' };
       } else {
         const newId = orders.length ? Math.max(...orders.map(o => o.id)) + 1 : 1;
         orders.push({ id: newId, ...data });
       }
-
-      saveOrders();
-      orderModal.classList.add('hidden');
-      orderModal.classList.remove('modal-show');
-      renderOrders(applyFilters());
+      saveOrders(); orderModal.classList.add('hidden'); orderModal.classList.remove('flex'); renderOrders(applyFilters());
     });
 
-    // Filters & search
     function applyFilters() {
-      const term = searchOrders.value.trim().toLowerCase();
-      const status = statusFilter.value;
-      let filtered = orders.slice().sort((a,b) => b.id - a.id); // latest first
+      const term = searchOrders.value.trim().toLowerCase(); const status = statusFilter.value;
+      let filtered = orders.slice().sort((a,b) => b.id - a.id);
       if (status) filtered = filtered.filter(o => o.status === status);
-      if (term) {
-        filtered = filtered.filter(o =>
-          (o.client && o.client.toLowerCase().includes(term)) ||
-          (o.product && o.product.toLowerCase().includes(term))
-        );
-      }
+      if (term) filtered = filtered.filter(o => (o.client && o.client.toLowerCase().includes(term)) || (o.product && o.product.toLowerCase().includes(term)));
       return filtered;
     }
 
     searchOrders.addEventListener('input', () => renderOrders(applyFilters()));
     statusFilter.addEventListener('change', () => renderOrders(applyFilters()));
     refreshBtn.addEventListener('click', () => {
-      // Simulate refresh: currently just re-render and show a tiny feedback
-      refreshBtn.disabled = true;
-      refreshBtn.innerHTML = '<i data-feather="loader" class="animate-spin h-4 w-4 mr-2"></i> Actualisation...';
-      setTimeout(() => {
-        renderOrders(applyFilters());
-        refreshBtn.disabled = false;
-        refreshBtn.innerHTML = '<i data-feather="refresh-cw" class="h-4 w-4 mr-2"></i> Actualiser les commandes';
-        feather.replace();
-      }, 700);
+      refreshBtn.disabled = true; refreshBtn.innerHTML = '<i data-feather="loader" class="animate-spin h-4 w-4"></i>'; feather.replace();
+      setTimeout(() => { renderOrders(applyFilters()); refreshBtn.disabled = false; refreshBtn.innerHTML = '<i data-feather="refresh-cw" class="h-4 w-4"></i> <span class="hidden sm:inline">Actualiser</span>'; feather.replace(); }, 500);
     });
 
-    // Initial render
     renderOrders(applyFilters());
-    populateCouriers();
-
-    // Accessibility: close modals on Escape
-    window.addEventListener('keydown', (e) => {
-      if (e.key === 'Escape') {
-        assignModal.classList.add('hidden');
-        assignModal.classList.remove('modal-show');
-        orderModal.classList.add('hidden');
-        orderModal.classList.remove('modal-show');
-      }
-    });
   </script>
 </body>
 </html>

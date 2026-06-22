@@ -5,14 +5,34 @@
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <title>Email envoyé - PharmaLink Pro</title>
   <script src="https://cdn.tailwindcss.com"></script>
+  <script>
+    tailwind.config = {
+      darkMode: 'class',
+      theme: {
+        extend: {
+          colors: {
+            brand: {
+              50: '#f0fdf4', 100: '#dcfce7', 200: '#bbf7d0', 300: '#86efac', 400: '#4ade80',
+              500: '#22c55e', 600: '#16a34a', 700: '#15803d', 800: '#166534', 900: '#14532d',
+            }
+          }
+        }
+      }
+    }
+  </script>
   <script src="https://cdn.jsdelivr.net/npm/feather-icons/dist/feather.min.js"></script>
   <style>
-    @import url('https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;500;600;700&display=swap');
-    body {
-      font-family: 'Poppins', sans-serif;
-      background: linear-gradient(135deg, #3b82f6 0%, #10b981 100%);
-      min-height: 100vh;
-    }
+    @import url('https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap');
+    body { font-family: 'Inter', sans-serif; transition: background-color 0.3s, color 0.3s; }
+    
+    ::-webkit-scrollbar { width: 6px; }
+    ::-webkit-scrollbar-track { background: transparent; }
+    ::-webkit-scrollbar-thumb { background: #cbd5e1; border-radius: 10px; }
+    .dark ::-webkit-scrollbar-thumb { background: #475569; }
+
+    .glass { background: rgba(255, 255, 255, 0.8); backdrop-filter: blur(12px); border-bottom: 1px solid rgba(255, 255, 255, 0.3); }
+    .dark .glass { background: rgba(30, 41, 59, 0.8); border-bottom: 1px solid rgba(255, 255, 255, 0.1); }
+
     .card {
       background-color: white;
       box-shadow: 0 25px 35px rgba(0, 0, 0, 0.1);
@@ -45,27 +65,30 @@
           <i data-feather="mail" class="h-8 w-8"></i>
         </div>
       </div>
-      <h3 class="text-xl font-semibold text-gray-800">E-mail envoyé avec succès</h3>
-      <p class="mt-2 text-gray-600 text-sm">
+      <h3 class="text-xl font-semibold text-slate-800 dark:text-slate-200">E-mail envoyé avec succès</h3>
+      <p class="mt-2 text-slate-600 dark:text-slate-300 text-sm">
         Si l’adresse que vous avez fournie correspond à un compte existant, vous recevrez un message contenant un lien pour réinitialiser votre mot de passe.
       </p>
 
       <div class="mt-6">
         <a href="https://mail.google.com" target="_blank"
-           class="inline-flex justify-center items-center px-4 py-2 border border-transparent text-sm font-medium rounded-md text-white bg-blue-600 hover:bg-blue-700 focus:ring-2 focus:ring-offset-2 focus:ring-blue-500">
+           class="inline-flex justify-center items-center px-4 py-2 border border-transparent text-sm font-medium rounded-md text-white bg-brand-600 hover:bg-brand-700 focus:ring-2 focus:ring-offset-2 focus:ring-blue-500">
           <i data-feather="inbox" class="h-5 w-5 mr-2"></i>
           Ouvrir ma boîte mail
         </a>
       </div>
 
-      <p class="mt-6 text-sm text-gray-500">
+      <p class="mt-6 text-sm text-slate-500 dark:text-slate-400">
         Vous n’avez pas reçu d’e-mail ? <br>
-        <a href="#" class="text-blue-600 hover:text-blue-500 font-medium">Renvoyer le lien</a> ou
-        <a href="reset-request.html" class="text-blue-600 hover:text-blue-500 font-medium">utiliser une autre adresse</a>.
+        <a href="#" class="text-brand-600 dark:text-brand-400 hover:text-blue-500 font-medium">Renvoyer le lien</a> ou
+        <a href="reset-request.html" class="text-brand-600 dark:text-brand-400 hover:text-blue-500 font-medium">utiliser une autre adresse</a>.
       </p>
 
       <div class="mt-6">
-        <a href="login.html" class="text-sm text-gray-600 hover:text-gray-800 flex items-center justify-center gap-1">
+        <button id="themeToggle" class="p-2 rounded-full hover:bg-slate-200 dark:hover:bg-slate-800 transition text-slate-600 dark:text-slate-300 focus:outline-none ml-4 mr-2">
+            <i data-feather="moon" id="themeIcon" class="h-5 w-5"></i>
+          </button>
+          <a href="login.html" class="text-sm text-slate-600 dark:text-slate-300 hover:text-slate-800 dark:text-slate-200 flex items-center justify-center gap-1">
           <i data-feather="arrow-left" class="h-4 w-4"></i> Retour à la connexion
         </a>
       </div>
@@ -73,6 +96,23 @@
   </div>
 
   <script>
+    
+    // Dark Mode Theme init
+    const themeToggle = document.getElementById('themeToggle');
+    const themeIcon = document.getElementById('themeIcon');
+    const htmlClass = document.documentElement.classList;
+    if (localStorage.getItem('theme') === 'dark' || (!('theme' in localStorage) && window.matchMedia('(prefers-color-scheme: dark)').matches)) {
+      htmlClass.add('dark'); if(themeIcon) themeIcon.setAttribute('data-feather', 'sun');
+    }
+    if (themeToggle) {
+      themeToggle.addEventListener('click', () => {
+        htmlClass.toggle('dark');
+        const isDark = htmlClass.contains('dark');
+        localStorage.setItem('theme', isDark ? 'dark' : 'light');
+        if(themeIcon) themeIcon.setAttribute('data-feather', isDark ? 'sun' : 'moon');
+        feather.replace();
+      });
+    }
     feather.replace();
   </script>
 </body>
