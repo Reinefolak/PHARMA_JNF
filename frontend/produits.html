@@ -6,115 +6,280 @@
   <title>Produits - PharmaLink Pro</title>
   <script src="https://cdn.tailwindcss.com"></script>
   <script src="https://cdn.jsdelivr.net/npm/feather-icons/dist/feather.min.js"></script>
+  <script>
+    tailwind.config = {
+      darkMode: 'class',
+      theme: { extend: { colors: { brand: { 50:'#eff6ff',100:'#dbeafe',200:'#bfdbfe',300:'#93c5fd',400:'#60a5fa',500:'#3b82f6',600:'#2563eb',700:'#1d4ed8',800:'#1e40af',900:'#1e3a8a' } } } }
+    }
+  </script>
   <style>
-    @import url('https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;500;600;700&display=swap');
-    body { font-family: 'Poppins', sans-serif; }
+    @import url('https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap');
+    body { font-family: 'Inter', sans-serif; transition: background-color 0.3s, color 0.3s; }
+    ::-webkit-scrollbar { width: 6px; }
+    ::-webkit-scrollbar-track { background: transparent; }
+    ::-webkit-scrollbar-thumb { background: #cbd5e1; border-radius: 10px; }
+    .dark ::-webkit-scrollbar-thumb { background: #475569; }
+    .glass { background: rgba(255,255,255,0.8); backdrop-filter: blur(12px); border-bottom: 1px solid rgba(255,255,255,0.3); }
+    .dark .glass { background: rgba(30,41,59,0.8); border-bottom: 1px solid rgba(255,255,255,0.1); }
+    .product-card { transition: transform 0.15s, box-shadow 0.15s; }
+    .product-card:hover { transform: translateY(-3px); }
+    @keyframes fadeIn { from { opacity:0; transform:translateY(8px); } to { opacity:1; transform:translateY(0); } }
+    .fade-in { animation: fadeIn 0.25s ease forwards; }
+    @keyframes spin { to { transform: rotate(360deg); } }
+    .spin { animation: spin 1s linear infinite; }
   </style>
 </head>
-<body class="bg-gray-50 text-gray-800">
+<body class="bg-gray-50 text-gray-800 dark:bg-slate-900 dark:text-slate-200">
 
-  <!-- Navigation -->
-  <nav class="bg-white shadow-sm relative z-10">
+  <!-- Navbar -->
+  <nav class="sticky top-0 z-40 glass">
     <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
       <div class="flex justify-between h-16">
-        <div class="flex items-center">
-          <i data-feather="activity" class="h-8 w-8 text-blue-600"></i>
-          <span class="ml-2 text-xl font-bold text-blue-600">PharmaLink Pro</span>
+        <div class="flex items-center gap-3">
+          <div class="bg-brand-600 p-2 rounded-lg"><i data-feather="activity" class="h-6 w-6 text-white"></i></div>
+          <span class="text-xl font-bold bg-clip-text text-transparent bg-gradient-to-r from-brand-600 to-blue-400 dark:from-blue-400 dark:to-brand-200 hidden sm:block">PharmaLink Pro</span>
         </div>
-        <div class="flex items-center space-x-6">
-          <a href="patient.html" class="text-gray-600 hover:text-blue-600">Accueil</a>
-          <a href="pharmacies_patient.html" class="text-gray-600 hover:text-blue-600">Pharmacies</a>
-          <a href="produits.html" class="text-blue-600 font-medium">Produits</a>
-          <a href="know_patient.html" class="text-gray-600 hover:text-blue-600">À propos</a>
-          <a href="services_patient.html" class="text-gray-600 hover:text-blue-600">Services</a>
-          <a href="contact_patient.html" class="text-gray-600 hover:text-blue-600">Contact</a>
-          <a href="login.html" class="bg-blue-600 text-white px-4 py-2 rounded-md font-medium hover:bg-blue-700 transition">
-            <i data-feather="log-out" class="h-4 w-4 inline mr-1"></i> Déconnexion
+        <div class="flex items-center gap-3 sm:gap-4">
+          <div class="hidden md:flex items-center space-x-6 mr-4">
+            <a href="patient.html" class="text-gray-600 dark:text-slate-300 hover:text-brand-600 dark:hover:text-blue-400 transition">Tableau de bord</a>
+            <a href="pharmacies_patient.html" class="text-gray-600 dark:text-slate-300 hover:text-brand-600 dark:hover:text-blue-400 transition">Pharmacies</a>
+            <a href="produits.html" class="text-brand-600 dark:text-blue-400 font-medium">Produits</a>
+            <a href="profil_patient.html" class="text-gray-600 dark:text-slate-300 hover:text-brand-600 dark:hover:text-blue-400 transition">Profil Médical</a>
+          </div>
+          <button id="themeToggle" class="p-2 rounded-full hover:bg-gray-200 dark:hover:bg-slate-800 transition text-gray-600 dark:text-slate-300 focus:outline-none">
+            <i data-feather="moon" id="themeIcon" class="h-5 w-5"></i>
+          </button>
+          <a href="login.html" class="hidden sm:flex items-center gap-2 px-4 py-2 bg-slate-900 text-white dark:bg-white dark:text-slate-900 rounded-full font-semibold hover:opacity-90 transition text-sm">
+            <i data-feather="log-out" class="h-4 w-4"></i> Déconnexion
           </a>
         </div>
       </div>
     </div>
   </nav>
 
-  <!-- En-tête -->
-  <section class="relative py-20 bg-gradient-to-br from-blue-600 to-green-500 text-white text-center">
-    <div class="max-w-4xl mx-auto px-6">
-      <h1 class="text-4xl font-bold mb-4">Produits pharmaceutiques</h1>
-      <p class="text-blue-100 text-lg">Consultez la liste des produits disponibles dans les pharmacies autour de vous.</p>
+  <!-- Header -->
+  <section class="relative py-16 bg-gradient-to-br from-brand-600 to-blue-500 dark:from-brand-800 dark:to-blue-900 text-white overflow-hidden">
+    <div class="absolute top-0 right-0 -mt-10 -mr-10 opacity-10 pointer-events-none">
+      <i data-feather="package" class="w-64 h-64"></i>
+    </div>
+    <div class="max-w-7xl mx-auto px-6 relative z-10 text-center">
+      <h1 class="text-3xl sm:text-4xl font-bold mb-3">Produits pharmaceutiques</h1>
+      <p class="text-blue-100 text-lg max-w-2xl mx-auto">Consultez les produits disponibles dans les pharmacies partenaires. Si un médicament est en rupture, nous vous montrons où le trouver.</p>
     </div>
   </section>
 
-  <!-- Section de recherche et de filtrage -->
-  <section class="max-w-6xl mx-auto py-12 px-6">
-    <div class="flex flex-col md:flex-row justify-between items-center mb-8 space-y-4 md:space-y-0">
-      <div class="flex items-center w-full md:w-1/2 bg-white border rounded-lg shadow-sm px-4 py-2">
-        <i data-feather="search" class="text-gray-500 mr-2"></i>
-        <input id="searchInput" type="text" placeholder="Rechercher un produit..." class="w-full focus:outline-none">
-      </div>
+  <!-- Filtres -->
+  <main class="max-w-7xl mx-auto py-8 px-4 sm:px-6 lg:px-8 space-y-6">
 
-      <div>
-        <select id="filterSelect" class="border border-gray-300 rounded-md px-4 py-2 text-gray-700 focus:ring-blue-500 focus:border-blue-500">
+    <div class="bg-white dark:bg-slate-800 rounded-2xl shadow-sm border border-gray-100 dark:border-slate-700 p-5">
+      <div class="flex flex-col md:flex-row gap-4 items-center">
+        <div class="flex-1 relative">
+          <i data-feather="search" class="absolute left-4 top-1/2 -translate-y-1/2 h-5 w-5 text-gray-400 pointer-events-none"></i>
+          <input id="searchInput" type="text" placeholder="Rechercher un médicament..." class="w-full pl-11 pr-4 py-2.5 bg-gray-50 dark:bg-slate-900/50 border border-gray-200 dark:border-slate-700 rounded-xl focus:ring-2 focus:ring-brand-500 outline-none text-sm dark:text-white transition">
+        </div>
+        <select id="filterSelect" class="px-4 py-2.5 bg-gray-50 dark:bg-slate-900/50 border border-gray-200 dark:border-slate-700 rounded-xl focus:ring-2 focus:ring-brand-500 outline-none text-sm dark:text-white transition cursor-pointer">
           <option value="all">Tous les produits</option>
-          <option value="available">Disponibles</option>
+          <option value="available">Disponibles uniquement</option>
           <option value="unavailable">En rupture</option>
         </select>
+        <div class="text-sm text-gray-400 dark:text-slate-500 shrink-0" id="resultCount"></div>
       </div>
     </div>
 
-    <!-- Liste des produits -->
-    <div id="productList" class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-8">
-      <!-- Contenu généré par JavaScript -->
-    </div>
-  </section>
+    <!-- Grille produits -->
+    <div id="productList" class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6"></div>
 
-  <!-- Footer -->
-  <footer class="bg-gray-800 py-8">
+  </main>
+
+  <!-- ===== MODAL DISPONIBILITÉ CROISÉE ===== -->
+  <div id="altModal" class="fixed inset-0 z-50 hidden items-center justify-center p-4">
+    <div class="absolute inset-0 bg-slate-900/60 backdrop-blur-sm" onclick="closeAltModal()"></div>
+    <div class="relative bg-white dark:bg-slate-800 rounded-2xl shadow-2xl w-full max-w-lg overflow-hidden">
+      <div class="p-5 border-b border-gray-100 dark:border-slate-700 flex items-center justify-between">
+        <div>
+          <h3 class="text-lg font-bold text-gray-900 dark:text-white flex items-center gap-2">
+            <i data-feather="refresh-cw" class="h-5 w-5 text-brand-600 dark:text-blue-400"></i>
+            Pharmacies alternatives
+          </h3>
+          <p class="text-sm text-gray-500 dark:text-slate-400 mt-0.5" id="altModalSubtitle"></p>
+        </div>
+        <button onclick="closeAltModal()" class="p-2 hover:bg-gray-100 dark:hover:bg-slate-700 rounded-full transition">
+          <i data-feather="x" class="h-5 w-5 text-gray-500"></i>
+        </button>
+      </div>
+
+      <!-- Loader modal -->
+      <div id="altLoader" class="flex items-center justify-center gap-3 py-12 text-brand-600 dark:text-blue-400">
+        <svg class="spin h-6 w-6" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24">
+          <circle class="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" stroke-width="4"></circle>
+          <path class="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4z"></path>
+        </svg>
+        <span class="text-sm font-medium">Recherche en cours…</span>
+      </div>
+
+      <!-- Résultats modal -->
+      <div id="altResults" class="hidden p-5 space-y-3 max-h-96 overflow-y-auto"></div>
+
+      <div class="p-4 border-t border-gray-100 dark:border-slate-700 flex justify-end">
+        <button onclick="closeAltModal()" class="px-5 py-2 text-sm font-medium bg-gray-100 dark:bg-slate-700 text-gray-700 dark:text-slate-200 rounded-xl hover:bg-gray-200 dark:hover:bg-slate-600 transition">Fermer</button>
+      </div>
+    </div>
+  </div>
+  <!-- ===== FIN MODAL ===== -->
+
+  <footer class="mt-12 bg-gray-800 dark:bg-slate-950 py-8">
     <div class="max-w-7xl mx-auto text-center text-gray-400">
       <p>&copy; 2025 PharmaLink Pro. Tous droits réservés.</p>
     </div>
   </footer>
 
+  <script src="auth.js"></script>
   <script>
     feather.replace();
 
-    // Liste simulée de produits
+    // ---- DARK MODE ----
+    const themeToggle = document.getElementById('themeToggle');
+    const themeIcon = document.getElementById('themeIcon');
+    const htmlClass = document.documentElement.classList;
+    if (localStorage.getItem('theme') === 'dark' || (!('theme' in localStorage) && window.matchMedia('(prefers-color-scheme: dark)').matches)) {
+      htmlClass.add('dark'); themeIcon.setAttribute('data-feather', 'sun');
+    }
+    themeToggle.addEventListener('click', () => {
+      htmlClass.toggle('dark');
+      const isDark = htmlClass.contains('dark');
+      localStorage.setItem('theme', isDark ? 'dark' : 'light');
+      themeIcon.setAttribute('data-feather', isDark ? 'sun' : 'moon');
+      feather.replace();
+    });
+
+    // ================================================================
+    // DONNÉES — catalogue multi-pharmacies
+    // Structure : chaque produit appartient à une pharmacie
+    // available: false = en rupture dans CETTE pharmacie
+    // ================================================================
     const products = [
-      { name: "Doliprane 500mg", price: "1500 FCFA", available: true, pharmacy: "Pharmacie Centrale" },
-      { name: "Paracétamol 1g", price: "1200 FCFA", available: true, pharmacy: "Pharmacie du Soleil" },
-      { name: "Amoxicilline 500mg", price: "2500 FCFA", available: false, pharmacy: "Pharmacie Ste-Marie" },
-      { name: "Vitamine C 1000mg", price: "1000 FCFA", available: true, pharmacy: "Pharmacie Centrale" },
-      { name: "Ibuprofène 400mg", price: "2000 FCFA", available: false, pharmacy: "Pharmacie de la Santé" },
-      { name: "Efferalgan 500mg", price: "1300 FCFA", available: true, pharmacy: "Pharmacie du Soleil" },
+      // Pharmacie du Soleil
+      { id:1, name:'Doliprane 1000mg',     price:'1 500 F', available:true,  pharmacy:'Pharmacie du Soleil',   distance:'0.8 km', delai:'20 min', category:'Antidouleur' },
+      { id:2, name:'Vitamine C Upsa',      price:'900 F',   available:true,  pharmacy:'Pharmacie du Soleil',   distance:'0.8 km', delai:'20 min', category:'Vitamines' },
+      { id:3, name:'Amoxicilline 500mg',   price:'2 500 F', available:false, pharmacy:'Pharmacie du Soleil',   distance:'0.8 km', delai:'20 min', category:'Antibiotique' },
+      { id:4, name:'Sirop Toplexil',       price:'2 000 F', available:false, pharmacy:'Pharmacie du Soleil',   distance:'0.8 km', delai:'20 min', category:'Toux' },
+      // Pharmacie Les Anges
+      { id:5, name:'Paracétamol 500mg',    price:'800 F',   available:true,  pharmacy:'Pharmacie Les Anges',   distance:'1.2 km', delai:'25 min', category:'Antidouleur' },
+      { id:6, name:'Ibuprofène 400mg',     price:'1 200 F', available:true,  pharmacy:'Pharmacie Les Anges',   distance:'1.2 km', delai:'25 min', category:'Anti-inflammatoire' },
+      { id:7, name:'Amoxicilline 500mg',   price:'2 400 F', available:true,  pharmacy:'Pharmacie Les Anges',   distance:'1.2 km', delai:'25 min', category:'Antibiotique' },
+      { id:8, name:'Strepsils',            price:'1 100 F', available:true,  pharmacy:'Pharmacie Les Anges',   distance:'1.2 km', delai:'25 min', category:'Gorge' },
+      { id:9, name:'Sirop Toplexil',       price:'2 100 F', available:true,  pharmacy:'Pharmacie Les Anges',   distance:'1.2 km', delai:'25 min', category:'Toux' },
+      // Pharmacie du Centre
+      { id:10,name:'Nifuroxazide 200mg',   price:'1 800 F', available:true,  pharmacy:'Pharmacie du Centre',   distance:'2.1 km', delai:'35 min', category:'Diarrhée' },
+      { id:11,name:'SRO Réhydratation',    price:'500 F',   available:true,  pharmacy:'Pharmacie du Centre',   distance:'2.1 km', delai:'35 min', category:'Hydratation' },
+      { id:12,name:'Loratadine 10mg',      price:'1 300 F', available:true,  pharmacy:'Pharmacie du Centre',   distance:'2.1 km', delai:'35 min', category:'Allergie' },
+      { id:13,name:'Doliprane 1000mg',     price:'1 600 F', available:true,  pharmacy:'Pharmacie du Centre',   distance:'2.1 km', delai:'35 min', category:'Antidouleur' },
+      // Pharmacie Sainte-Marie
+      { id:14,name:'Amoxicilline 500mg',   price:'2 600 F', available:true,  pharmacy:'Pharmacie Sainte-Marie',distance:'3.0 km', delai:'45 min', category:'Antibiotique' },
+      { id:15,name:'Efferalgan 500mg',     price:'1 300 F', available:false, pharmacy:'Pharmacie Sainte-Marie',distance:'3.0 km', delai:'45 min', category:'Antidouleur' },
+      { id:16,name:'Ibuprofène 400mg',     price:'1 250 F', available:true,  pharmacy:'Pharmacie Sainte-Marie',distance:'3.0 km', delai:'45 min', category:'Anti-inflammatoire' },
     ];
 
-    const listContainer = document.getElementById("productList");
-    const searchInput = document.getElementById("searchInput");
-    const filterSelect = document.getElementById("filterSelect");
+    // ================================================================
+    // RENDU DES CARTES
+    // ================================================================
+    const listContainer = document.getElementById('productList');
+    const searchInput   = document.getElementById('searchInput');
+    const filterSelect  = document.getElementById('filterSelect');
+    const resultCount   = document.getElementById('resultCount');
 
-    // Fonction d’affichage des produits
-    function displayProducts(filteredProducts) {
-      listContainer.innerHTML = "";
-      if (filteredProducts.length === 0) {
-        listContainer.innerHTML = '<p class="col-span-full text-center text-gray-500">Aucun produit trouvé.</p>';
+    function escapeHtml(str) {
+      return String(str).replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;').replace(/"/g,'&quot;');
+    }
+
+    // Regrouper par nom pour savoir si dispo ailleurs
+    function getAlternatives(productName, currentPharmacy) {
+      return products.filter(p => p.name === productName && p.pharmacy !== currentPharmacy && p.available);
+    }
+
+    function displayProducts(list) {
+      listContainer.innerHTML = '';
+      resultCount.textContent = `${list.length} produit${list.length > 1 ? 's' : ''}`;
+
+      if (list.length === 0) {
+        listContainer.innerHTML = `<p class="col-span-full text-center text-gray-400 dark:text-slate-500 py-16 text-sm">Aucun produit trouvé.</p>`;
         return;
       }
 
-      filteredProducts.forEach(product => {
-        const card = document.createElement("div");
-        card.className = "bg-white p-6 rounded-lg shadow hover:shadow-lg transition";
+      list.forEach(product => {
+        const alts = getAlternatives(product.name, product.pharmacy);
+        const hasAlts = alts.length > 0;
+
+        const card = document.createElement('div');
+        card.className = 'product-card fade-in bg-white dark:bg-slate-800 rounded-2xl shadow-sm border border-gray-100 dark:border-slate-700 overflow-hidden flex flex-col';
+
         card.innerHTML = `
-          <div class="flex items-center mb-3">
-            <i data-feather="package" class="text-blue-600 h-6 w-6 mr-2"></i>
-            <h3 class="text-lg font-semibold text-gray-900">${product.name}</h3>
+          <div class="p-5 flex-1">
+            <!-- En-tête produit -->
+            <div class="flex items-start justify-between gap-2 mb-3">
+              <div class="flex items-center gap-2">
+                <div class="p-2 bg-brand-50 dark:bg-brand-900/20 rounded-lg shrink-0">
+                  <i data-feather="package" class="h-4 w-4 text-brand-600 dark:text-blue-400"></i>
+                </div>
+                <div>
+                  <h3 class="text-sm font-bold text-gray-900 dark:text-white leading-tight">${escapeHtml(product.name)}</h3>
+                  <span class="text-xs text-gray-400 dark:text-slate-500">${escapeHtml(product.category)}</span>
+                </div>
+              </div>
+              <span class="text-base font-bold text-brand-600 dark:text-blue-400 shrink-0">${escapeHtml(product.price)}</span>
+            </div>
+
+            <!-- Pharmacie -->
+            <div class="flex items-center gap-1.5 text-xs text-gray-500 dark:text-slate-400 mb-1">
+              <i data-feather="map-pin" class="h-3 w-3 shrink-0"></i>
+              <span>${escapeHtml(product.pharmacy)}</span>
+              <span class="text-gray-300 dark:text-slate-600">·</span>
+              <span>${escapeHtml(product.distance)}</span>
+              <span class="text-gray-300 dark:text-slate-600">·</span>
+              <span>~${escapeHtml(product.delai)}</span>
+            </div>
+
+            <!-- Badge disponibilité -->
+            ${product.available
+              ? `<span class="inline-flex items-center gap-1 mt-2 px-2.5 py-1 bg-green-100 dark:bg-green-900/30 text-green-700 dark:text-green-400 rounded-full text-xs font-semibold">
+                  <span class="h-1.5 w-1.5 rounded-full bg-green-500 inline-block"></span> Disponible
+                </span>`
+              : `<div class="mt-2 space-y-2">
+                  <span class="inline-flex items-center gap-1 px-2.5 py-1 bg-red-100 dark:bg-red-900/30 text-red-700 dark:text-red-400 rounded-full text-xs font-semibold">
+                    <span class="h-1.5 w-1.5 rounded-full bg-red-500 inline-block"></span> En rupture de stock
+                  </span>
+                  ${hasAlts
+                    ? `<div class="flex items-center gap-1.5 text-xs text-amber-600 dark:text-amber-400 font-medium">
+                        <i data-feather="info" class="h-3 w-3 shrink-0"></i>
+                        Disponible dans ${alts.length} autre${alts.length > 1 ? 's' : ''} pharmacie${alts.length > 1 ? 's' : ''}
+                      </div>`
+                    : `<div class="flex items-center gap-1.5 text-xs text-gray-400 dark:text-slate-500">
+                        <i data-feather="alert-circle" class="h-3 w-3 shrink-0"></i>
+                        Non disponible dans le réseau
+                      </div>`
+                  }
+                </div>`
+            }
           </div>
-          <p class="text-gray-600 mb-1"><strong>Prix :</strong> ${product.price}</p>
-          <p class="text-gray-600 mb-1"><strong>Pharmacie :</strong> ${product.pharmacy}</p>
-          <p class="text-gray-600 mb-3"><strong>Statut :</strong> 
-            ${product.available ? '🟢 Disponible' : '🔴 En rupture'}
-          </p>
-          <a href="com_patient.html" class="w-full bg-blue-600 text-white py-2 rounded-md hover:bg-blue-700 transition">
-            Commander
-          </a>
+
+          <!-- Actions -->
+          <div class="px-5 pb-5 pt-3 border-t border-gray-50 dark:border-slate-700/50 flex gap-2">
+            ${product.available
+              ? `<a href="com_patient.html" class="flex-1 flex items-center justify-center gap-1.5 bg-brand-600 hover:bg-brand-700 text-white py-2.5 rounded-xl text-xs font-semibold transition">
+                  <i data-feather="shopping-cart" class="h-3.5 w-3.5"></i> Commander
+                </a>`
+              : `<button disabled class="flex-1 flex items-center justify-center gap-1.5 bg-gray-100 dark:bg-slate-700 text-gray-400 dark:text-slate-500 py-2.5 rounded-xl text-xs font-semibold cursor-not-allowed">
+                  <i data-feather="x-circle" class="h-3.5 w-3.5"></i> Indisponible
+                </button>
+                ${hasAlts
+                  ? `<button onclick="ouvrirAlternatives('${escapeHtml(product.name)}', '${escapeHtml(product.pharmacy)}')"
+                      class="flex-1 flex items-center justify-center gap-1.5 bg-amber-500 hover:bg-amber-600 text-white py-2.5 rounded-xl text-xs font-semibold transition">
+                      <i data-feather="refresh-cw" class="h-3.5 w-3.5"></i> Voir alternatives
+                    </button>`
+                  : ''
+                }`
+            }
+          </div>
         `;
         listContainer.appendChild(card);
       });
@@ -122,29 +287,95 @@
       feather.replace();
     }
 
-    // Filtrage
     function filterProducts() {
-      const query = searchInput.value.toLowerCase();
+      const query  = searchInput.value.toLowerCase();
       const filter = filterSelect.value;
-
+      // Dédoublonner : afficher une seule entrée par (nom, pharmacie)
       const filtered = products.filter(p => {
         const matchName = p.name.toLowerCase().includes(query);
-        const matchAvailability =
-          filter === "all" ||
-          (filter === "available" && p.available) ||
-          (filter === "unavailable" && !p.available);
-        return matchName && matchAvailability;
+        const matchDispo = filter === 'all' || (filter === 'available' && p.available) || (filter === 'unavailable' && !p.available);
+        return matchName && matchDispo;
       });
-
       displayProducts(filtered);
     }
 
-    // Événements
-    searchInput.addEventListener("input", filterProducts);
-    filterSelect.addEventListener("change", filterProducts);
+    searchInput.addEventListener('input', filterProducts);
+    filterSelect.addEventListener('change', filterProducts);
+    filterProducts();
 
-    // Affichage initial
-    displayProducts(products);
+    // ================================================================
+    // MODAL DISPONIBILITÉ CROISÉE
+    // ================================================================
+    function ouvrirAlternatives(nomMedicament, pharmacieActuelle) {
+      const modal     = document.getElementById('altModal');
+      const loader    = document.getElementById('altLoader');
+      const results   = document.getElementById('altResults');
+      const subtitle  = document.getElementById('altModalSubtitle');
+
+      subtitle.textContent = `"${nomMedicament}" en rupture à ${pharmacieActuelle}`;
+      loader.classList.remove('hidden');
+      results.classList.add('hidden');
+      results.innerHTML = '';
+      modal.classList.remove('hidden');
+      modal.classList.add('flex');
+
+      // Simulation d'un délai réseau (réaliste pour la démo)
+      setTimeout(() => {
+        const alts = getAlternatives(nomMedicament, pharmacieActuelle);
+        loader.classList.add('hidden');
+
+        if (alts.length === 0) {
+          results.innerHTML = `<p class="text-center text-gray-400 dark:text-slate-500 text-sm py-6">
+            Aucune pharmacie partenaire n'a ce médicament en stock actuellement.
+          </p>`;
+        } else {
+          // Trier par distance
+          const sorted = [...alts].sort((a, b) => parseFloat(a.distance) - parseFloat(b.distance));
+          sorted.forEach((alt, idx) => {
+            const div = document.createElement('div');
+            div.className = 'fade-in flex items-center justify-between p-4 bg-gray-50 dark:bg-slate-900/50 rounded-xl border border-gray-100 dark:border-slate-700 hover:border-brand-300 dark:hover:border-blue-500 transition gap-3';
+            div.style.animationDelay = `${idx * 60}ms`;
+            div.innerHTML = `
+              <div class="flex items-center gap-3 flex-1 min-w-0">
+                <div class="h-10 w-10 rounded-full bg-brand-100 dark:bg-brand-900/30 flex items-center justify-center text-brand-600 dark:text-blue-400 font-bold text-sm shrink-0">
+                  ${alt.pharmacy.split(' ').map(w => w[0]).slice(0,2).join('')}
+                </div>
+                <div class="min-w-0">
+                  <p class="font-semibold text-sm text-gray-800 dark:text-slate-200 truncate">${escapeHtml(alt.pharmacy)}</p>
+                  <div class="flex items-center gap-2 text-xs text-gray-400 dark:text-slate-500 mt-0.5 flex-wrap">
+                    <span class="flex items-center gap-0.5"><i data-feather="map-pin" class="h-3 w-3"></i> ${escapeHtml(alt.distance)}</span>
+                    <span>·</span>
+                    <span class="flex items-center gap-0.5"><i data-feather="clock" class="h-3 w-3"></i> ~${escapeHtml(alt.delai)}</span>
+                    <span>·</span>
+                    <span class="font-semibold text-brand-600 dark:text-blue-400">${escapeHtml(alt.price)}</span>
+                  </div>
+                </div>
+              </div>
+              <div class="flex items-center gap-2 shrink-0">
+                <span class="flex items-center gap-1 px-2 py-1 bg-green-100 dark:bg-green-900/30 text-green-700 dark:text-green-400 rounded-full text-[10px] font-bold">
+                  <span class="h-1.5 w-1.5 rounded-full bg-green-500 inline-block"></span> En stock
+                </span>
+                <a href="com_patient.html" class="text-xs bg-brand-600 hover:bg-brand-700 text-white px-3 py-1.5 rounded-lg font-semibold transition flex items-center gap-1">
+                  <i data-feather="shopping-cart" class="h-3 w-3"></i> Commander
+                </a>
+              </div>
+            `;
+            results.appendChild(div);
+          });
+        }
+
+        results.classList.remove('hidden');
+        feather.replace();
+      }, 700);
+    }
+
+    function closeAltModal() {
+      const modal = document.getElementById('altModal');
+      modal.classList.add('hidden');
+      modal.classList.remove('flex');
+    }
+
+    document.addEventListener('keydown', (e) => { if (e.key === 'Escape') closeAltModal(); });
   </script>
 </body>
 </html>
