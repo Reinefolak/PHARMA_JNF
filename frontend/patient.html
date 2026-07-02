@@ -24,29 +24,31 @@
   <style>
     @import url('https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap');
     body { font-family: 'Inter', sans-serif; transition: background-color 0.3s, color 0.3s; }
-    
     ::-webkit-scrollbar { width: 6px; }
     ::-webkit-scrollbar-track { background: transparent; }
     ::-webkit-scrollbar-thumb { background: #cbd5e1; border-radius: 10px; }
     .dark ::-webkit-scrollbar-thumb { background: #475569; }
-
     .glass { background: rgba(255, 255, 255, 0.7); backdrop-filter: blur(10px); border-bottom: 1px solid rgba(255, 255, 255, 0.3); }
     .dark .glass { background: rgba(30, 41, 59, 0.7); border-bottom: 1px solid rgba(255, 255, 255, 0.1); }
-
     .timeline-step { position: relative; }
-    .timeline-step::before {
-      content: ''; position: absolute; left: 1.25rem; top: 2.5rem; bottom: -1rem; width: 2px;
-      background: #e2e8f0; z-index: 0;
-    }
+    .timeline-step::before { content: ''; position: absolute; left: 1.25rem; top: 2.5rem; bottom: -1rem; width: 2px; background: #e2e8f0; z-index: 0; }
     .dark .timeline-step::before { background: #334155; }
     .timeline-step:last-child::before { display: none; }
-    
     .timeline-step.completed::before { background: #10b981; }
     .timeline-step.active::before { background: #e2e8f0; }
     .dark .timeline-step.active::before { background: #334155; }
-    
     .tab-btn.active { color: #2563eb; border-bottom: 2px solid #2563eb; }
     .dark .tab-btn.active { color: #60a5fa; border-bottom: 2px solid #60a5fa; }
+
+    /* ---- IA Symptômes ---- */
+    #ia-loader { display: none; }
+    #ia-loader.visible { display: flex; }
+    #ia-results { display: none; }
+    #ia-results.visible { display: block; }
+    .suggestion-card { transition: transform 0.15s, box-shadow 0.15s; }
+    .suggestion-card:hover { transform: translateY(-2px); }
+    @keyframes spin { to { transform: rotate(360deg); } }
+    .spin { animation: spin 1s linear infinite; }
   </style>
 </head>
 <body class="bg-gray-50 text-gray-800 dark:bg-slate-900 dark:text-slate-200">
@@ -62,20 +64,15 @@
           <span class="text-xl font-bold bg-clip-text text-transparent bg-gradient-to-r from-brand-600 to-blue-400 dark:from-blue-400 dark:to-brand-200 hidden sm:block">PharmaLink Pro</span>
         </div>
         <div class="flex items-center gap-3 sm:gap-4">
-          <!-- Navigation Links -->
           <div class="hidden md:flex items-center space-x-6 mr-4">
             <a href="patient.html" class="text-brand-600 dark:text-blue-400 font-medium">Tableau de bord</a>
             <a href="pharmacies_patient.html" class="text-gray-600 dark:text-slate-300 hover:text-brand-600 dark:hover:text-blue-400 transition">Pharmacies</a>
             <a href="produits.html" class="text-gray-600 dark:text-slate-300 hover:text-brand-600 dark:hover:text-blue-400 transition">Produits</a>
             <a href="profil_patient.html" class="text-gray-600 dark:text-slate-300 hover:text-brand-600 dark:hover:text-blue-400 transition">Profil Médical</a>
           </div>
-
-          <!-- Dark Mode Toggle -->
           <button id="themeToggle" class="p-2 rounded-full hover:bg-gray-200 dark:hover:bg-slate-800 transition text-gray-600 dark:text-slate-300 focus:outline-none">
             <i data-feather="moon" id="themeIcon" class="h-5 w-5"></i>
           </button>
-
-          <!-- Notifications -->
           <div class="relative">
             <button id="notifBtn" class="p-2 rounded-full hover:bg-gray-200 dark:hover:bg-slate-800 transition text-gray-600 dark:text-slate-300 focus:outline-none relative">
               <i data-feather="bell" class="h-5 w-5"></i>
@@ -120,8 +117,6 @@
               </div>
             </div>
           </div>
-
-          <!-- User Menu -->
           <div class="relative">
             <button id="userBtn" class="flex items-center gap-2 pl-2 pr-3 py-1.5 bg-white dark:bg-slate-800 border border-gray-200 dark:border-slate-700 rounded-full hover:shadow-md transition focus:outline-none">
               <div class="h-8 w-8 rounded-full bg-gradient-to-tr from-brand-500 to-green-400 text-white flex items-center justify-center font-bold text-sm" id="userInitials">PA</div>
@@ -146,12 +141,10 @@
     </div>
   </nav>
 
-  <!-- Main Content -->
   <main class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8 space-y-8">
-    
+
     <!-- Welcome & Top Stats -->
     <div class="flex flex-col xl:flex-row gap-6">
-      <!-- Welcome Card -->
       <div class="flex-1 bg-gradient-to-br from-brand-600 to-blue-500 dark:from-brand-800 dark:to-blue-900 rounded-2xl p-8 text-white shadow-xl relative overflow-hidden">
         <div class="absolute top-0 right-0 -mt-10 -mr-10 opacity-20 pointer-events-none">
           <i data-feather="heart" class="w-64 h-64"></i>
@@ -160,17 +153,15 @@
           <h1 class="text-3xl font-bold mb-2">Bonjour, <span id="welcomeName">Patient</span> ! 👋</h1>
           <p class="text-blue-100 mb-6 max-w-lg">Bienvenue sur votre tableau de bord. Suivez vos commandes, gérez vos traitements et trouvez vos pharmacies favorites en un clin d'œil.</p>
           <div class="flex flex-wrap gap-4">
-            <a href="produits.html" class="bg-white text-brand-600 px-5 py-2.5 rounded-lg font-semibold shadow hover:bg-blue-50 transition transform hover:-translate-y-0.5">
-              Nouvelle commande
-            </a>
+            <button onclick="document.getElementById('ia-section').scrollIntoView({behavior:'smooth'})" class="bg-white text-brand-600 px-5 py-2.5 rounded-lg font-semibold shadow hover:bg-blue-50 transition transform hover:-translate-y-0.5 flex items-center gap-2">
+              <i data-feather="cpu" class="h-4 w-4"></i> Assistant IA
+            </button>
             <a href="profil_patient.html" class="bg-brand-700 bg-opacity-40 hover:bg-opacity-60 text-white border border-brand-400 px-5 py-2.5 rounded-lg font-semibold transition backdrop-blur-sm">
               Mon profil médical
             </a>
           </div>
         </div>
       </div>
-
-      <!-- Quick Stats -->
       <div class="xl:w-1/3 grid grid-cols-2 gap-4">
         <div class="bg-white dark:bg-slate-800 rounded-2xl p-5 shadow-sm border border-gray-100 dark:border-slate-700 flex flex-col justify-center">
           <div class="flex items-center gap-3 mb-2">
@@ -202,11 +193,101 @@
       </div>
     </div>
 
+    <!-- ============================================================ -->
+    <!-- SECTION ASSISTANT IA SYMPTÔMES — NOUVELLE FONCTIONNALITÉ     -->
+    <!-- ============================================================ -->
+    <div id="ia-section" class="bg-white dark:bg-slate-800 rounded-2xl p-6 shadow-sm border border-gray-100 dark:border-slate-700">
+      <div class="flex items-center gap-3 mb-2">
+        <div class="p-2 bg-violet-100 dark:bg-violet-900/30 rounded-xl">
+          <i data-feather="cpu" class="h-5 w-5 text-violet-600 dark:text-violet-400"></i>
+        </div>
+        <div>
+          <h2 class="text-xl font-bold text-gray-800 dark:text-white">Assistant IA — Recherche par symptôme</h2>
+          <p class="text-xs text-gray-500 dark:text-slate-400">Décrivez ce que vous ressentez, l'IA vous suggère les médicaments disponibles dans les pharmacies proches</p>
+        </div>
+        <span class="ml-auto px-2.5 py-1 bg-violet-100 text-violet-700 dark:bg-violet-900/40 dark:text-violet-300 rounded-full text-xs font-semibold hidden sm:block">Bêta</span>
+      </div>
+
+      <div class="mt-5 flex flex-col sm:flex-row gap-3">
+        <div class="flex-1 relative">
+          <div class="absolute left-3 top-1/2 -translate-y-1/2 text-gray-400 pointer-events-none">
+            <i data-feather="message-circle" class="h-5 w-5"></i>
+          </div>
+          <input
+            type="text"
+            id="ia-input"
+            placeholder="Ex: j'ai de la fièvre et mal à la gorge depuis hier…"
+            class="w-full pl-10 pr-4 py-3 rounded-xl border border-gray-200 dark:border-slate-600 bg-gray-50 dark:bg-slate-900 text-gray-800 dark:text-slate-200 placeholder-gray-400 dark:placeholder-slate-500 focus:outline-none focus:ring-2 focus:ring-violet-400 dark:focus:ring-violet-500 focus:border-transparent transition text-sm"
+          />
+        </div>
+        <button
+          id="ia-btn"
+          onclick="rechercherSymptomes()"
+          class="flex items-center justify-center gap-2 bg-violet-600 hover:bg-violet-700 active:scale-95 text-white px-6 py-3 rounded-xl font-semibold transition text-sm shadow-md shadow-violet-500/20 shrink-0"
+        >
+          <i data-feather="search" class="h-4 w-4" id="ia-btn-icon"></i>
+          <span id="ia-btn-text">Analyser</span>
+        </button>
+      </div>
+
+      <!-- Suggestions rapides -->
+      <div class="flex flex-wrap gap-2 mt-3">
+        <span class="text-xs text-gray-400 dark:text-slate-500 self-center">Essayer :</span>
+        <button onclick="setSymptome('fièvre et maux de tête')" class="text-xs px-3 py-1.5 bg-gray-100 dark:bg-slate-700 text-gray-600 dark:text-slate-300 rounded-full hover:bg-violet-100 dark:hover:bg-violet-900/30 hover:text-violet-700 dark:hover:text-violet-300 transition">🌡️ Fièvre et maux de tête</button>
+        <button onclick="setSymptome('mal à la gorge et toux')" class="text-xs px-3 py-1.5 bg-gray-100 dark:bg-slate-700 text-gray-600 dark:text-slate-300 rounded-full hover:bg-violet-100 dark:hover:bg-violet-900/30 hover:text-violet-700 dark:hover:text-violet-300 transition">🤒 Mal à la gorge et toux</button>
+        <button onclick="setSymptome('diarrhée et douleurs abdominales')" class="text-xs px-3 py-1.5 bg-gray-100 dark:bg-slate-700 text-gray-600 dark:text-slate-300 rounded-full hover:bg-violet-100 dark:hover:bg-violet-900/30 hover:text-violet-700 dark:hover:text-violet-300 transition">🤢 Diarrhée</button>
+        <button onclick="setSymptome('allergie rhinite éternuements')" class="text-xs px-3 py-1.5 bg-gray-100 dark:bg-slate-700 text-gray-600 dark:text-slate-300 rounded-full hover:bg-violet-100 dark:hover:bg-violet-900/30 hover:text-violet-700 dark:hover:text-violet-300 transition">🌸 Allergie</button>
+      </div>
+
+      <!-- Loader -->
+      <div id="ia-loader" class="items-center justify-center gap-3 py-8 text-violet-600 dark:text-violet-400">
+        <svg class="spin h-6 w-6" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24">
+          <circle class="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" stroke-width="4"></circle>
+          <path class="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4z"></path>
+        </svg>
+        <span class="text-sm font-medium">L'IA analyse vos symptômes…</span>
+      </div>
+
+      <!-- Résultats -->
+      <div id="ia-results" class="mt-5">
+
+        <!-- Alerte urgence (affichée si nécessaire) -->
+        <div id="ia-alerte" class="hidden mb-4 p-4 bg-red-50 dark:bg-red-900/20 border border-red-200 dark:border-red-800 rounded-xl flex items-start gap-3">
+          <i data-feather="alert-triangle" class="h-5 w-5 text-red-600 dark:text-red-400 shrink-0 mt-0.5"></i>
+          <div>
+            <p class="text-sm font-semibold text-red-700 dark:text-red-300">Attention</p>
+            <p id="ia-alerte-text" class="text-sm text-red-600 dark:text-red-400 mt-0.5"></p>
+          </div>
+        </div>
+
+        <div class="flex items-center justify-between mb-4">
+          <h3 class="font-semibold text-gray-800 dark:text-white text-sm flex items-center gap-2">
+            <i data-feather="package" class="h-4 w-4 text-violet-500"></i>
+            Médicaments suggérés disponibles
+          </h3>
+          <button onclick="resetIA()" class="text-xs text-gray-400 dark:text-slate-500 hover:text-gray-600 dark:hover:text-slate-300 flex items-center gap-1 transition">
+            <i data-feather="x" class="h-3 w-3"></i> Effacer
+          </button>
+        </div>
+
+        <!-- Grille des suggestions -->
+        <div id="ia-cards" class="grid grid-cols-1 sm:grid-cols-2 gap-4"></div>
+
+        <p class="text-xs text-gray-400 dark:text-slate-500 mt-4 flex items-start gap-1.5">
+          <i data-feather="info" class="h-3 w-3 shrink-0 mt-0.5"></i>
+          Ces suggestions sont indicatives. Consultez un professionnel de santé pour tout traitement médical.
+        </p>
+      </div>
+    </div>
+    <!-- ============================================================ -->
+    <!-- FIN SECTION ASSISTANT IA                                      -->
+    <!-- ============================================================ -->
+
     <div class="grid grid-cols-1 lg:grid-cols-3 gap-8">
-      
-      <!-- Left Column (Wider) -->
+
+      <!-- Left Column -->
       <div class="lg:col-span-2 space-y-8">
-        
+
         <!-- Live Timeline Section -->
         <div id="timeline-section" class="bg-white dark:bg-slate-800 rounded-2xl p-6 shadow-sm border border-gray-100 dark:border-slate-700">
           <div class="flex flex-col sm:flex-row sm:justify-between sm:items-center mb-6 gap-4">
@@ -215,7 +296,6 @@
             </h2>
             <span class="px-3 py-1 bg-yellow-100 text-yellow-800 dark:bg-yellow-900/30 dark:text-yellow-400 rounded-full text-xs font-semibold uppercase tracking-wide self-start sm:self-auto">En route</span>
           </div>
-          
           <div class="bg-gray-50 dark:bg-slate-900/50 rounded-xl p-5 border border-gray-100 dark:border-slate-700 mb-6 flex flex-col sm:flex-row justify-between gap-4">
             <div>
               <p class="text-sm text-gray-500 dark:text-slate-400">Commande <span class="font-bold text-gray-800 dark:text-slate-200">#CMD-098</span></p>
@@ -226,157 +306,94 @@
               <p class="text-brand-600 dark:text-blue-400 font-medium flex items-center sm:justify-end gap-1">Jean K. <i data-feather="phone" class="h-3 w-3"></i></p>
             </div>
           </div>
-
-          <!-- Vertical Timeline -->
           <div class="pl-2">
             <div class="timeline-step completed flex items-start gap-4 mb-8">
-              <div class="z-10 bg-green-500 p-2 rounded-full text-white shadow-md shadow-green-500/30 mt-1">
-                <i data-feather="check" class="h-4 w-4"></i>
-              </div>
+              <div class="z-10 bg-green-500 p-2 rounded-full text-white shadow-md shadow-green-500/30 mt-1"><i data-feather="check" class="h-4 w-4"></i></div>
               <div>
                 <h4 class="font-semibold text-gray-800 dark:text-slate-200">Commande validée</h4>
                 <p class="text-sm text-gray-500 dark:text-slate-400">Aujourd'hui, 10:15</p>
               </div>
             </div>
-            
             <div class="timeline-step completed flex items-start gap-4 mb-8">
-              <div class="z-10 bg-green-500 p-2 rounded-full text-white shadow-md shadow-green-500/30 mt-1">
-                <i data-feather="package" class="h-4 w-4"></i>
-              </div>
+              <div class="z-10 bg-green-500 p-2 rounded-full text-white shadow-md shadow-green-500/30 mt-1"><i data-feather="package" class="h-4 w-4"></i></div>
               <div>
                 <h4 class="font-semibold text-gray-800 dark:text-slate-200">Préparée par la pharmacie</h4>
                 <p class="text-sm text-gray-500 dark:text-slate-400">Aujourd'hui, 11:30</p>
               </div>
             </div>
-
             <div class="timeline-step active flex items-start gap-4 mb-8">
-              <div class="z-10 bg-brand-500 p-2 rounded-full text-white shadow-md shadow-brand-500/30 mt-1 animate-pulse">
-                <i data-feather="truck" class="h-4 w-4"></i>
-              </div>
+              <div class="z-10 bg-brand-500 p-2 rounded-full text-white shadow-md shadow-brand-500/30 mt-1 animate-pulse"><i data-feather="truck" class="h-4 w-4"></i></div>
               <div>
-                <h4 class="font-semibold text-brand-600 dark:text-blue-400">En route vers vous</h4>
+                <h4 class="font-semibold text-gray-800 dark:text-slate-200">En route vers vous</h4>
                 <p class="text-sm text-gray-500 dark:text-slate-400">Aujourd'hui, 14:05</p>
-                <p class="text-xs bg-brand-50 dark:bg-brand-900/30 text-brand-700 dark:text-blue-300 p-2 rounded-md mt-2 border border-brand-100 dark:border-brand-800">Le livreur est à environ 15 minutes.</p>
+                <span class="inline-block mt-2 text-xs bg-blue-100 dark:bg-blue-900/30 text-brand-700 dark:text-blue-300 px-3 py-1 rounded-full font-medium">Le livreur est à environ 15 minutes.</span>
               </div>
             </div>
-
             <div class="timeline-step flex items-start gap-4">
-              <div class="z-10 bg-gray-200 dark:bg-slate-700 p-2 rounded-full text-gray-400 dark:text-slate-500 mt-1">
-                <i data-feather="home" class="h-4 w-4"></i>
-              </div>
+              <div class="z-10 bg-gray-200 dark:bg-slate-700 p-2 rounded-full text-gray-400 dark:text-slate-500 mt-1"><i data-feather="home" class="h-4 w-4"></i></div>
               <div>
-                <h4 class="font-medium text-gray-500 dark:text-slate-400">Livrée</h4>
-                <p class="text-sm text-gray-400 dark:text-slate-500">Estimé : 14:30</p>
+                <h4 class="font-semibold text-gray-400 dark:text-slate-500">Livrée</h4>
+                <p class="text-sm text-gray-400 dark:text-slate-500">En attente</p>
               </div>
             </div>
           </div>
         </div>
 
-        <!-- History Tabs -->
+        <!-- Historique -->
         <div class="bg-white dark:bg-slate-800 rounded-2xl p-6 shadow-sm border border-gray-100 dark:border-slate-700">
-          <div class="flex justify-between items-center mb-6">
-            <h2 class="text-xl font-bold text-gray-800 dark:text-white flex items-center gap-2">
-              <i data-feather="file-text" class="text-brand-600 dark:text-blue-400 h-5 w-5"></i> Historique
-            </h2>
-            <a href="com_patient.html" class="text-sm text-brand-600 dark:text-blue-400 hover:underline">Voir tout</a>
-          </div>
-
-          <div class="flex overflow-x-auto border-b border-gray-200 dark:border-slate-700 mb-4 pb-px hide-scrollbar">
+          <h2 class="text-xl font-bold text-gray-800 dark:text-white flex items-center gap-2 mb-5">
+            <i data-feather="clock" class="text-brand-600 dark:text-blue-400 h-5 w-5"></i> Historique
+          </h2>
+          <div class="flex overflow-x-auto border-b border-gray-200 dark:border-slate-700 mb-4 pb-px">
             <button class="tab-btn active px-4 py-2 font-medium text-sm focus:outline-none whitespace-nowrap" onclick="switchTab('commandes', this)">Commandes / Livraisons</button>
             <button class="tab-btn text-gray-500 dark:text-slate-400 hover:text-gray-700 dark:hover:text-slate-300 px-4 py-2 font-medium text-sm focus:outline-none transition whitespace-nowrap" onclick="switchTab('achats', this)">Achats sur place</button>
           </div>
-
-          <!-- Commandes Content -->
           <div id="tab-commandes" class="space-y-4">
             <div class="flex flex-col sm:flex-row sm:items-center justify-between p-4 bg-gray-50 dark:bg-slate-900/50 rounded-xl hover:bg-gray-100 dark:hover:bg-slate-800 transition gap-4">
               <div class="flex items-center gap-4">
-                <div class="bg-white dark:bg-slate-800 p-2 rounded shadow-sm border border-gray-100 dark:border-slate-700">
-                  <i data-feather="package" class="text-gray-400 dark:text-slate-400 h-6 w-6"></i>
-                </div>
-                <div>
-                  <h4 class="font-semibold text-gray-800 dark:text-slate-200">#CMD-095</h4>
-                  <p class="text-xs text-gray-500 dark:text-slate-400">Paracétamol 500mg, Vitamine C...</p>
-                </div>
+                <div class="bg-white dark:bg-slate-800 p-2 rounded shadow-sm border border-gray-100 dark:border-slate-700"><i data-feather="package" class="text-gray-400 dark:text-slate-400 h-6 w-6"></i></div>
+                <div><h4 class="font-semibold text-gray-800 dark:text-slate-200">#CMD-095</h4><p class="text-xs text-gray-500 dark:text-slate-400">Paracétamol 500mg, Vitamine C...</p></div>
               </div>
               <div class="sm:text-right flex justify-between sm:block items-center">
-                <div>
-                  <p class="font-bold text-gray-800 dark:text-white">4 500 F</p>
-                  <p class="text-xs text-gray-500 dark:text-slate-400 mb-1">05/06/2026</p>
-                </div>
-                <span class="px-2 py-0.5 bg-green-100 text-green-800 dark:bg-green-900/30 dark:text-green-400 rounded text-[10px] font-bold uppercase text-center block w-fit">Livrée</span>
+                <div><p class="font-bold text-gray-800 dark:text-white">4 500 F</p><p class="text-xs text-gray-500 dark:text-slate-400 mb-1">05/06/2026</p></div>
+                <span class="px-2 py-0.5 bg-green-100 text-green-800 dark:bg-green-900/30 dark:text-green-400 rounded text-[10px] font-bold uppercase block w-fit">Livrée</span>
               </div>
             </div>
-            
             <div class="flex flex-col sm:flex-row sm:items-center justify-between p-4 bg-gray-50 dark:bg-slate-900/50 rounded-xl hover:bg-gray-100 dark:hover:bg-slate-800 transition gap-4">
               <div class="flex items-center gap-4">
-                <div class="bg-white dark:bg-slate-800 p-2 rounded shadow-sm border border-gray-100 dark:border-slate-700">
-                  <i data-feather="package" class="text-gray-400 dark:text-slate-400 h-6 w-6"></i>
-                </div>
-                <div>
-                  <h4 class="font-semibold text-gray-800 dark:text-slate-200">#CMD-082</h4>
-                  <p class="text-xs text-gray-500 dark:text-slate-400">Ibuprofène 400mg, Sirop...</p>
-                </div>
+                <div class="bg-white dark:bg-slate-800 p-2 rounded shadow-sm border border-gray-100 dark:border-slate-700"><i data-feather="package" class="text-gray-400 dark:text-slate-400 h-6 w-6"></i></div>
+                <div><h4 class="font-semibold text-gray-800 dark:text-slate-200">#CMD-082</h4><p class="text-xs text-gray-500 dark:text-slate-400">Ibuprofène 400mg, Sirop...</p></div>
               </div>
               <div class="sm:text-right flex justify-between sm:block items-center">
-                <div>
-                  <p class="font-bold text-gray-800 dark:text-white">8 200 F</p>
-                  <p class="text-xs text-gray-500 dark:text-slate-400 mb-1">12/05/2026</p>
-                </div>
-                <span class="px-2 py-0.5 bg-green-100 text-green-800 dark:bg-green-900/30 dark:text-green-400 rounded text-[10px] font-bold uppercase text-center block w-fit">Livrée</span>
+                <div><p class="font-bold text-gray-800 dark:text-white">8 200 F</p><p class="text-xs text-gray-500 dark:text-slate-400 mb-1">12/05/2026</p></div>
+                <span class="px-2 py-0.5 bg-green-100 text-green-800 dark:bg-green-900/30 dark:text-green-400 rounded text-[10px] font-bold uppercase block w-fit">Livrée</span>
               </div>
             </div>
-            
             <div class="flex flex-col sm:flex-row sm:items-center justify-between p-4 bg-gray-50 dark:bg-slate-900/50 rounded-xl hover:bg-gray-100 dark:hover:bg-slate-800 transition gap-4">
               <div class="flex items-center gap-4">
-                <div class="bg-white dark:bg-slate-800 p-2 rounded shadow-sm border border-gray-100 dark:border-slate-700">
-                  <i data-feather="package" class="text-gray-400 dark:text-slate-400 h-6 w-6"></i>
-                </div>
-                <div>
-                  <h4 class="font-semibold text-gray-800 dark:text-slate-200">#CMD-079</h4>
-                  <p class="text-xs text-gray-500 dark:text-slate-400">Pansement, Bétadine...</p>
-                </div>
+                <div class="bg-white dark:bg-slate-800 p-2 rounded shadow-sm border border-gray-100 dark:border-slate-700"><i data-feather="package" class="text-gray-400 dark:text-slate-400 h-6 w-6"></i></div>
+                <div><h4 class="font-semibold text-gray-800 dark:text-slate-200">#CMD-079</h4><p class="text-xs text-gray-500 dark:text-slate-400">Pansement, Bétadine...</p></div>
               </div>
               <div class="sm:text-right flex justify-between sm:block items-center">
-                <div>
-                  <p class="font-bold text-gray-800 dark:text-white">2 100 F</p>
-                  <p class="text-xs text-gray-500 dark:text-slate-400 mb-1">28/04/2026</p>
-                </div>
-                <span class="px-2 py-0.5 bg-red-100 text-red-800 dark:bg-red-900/30 dark:text-red-400 rounded text-[10px] font-bold uppercase text-center block w-fit">Annulée</span>
+                <div><p class="font-bold text-gray-800 dark:text-white">2 100 F</p><p class="text-xs text-gray-500 dark:text-slate-400 mb-1">28/04/2026</p></div>
+                <span class="px-2 py-0.5 bg-red-100 text-red-800 dark:bg-red-900/30 dark:text-red-400 rounded text-[10px] font-bold uppercase block w-fit">Annulée</span>
               </div>
             </div>
           </div>
-
-          <!-- Achats Content -->
           <div id="tab-achats" class="space-y-4 hidden">
             <div class="flex items-center justify-between p-4 bg-gray-50 dark:bg-slate-900/50 rounded-xl">
               <div class="flex items-center gap-4">
-                <div class="bg-white dark:bg-slate-800 p-2 rounded shadow-sm border border-gray-100 dark:border-slate-700">
-                  <i data-feather="shopping-cart" class="text-gray-400 dark:text-slate-400 h-6 w-6"></i>
-                </div>
-                <div>
-                  <h4 class="font-semibold text-gray-800 dark:text-slate-200">Pharmacie du Soleil</h4>
-                  <p class="text-xs text-gray-500 dark:text-slate-400">Achat au comptoir (2 articles)</p>
-                </div>
+                <div class="bg-white dark:bg-slate-800 p-2 rounded shadow-sm border border-gray-100 dark:border-slate-700"><i data-feather="shopping-cart" class="text-gray-400 dark:text-slate-400 h-6 w-6"></i></div>
+                <div><h4 class="font-semibold text-gray-800 dark:text-slate-200">Pharmacie du Soleil</h4><p class="text-xs text-gray-500 dark:text-slate-400">Achat au comptoir (2 articles)</p></div>
               </div>
-              <div class="text-right">
-                <p class="font-bold text-gray-800 dark:text-white">1 500 F</p>
-                <p class="text-xs text-gray-500 dark:text-slate-400">10/06/2026</p>
-              </div>
+              <div class="text-right"><p class="font-bold text-gray-800 dark:text-white">1 500 F</p><p class="text-xs text-gray-500 dark:text-slate-400">10/06/2026</p></div>
             </div>
             <div class="flex items-center justify-between p-4 bg-gray-50 dark:bg-slate-900/50 rounded-xl">
               <div class="flex items-center gap-4">
-                <div class="bg-white dark:bg-slate-800 p-2 rounded shadow-sm border border-gray-100 dark:border-slate-700">
-                  <i data-feather="shopping-cart" class="text-gray-400 dark:text-slate-400 h-6 w-6"></i>
-                </div>
-                <div>
-                  <h4 class="font-semibold text-gray-800 dark:text-slate-200">Pharmacie Les Anges</h4>
-                  <p class="text-xs text-gray-500 dark:text-slate-400">Achat au comptoir (1 article)</p>
-                </div>
+                <div class="bg-white dark:bg-slate-800 p-2 rounded shadow-sm border border-gray-100 dark:border-slate-700"><i data-feather="shopping-cart" class="text-gray-400 dark:text-slate-400 h-6 w-6"></i></div>
+                <div><h4 class="font-semibold text-gray-800 dark:text-slate-200">Pharmacie Les Anges</h4><p class="text-xs text-gray-500 dark:text-slate-400">Achat au comptoir (1 article)</p></div>
               </div>
-              <div class="text-right">
-                <p class="font-bold text-gray-800 dark:text-white">800 F</p>
-                <p class="text-xs text-gray-500 dark:text-slate-400">02/06/2026</p>
-              </div>
+              <div class="text-right"><p class="font-bold text-gray-800 dark:text-white">800 F</p><p class="text-xs text-gray-500 dark:text-slate-400">02/06/2026</p></div>
             </div>
           </div>
         </div>
@@ -384,19 +401,14 @@
 
       <!-- Right Column (Sidebar) -->
       <div class="space-y-8">
-        
-        <!-- Favoris Section -->
         <div class="bg-white dark:bg-slate-800 rounded-2xl p-6 shadow-sm border border-gray-100 dark:border-slate-700">
           <h2 class="text-xl font-bold text-gray-800 dark:text-white flex items-center gap-2 mb-5">
             <i data-feather="star" class="text-yellow-500 h-5 w-5 fill-yellow-500"></i> Favoris
           </h2>
-
           <h3 class="text-sm font-semibold text-gray-500 dark:text-slate-400 uppercase tracking-wider mb-3">Pharmacies</h3>
           <div class="space-y-3 mb-6">
             <a href="pharmacies_patient.html" class="flex items-center gap-3 p-3 rounded-xl border border-gray-100 dark:border-slate-700 hover:border-brand-300 dark:hover:border-blue-500 transition group">
-              <div class="h-10 w-10 rounded-full bg-green-100 dark:bg-green-900/30 flex items-center justify-center text-green-600 dark:text-green-400 font-bold shrink-0">
-                PS
-              </div>
+              <div class="h-10 w-10 rounded-full bg-green-100 dark:bg-green-900/30 flex items-center justify-center text-green-600 dark:text-green-400 font-bold shrink-0">PS</div>
               <div class="flex-1 min-w-0">
                 <h4 class="font-medium text-sm text-gray-800 dark:text-slate-200 group-hover:text-brand-600 dark:group-hover:text-blue-400 transition truncate">Pharmacie du Soleil</h4>
                 <p class="text-xs text-gray-500 dark:text-slate-400 flex items-center gap-1"><i data-feather="map-pin" class="h-3 w-3 shrink-0"></i> <span class="truncate">Zogbo - Ouverte</span></p>
@@ -404,9 +416,7 @@
               <i data-feather="chevron-right" class="h-4 w-4 text-gray-400 shrink-0"></i>
             </a>
             <a href="pharmacies_patient.html" class="flex items-center gap-3 p-3 rounded-xl border border-gray-100 dark:border-slate-700 hover:border-brand-300 dark:hover:border-blue-500 transition group">
-              <div class="h-10 w-10 rounded-full bg-blue-100 dark:bg-blue-900/30 flex items-center justify-center text-blue-600 dark:text-blue-400 font-bold shrink-0">
-                PA
-              </div>
+              <div class="h-10 w-10 rounded-full bg-blue-100 dark:bg-blue-900/30 flex items-center justify-center text-blue-600 dark:text-blue-400 font-bold shrink-0">PA</div>
               <div class="flex-1 min-w-0">
                 <h4 class="font-medium text-sm text-gray-800 dark:text-slate-200 group-hover:text-brand-600 dark:group-hover:text-blue-400 transition truncate">Pharmacie Les Anges</h4>
                 <p class="text-xs text-gray-500 dark:text-slate-400 flex items-center gap-1"><i data-feather="map-pin" class="h-3 w-3 shrink-0"></i> <span class="truncate">Cadjehoun - Ouverte</span></p>
@@ -414,23 +424,16 @@
               <i data-feather="chevron-right" class="h-4 w-4 text-gray-400 shrink-0"></i>
             </a>
           </div>
-
           <h3 class="text-sm font-semibold text-gray-500 dark:text-slate-400 uppercase tracking-wider mb-3">Médicaments Fréquents</h3>
           <div class="space-y-3">
             <div class="flex flex-col sm:flex-row sm:items-center justify-between p-3 rounded-xl border border-gray-100 dark:border-slate-700 bg-gray-50 dark:bg-slate-900/30 gap-3">
-              <div>
-                <h4 class="font-medium text-sm text-gray-800 dark:text-slate-200">Doliprane 1000mg</h4>
-                <p class="text-xs text-gray-500 dark:text-slate-400">Boîte de 8 comprimés</p>
-              </div>
+              <div><h4 class="font-medium text-sm text-gray-800 dark:text-slate-200">Doliprane 1000mg</h4><p class="text-xs text-gray-500 dark:text-slate-400">Boîte de 8 comprimés</p></div>
               <button class="bg-brand-100 text-brand-700 dark:bg-brand-900/40 dark:text-blue-300 px-3 py-1.5 rounded-lg text-xs font-semibold hover:bg-brand-200 dark:hover:bg-brand-900/60 transition flex items-center justify-center gap-1 w-full sm:w-auto">
                 <i data-feather="plus" class="h-3 w-3"></i> Panier
               </button>
             </div>
             <div class="flex flex-col sm:flex-row sm:items-center justify-between p-3 rounded-xl border border-gray-100 dark:border-slate-700 bg-gray-50 dark:bg-slate-900/30 gap-3">
-              <div>
-                <h4 class="font-medium text-sm text-gray-800 dark:text-slate-200">Vitamine C Upsa</h4>
-                <p class="text-xs text-gray-500 dark:text-slate-400">Tube de 10 comprimés eff.</p>
-              </div>
+              <div><h4 class="font-medium text-sm text-gray-800 dark:text-slate-200">Vitamine C Upsa</h4><p class="text-xs text-gray-500 dark:text-slate-400">Tube de 10 comprimés eff.</p></div>
               <button class="bg-brand-100 text-brand-700 dark:bg-brand-900/40 dark:text-blue-300 px-3 py-1.5 rounded-lg text-xs font-semibold hover:bg-brand-200 dark:hover:bg-brand-900/60 transition flex items-center justify-center gap-1 w-full sm:w-auto">
                 <i data-feather="plus" class="h-3 w-3"></i> Panier
               </button>
@@ -438,7 +441,6 @@
           </div>
         </div>
 
-        <!-- Mini Profil Médical -->
         <div class="bg-gradient-to-br from-indigo-50 to-purple-50 dark:from-slate-800 dark:to-slate-800 rounded-2xl p-6 shadow-sm border border-indigo-100 dark:border-slate-700 relative overflow-hidden">
           <div class="absolute -right-4 -bottom-4 opacity-10 pointer-events-none">
             <i data-feather="activity" class="w-32 h-32 text-indigo-500"></i>
@@ -446,7 +448,6 @@
           <h2 class="text-xl font-bold text-gray-800 dark:text-white flex items-center gap-2 mb-4 relative z-10">
             <i data-feather="clipboard" class="text-indigo-600 dark:text-indigo-400 h-5 w-5"></i> Résumé Médical
           </h2>
-          
           <div class="space-y-4 relative z-10">
             <div>
               <p class="text-xs text-gray-500 dark:text-slate-400 mb-1 uppercase font-semibold">Allergies connues</p>
@@ -469,7 +470,6 @@
             </a>
           </div>
         </div>
-
       </div>
     </div>
   </main>
@@ -478,7 +478,7 @@
   <script>
     feather.replace();
 
-    // ---- AUTH & USER DATA ----
+    // ---- AUTH ----
     const user = Auth.requireAuth('patient');
     if (user) {
       document.getElementById('userName').textContent = user.prenom || 'Patient';
@@ -491,13 +491,8 @@
     function setupDropdown(btnId, dropdownId) {
       const btn = document.getElementById(btnId);
       const dropdown = document.getElementById(dropdownId);
-      btn.addEventListener('click', (e) => {
-        e.stopPropagation();
-        dropdown.classList.toggle('hidden');
-      });
-      document.addEventListener('click', (e) => {
-        if (!dropdown.contains(e.target)) dropdown.classList.add('hidden');
-      });
+      btn.addEventListener('click', (e) => { e.stopPropagation(); dropdown.classList.toggle('hidden'); });
+      document.addEventListener('click', (e) => { if (!dropdown.contains(e.target)) dropdown.classList.add('hidden'); });
     }
     setupDropdown('notifBtn', 'notifDropdown');
     setupDropdown('userBtn', 'userDropdown');
@@ -506,12 +501,9 @@
     const themeToggle = document.getElementById('themeToggle');
     const themeIcon = document.getElementById('themeIcon');
     const htmlClass = document.documentElement.classList;
-
     if (localStorage.getItem('theme') === 'dark' || (!('theme' in localStorage) && window.matchMedia('(prefers-color-scheme: dark)').matches)) {
-      htmlClass.add('dark');
-      themeIcon.setAttribute('data-feather', 'sun');
+      htmlClass.add('dark'); themeIcon.setAttribute('data-feather', 'sun');
     }
-
     themeToggle.addEventListener('click', () => {
       htmlClass.toggle('dark');
       const isDark = htmlClass.contains('dark');
@@ -520,7 +512,7 @@
       feather.replace();
     });
 
-    // ---- TABS HISTORIQUE ----
+    // ---- TABS ----
     function switchTab(tabId, btn) {
       document.querySelectorAll('.tab-btn').forEach(b => {
         b.classList.remove('active', 'text-brand-600', 'border-b-2', 'border-brand-600', 'dark:text-blue-400', 'dark:border-blue-400');
@@ -528,11 +520,137 @@
       });
       btn.classList.add('active', 'text-brand-600', 'border-b-2', 'border-brand-600', 'dark:text-blue-400', 'dark:border-blue-400');
       btn.classList.remove('text-gray-500', 'dark:text-slate-400');
-
       document.getElementById('tab-commandes').classList.add('hidden');
       document.getElementById('tab-achats').classList.add('hidden');
       document.getElementById(`tab-${tabId}`).classList.remove('hidden');
     }
+
+    // =====================================================
+    // LOGIQUE ASSISTANT IA SYMPTÔMES
+    // =====================================================
+
+    function setSymptome(texte) {
+      document.getElementById('ia-input').value = texte;
+      document.getElementById('ia-input').focus();
+    }
+
+    function resetIA() {
+      document.getElementById('ia-results').classList.remove('visible');
+      document.getElementById('ia-input').value = '';
+      document.getElementById('ia-cards').innerHTML = '';
+      document.getElementById('ia-alerte').classList.add('hidden');
+    }
+
+    // Lancer la recherche en appuyant sur Entrée
+    document.getElementById('ia-input').addEventListener('keydown', (e) => {
+      if (e.key === 'Enter') rechercherSymptomes();
+    });
+
+    async function rechercherSymptomes() {
+      const symptomes = document.getElementById('ia-input').value.trim();
+      if (!symptomes || symptomes.length < 3) {
+        document.getElementById('ia-input').focus();
+        return;
+      }
+
+      // UI : état chargement
+      const btn = document.getElementById('ia-btn');
+      const btnIcon = document.getElementById('ia-btn-icon');
+      const btnText = document.getElementById('ia-btn-text');
+      btn.disabled = true;
+      btn.classList.add('opacity-70', 'cursor-not-allowed');
+      btnText.textContent = 'Analyse…';
+      document.getElementById('ia-results').classList.remove('visible');
+      document.getElementById('ia-loader').classList.add('visible');
+
+      try {
+        const response = await fetch('/api/symptomes', {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({ symptomes })
+        });
+
+        const data = await response.json();
+
+        if (!data.success) {
+          throw new Error(data.message || 'Erreur serveur');
+        }
+
+        // Afficher l'alerte si présente
+        const alerteEl = document.getElementById('ia-alerte');
+        if (data.alerte) {
+          document.getElementById('ia-alerte-text').textContent = data.alerte;
+          alerteEl.classList.remove('hidden');
+        } else {
+          alerteEl.classList.add('hidden');
+        }
+
+        // Générer les cartes de suggestions
+        const cardsEl = document.getElementById('ia-cards');
+        cardsEl.innerHTML = '';
+
+        if (!data.suggestions || data.suggestions.length === 0) {
+          cardsEl.innerHTML = '<p class="text-sm text-gray-400 dark:text-slate-500 col-span-2">Aucun médicament adapté trouvé. Consultez un pharmacien directement.</p>';
+        } else {
+          data.suggestions.forEach(med => {
+            const card = document.createElement('div');
+            card.className = 'suggestion-card bg-gray-50 dark:bg-slate-900/50 rounded-xl p-4 border border-gray-100 dark:border-slate-700 hover:border-violet-300 dark:hover:border-violet-600 cursor-default';
+            card.innerHTML = `
+              <div class="flex items-start justify-between gap-2 mb-2">
+                <div class="flex items-center gap-2">
+                  <div class="p-1.5 bg-violet-100 dark:bg-violet-900/30 rounded-lg shrink-0">
+                    <svg xmlns="http://www.w3.org/2000/svg" class="h-4 w-4 text-violet-600 dark:text-violet-400" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19.428 15.428a2 2 0 00-1.022-.547l-2.387-.477a6 6 0 00-3.86.517l-.318.158a6 6 0 01-3.86.517L6.05 15.21a2 2 0 00-1.806.547M8 4h8l-1 1v5.172a2 2 0 00.586 1.414l5 5c1.26 1.26.367 3.414-1.415 3.414H4.828c-1.782 0-2.674-2.154-1.414-3.414l5-5A2 2 0 009 10.172V5L8 4z"/></svg>
+                  </div>
+                  <h4 class="font-semibold text-gray-800 dark:text-slate-200 text-sm leading-tight">${escapeHtml(med.nom)}</h4>
+                </div>
+                <span class="text-sm font-bold text-violet-700 dark:text-violet-300 shrink-0">${escapeHtml(med.prix)}</span>
+              </div>
+              <p class="text-xs text-gray-500 dark:text-slate-400 mb-1">${escapeHtml(med.usage)}</p>
+              <p class="text-xs text-gray-400 dark:text-slate-500 mb-3">💊 ${escapeHtml(med.posologie || '')}</p>
+              <div class="flex items-center justify-between">
+                <div class="flex items-center gap-1 text-xs text-gray-400 dark:text-slate-500">
+                  <svg xmlns="http://www.w3.org/2000/svg" class="h-3 w-3" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M17.657 16.657L13.414 20.9a1.998 1.998 0 01-2.827 0l-4.244-4.243a8 8 0 1111.314 0z"/><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 11a3 3 0 11-6 0 3 3 0 016 0z"/></svg>
+                  <span>${escapeHtml(med.pharmacie)}</span>
+                </div>
+                <button onclick="commanderMedicament('${escapeHtml(med.nom)}', '${escapeHtml(med.pharmacie)}')" class="text-xs bg-violet-600 hover:bg-violet-700 text-white px-3 py-1.5 rounded-lg font-medium transition flex items-center gap-1">
+                  <svg xmlns="http://www.w3.org/2000/svg" class="h-3 w-3" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M3 3h2l.4 2M7 13h10l4-8H5.4m0 0L7 13m0 0l-1.5 6M7 13l-1.5 6m0 0h9m-9 0a1 1 0 100 2 1 1 0 000-2m9 0a1 1 0 100 2 1 1 0 000-2"/></svg>
+                  Commander
+                </button>
+              </div>
+            `;
+            cardsEl.appendChild(card);
+          });
+        }
+
+        document.getElementById('ia-results').classList.add('visible');
+        feather.replace();
+
+      } catch (err) {
+        document.getElementById('ia-cards').innerHTML = `
+          <div class="col-span-2 p-4 bg-red-50 dark:bg-red-900/20 rounded-xl border border-red-200 dark:border-red-800 text-sm text-red-600 dark:text-red-400 flex items-center gap-2">
+            <svg xmlns="http://www.w3.org/2000/svg" class="h-4 w-4 shrink-0" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 8v4m0 4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z"/></svg>
+            ${err.message || 'Service temporairement indisponible. Veuillez réessayer.'}
+          </div>`;
+        document.getElementById('ia-results').classList.add('visible');
+      } finally {
+        document.getElementById('ia-loader').classList.remove('visible');
+        btn.disabled = false;
+        btn.classList.remove('opacity-70', 'cursor-not-allowed');
+        btnText.textContent = 'Analyser';
+      }
+    }
+
+    function commanderMedicament(nom, pharmacie) {
+      alert(`Redirection vers la commande de "${nom}" à la ${pharmacie}.\n\n(Connecter à la page de commande dans la prochaine étape.)`);
+    }
+
+    function escapeHtml(str) {
+      if (!str) return '';
+      return String(str).replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;').replace(/"/g,'&quot;');
+    }
+    // =====================================================
+    // FIN LOGIQUE IA
+    // =====================================================
   </script>
 </body>
 </html>
