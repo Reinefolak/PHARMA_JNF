@@ -2,11 +2,36 @@
 const express    = require('express');
 const http       = require('http');
 const WebSocket  = require('ws');
-const fs         = require('fs');
 const path       = require('path');
 const cors       = require('cors');
 const crypto     = require('crypto');
+const jwt        = require('jsonwebtoken');
 const nodemailer = require('nodemailer');
+const {
+  sanitizeUser,
+  migrateFromJson,
+  getUserByEmail,
+  getUserById,
+  getUserByResetToken,
+  createUser,
+  updateUser,
+  deleteUser,
+  listClients,
+  createClient,
+  updateClient,
+  deleteClient,
+  listPharmacies,
+  createPharmacy,
+  updatePharmacy,
+  deletePharmacy,
+  createRating,
+  getRatingsByLivreur,
+  getRatingsByPharmacie,
+  getAverageRatingLivreur,
+  getAverageRatingPharmacie,
+  getRatingById,
+  listRatingsByPatient
+} = require('./db');
 
 // ==================== SETUP ====================
 let transporter;
@@ -22,24 +47,45 @@ nodemailer.createTestAccount((err, account) => {
 const app  = express();
 const PORT = 3000;
 const WS_PORT = 3001;
+const JWT_SECRET = process.env.JWT_SECRET || 'pharmalink-dev-secret-change-me';
+const JWT_EXPIRES_IN = process.env.JWT_EXPIRES_IN || '7d';
 
 app.use(cors());
 app.use(express.json({ limit: '10mb' })); // 10mb pour les photos d'ordonnance base64
 app.use(express.static(path.join(__dirname, '../frontend')));
+migrateFromJson(path.join(__dirname, 'data.json'));
 
-const dataFile = path.join(__dirname, 'data.json');
-
-function readData() {
-  try {
-    const data = fs.readFileSync(dataFile, 'utf8');
-    return JSON.parse(data || '{"users":[],"clients":[],"pharmacies":[]}');
-  } catch { return { users: [], clients: [], pharmacies: [] }; }
-}
-function writeData(data) {
-  fs.writeFileSync(dataFile, JSON.stringify(data, null, 2));
-}
 function hashPassword(password) {
   return crypto.createHash('sha256').update(password).digest('hex');
+}
+
+function signAuthToken(user) {
+  return jwt.sign(
+    { sub: user.id, email: user.email, role: user.role },
+    JWT_SECRET,
+    { expiresIn: JWT_EXPIRES_IN }
+  );
+}
+
+function getTokenFromHeader(req) {
+  const auth = req.headers.authorization || '';
+  if (!auth.startsWith('Bearer ')) return null;
+  return auth.slice(7).trim();
+}
+
+function requireJwt(req, res, next) {
+  const token = getTokenFromHeader(req);
+  if (!token) return res.status(401).json({ success: false, message: 'Session expirée. Veuillez vous reconnecter.' });
+  try {
+    req.auth = jwt.verify(token, JWT_SECRET);
+    next();
+  } catch {
+    return res.status(401).json({ success: false, message: 'Token invalide.' });
+  }
+}
+
+function canAccessUser(req, userId) {
+  return Number(req.auth?.sub) === Number(userId) || req.auth?.role === 'proprietaire';
 }
 
 // ==================== ROUTES AUTH ====================
@@ -51,75 +97,74 @@ app.post('/api/register', (req, res) => {
   const validRoles = ['patient', 'livreur', 'proprietaire'];
   if (!validRoles.includes(role))
     return res.status(400).json({ success: false, message: 'Rôle invalide.' });
-  const data = readData();
-  if (!data.users) data.users = [];
-  if (data.users.find(u => u.email === email))
+  if (getUserByEmail(email))
     return res.status(409).json({ success: false, message: 'Un compte avec cet email existe déjà.' });
-  const newUser = { id: Date.now(), prenom, nom, email, password: hashPassword(password), role, createdAt: new Date().toISOString() };
-  data.users.push(newUser);
-  writeData(data);
-  const { password: _, ...userSafe } = newUser;
-  res.status(201).json({ success: true, message: 'Compte créé avec succès.', user: userSafe });
+  const created = createUser({
+    id: Date.now(),
+    prenom,
+    nom,
+    email,
+    password: hashPassword(password),
+    role,
+    createdAt: new Date().toISOString()
+  });
+  const userSafe = sanitizeUser(created);
+  const token = signAuthToken(userSafe);
+  res.status(201).json({ success: true, message: 'Compte créé avec succès.', user: userSafe, token });
 });
 
 app.post('/api/login', (req, res) => {
   const { email, password } = req.body;
   if (!email || !password)
     return res.status(400).json({ success: false, message: 'Email et mot de passe requis.' });
-  const data = readData();
-  if (!data.users) data.users = [];
-  const user = data.users.find(u => u.email === email && u.password === hashPassword(password));
-  if (!user)
+  const user = getUserByEmail(email);
+  if (!user || user.password !== hashPassword(password))
     return res.status(401).json({ success: false, message: 'Email ou mot de passe incorrect.' });
-  const { password: _, ...userSafe } = user;
-  res.json({ success: true, message: 'Connexion réussie.', user: userSafe });
+  const userSafe = sanitizeUser(user);
+  const token = signAuthToken(userSafe);
+  res.json({ success: true, message: 'Connexion réussie.', user: userSafe, token });
 });
 
-app.get('/api/user/:email', (req, res) => {
-  const data = readData();
-  if (!data.users) return res.status(404).json({ success: false, message: 'Utilisateur non trouvé.' });
-  const user = data.users.find(u => u.email === req.params.email);
+app.get('/api/user/:email', requireJwt, (req, res) => {
+  const user = getUserByEmail(req.params.email);
   if (!user) return res.status(404).json({ success: false, message: 'Utilisateur non trouvé.' });
-  const { password: _, ...userSafe } = user;
+  if (!canAccessUser(req, user.id) && req.auth?.email !== user.email) {
+    return res.status(403).json({ success: false, message: 'Accès refusé.' });
+  }
+  const userSafe = sanitizeUser(user);
   res.json({ success: true, user: userSafe });
 });
 
-app.put('/api/user/:id', (req, res) => {
-  const data = readData();
-  if (!data.users) return res.status(404).json({ success: false, message: 'Utilisateur non trouvé.' });
-  const id    = Number(req.params.id);
-  const index = data.users.findIndex(u => u.id === id);
-  if (index === -1) return res.status(404).json({ success: false, message: 'Utilisateur non trouvé.' });
+app.put('/api/user/:id', requireJwt, (req, res) => {
+  const id = Number(req.params.id);
+  const existing = getUserById(id);
+  if (!existing) return res.status(404).json({ success: false, message: 'Utilisateur non trouvé.' });
+  if (!canAccessUser(req, id)) return res.status(403).json({ success: false, message: 'Accès refusé.' });
   const { password, role, ...updates } = req.body;
-  data.users[index] = { ...data.users[index], ...updates };
-  if (password) data.users[index].password = hashPassword(password);
-  writeData(data);
-  const { password: _, ...userSafe } = data.users[index];
+  const payload = { ...updates };
+  if (password) payload.password = hashPassword(password);
+  const updated = updateUser(id, payload);
+  const userSafe = sanitizeUser(updated);
   res.json({ success: true, message: 'Profil mis à jour.', user: userSafe });
 });
 
-app.delete('/api/user/:id', (req, res) => {
-  const data  = readData();
-  if (!data.users) return res.status(404).json({ success: false, message: 'Utilisateur non trouvé.' });
-  const id    = Number(req.params.id);
-  const index = data.users.findIndex(u => u.id === id);
-  if (index === -1) return res.status(404).json({ success: false, message: 'Utilisateur non trouvé.' });
-  data.users.splice(index, 1);
-  writeData(data);
+app.delete('/api/user/:id', requireJwt, (req, res) => {
+  const id = Number(req.params.id);
+  const existing = getUserById(id);
+  if (!existing) return res.status(404).json({ success: false, message: 'Utilisateur non trouvé.' });
+  if (!canAccessUser(req, id)) return res.status(403).json({ success: false, message: 'Accès refusé.' });
+  deleteUser(id);
   res.json({ success: true, message: 'Compte supprimé avec succès.' });
 });
 
 app.post('/api/forgot-password', async (req, res) => {
   const { email } = req.body;
   if (!email) return res.status(400).json({ success: false, message: 'Email requis.' });
-  const data      = readData();
-  const userIndex = data.users.findIndex(u => u.email === email);
-  if (userIndex === -1)
+  const user = getUserByEmail(email);
+  if (!user)
     return res.status(404).json({ success: false, message: 'Aucun compte associé à cette adresse e-mail.' });
   const token = crypto.randomBytes(20).toString('hex');
-  data.users[userIndex].resetToken        = token;
-  data.users[userIndex].resetTokenExpires = Date.now() + 3600000;
-  writeData(data);
+  updateUser(user.id, { resetToken: token, resetTokenExpires: Date.now() + 3600000 });
   if (!transporter)
     return res.status(500).json({ success: false, message: "Le service email n'est pas prêt." });
   const resetUrl    = `http://localhost:${PORT}/reset-password.html?token=${token}`;
@@ -142,79 +187,101 @@ app.post('/api/reset-password', (req, res) => {
   const { token, newPassword } = req.body;
   if (!token || !newPassword)
     return res.status(400).json({ success: false, message: 'Token et nouveau mot de passe requis.' });
-  const data      = readData();
-  const userIndex = data.users.findIndex(u => u.resetToken === token && u.resetTokenExpires > Date.now());
-  if (userIndex === -1)
+  const user = getUserByResetToken(token);
+  if (!user)
     return res.status(400).json({ success: false, message: 'Le lien est invalide ou a expiré.' });
-  data.users[userIndex].password = hashPassword(newPassword);
-  delete data.users[userIndex].resetToken;
-  delete data.users[userIndex].resetTokenExpires;
-  writeData(data);
+  updateUser(user.id, {
+    password: hashPassword(newPassword),
+    resetToken: null,
+    resetTokenExpires: null
+  });
   res.json({ success: true, message: 'Mot de passe réinitialisé avec succès.' });
 });
 
 // ==================== ROUTES CLIENTS ====================
 
 app.get('/clients', (req, res) => {
-  const data = readData();
-  const nom  = req.query.nom?.toLowerCase();
-  let clients = data.clients;
-  if (nom) clients = clients.filter(c => c.nom.toLowerCase().includes(nom));
-  res.json(clients);
+  res.json(listClients(req.query.nom));
 });
 app.post('/clients', (req, res) => {
-  const data   = readData();
-  const client = { ...req.body, id: Date.now() };
-  data.clients.push(client);
-  writeData(data);
+  const client = createClient({ ...req.body, id: Date.now() });
   res.json({ message: 'Client ajouté', client });
 });
 app.put('/clients/:id', (req, res) => {
-  const data  = readData();
-  const id    = Number(req.params.id);
-  const index = data.clients.findIndex(c => c.id === id);
-  if (index === -1) return res.status(404).json({ message: 'Client non trouvé' });
-  data.clients[index] = { ...data.clients[index], ...req.body };
-  writeData(data);
-  res.json({ message: 'Client modifié', client: data.clients[index] });
+  const client = updateClient(req.params.id, req.body);
+  if (!client) return res.status(404).json({ message: 'Client non trouvé' });
+  res.json({ message: 'Client modifié', client });
 });
 app.delete('/clients/:id', (req, res) => {
-  const data = readData();
-  data.clients = data.clients.filter(c => c.id !== Number(req.params.id));
-  writeData(data);
+  deleteClient(req.params.id);
   res.json({ message: 'Client supprimé' });
 });
 
 // ==================== ROUTES PHARMACIES ====================
 
 app.get('/pharmacies', (req, res) => {
-  const data = readData();
-  const nom  = req.query.nom?.toLowerCase();
-  let pharmacies = data.pharmacies;
-  if (nom) pharmacies = pharmacies.filter(p => p.nom.toLowerCase().includes(nom));
-  res.json(pharmacies);
+  res.json(listPharmacies(req.query.nom));
 });
 app.post('/pharmacies', (req, res) => {
-  const data     = readData();
-  const pharmacie = { ...req.body, id: Date.now() };
-  data.pharmacies.push(pharmacie);
-  writeData(data);
+  const pharmacie = createPharmacy({ ...req.body, id: Date.now() });
   res.json({ message: 'Pharmacie ajoutée', pharmacie });
 });
 app.put('/pharmacies/:id', (req, res) => {
-  const data  = readData();
-  const id    = Number(req.params.id);
-  const index = data.pharmacies.findIndex(p => p.id === id);
-  if (index === -1) return res.status(404).json({ message: 'Pharmacie non trouvée' });
-  data.pharmacies[index] = { ...data.pharmacies[index], ...req.body };
-  writeData(data);
-  res.json({ message: 'Pharmacie modifiée', pharmacie: data.pharmacies[index] });
+  const pharmacie = updatePharmacy(req.params.id, req.body);
+  if (!pharmacie) return res.status(404).json({ message: 'Pharmacie non trouvée' });
+  res.json({ message: 'Pharmacie modifiée', pharmacie });
 });
 app.delete('/pharmacies/:id', (req, res) => {
-  const data = readData();
-  data.pharmacies = data.pharmacies.filter(p => p.id !== Number(req.params.id));
-  writeData(data);
+  deletePharmacy(req.params.id);
   res.json({ message: 'Pharmacie supprimée' });
+});
+
+// ==================== ROUTES RATINGS ====================
+
+app.post('/api/ratings', requireJwt, (req, res) => {
+  const { patientId, livreurId, pharmacieId, commandeId, ratingLivreur, ratingPharmacie, reviewLivreur, reviewPharmacie } = req.body;
+
+  if (!patientId || (!livreurId && !pharmacieId)) {
+    return res.status(400).json({ success: false, message: 'patientId et (livreurId ou pharmacieId) requis.' });
+  }
+
+  if (livreurId && (!ratingLivreur || ratingLivreur < 1 || ratingLivreur > 5)) {
+    return res.status(400).json({ success: false, message: 'ratingLivreur doit être entre 1 et 5.' });
+  }
+
+  if (pharmacieId && (!ratingPharmacie || ratingPharmacie < 1 || ratingPharmacie > 5)) {
+    return res.status(400).json({ success: false, message: 'ratingPharmacie doit être entre 1 et 5.' });
+  }
+
+  const rating = createRating({
+    patientId,
+    livreurId,
+    pharmacieId,
+    commandeId,
+    ratingLivreur: ratingLivreur || null,
+    ratingPharmacie: ratingPharmacie || null,
+    reviewLivreur: reviewLivreur || null,
+    reviewPharmacie: reviewPharmacie || null
+  });
+
+  res.json({ success: true, message: 'Notation enregistrée.', rating });
+});
+
+app.get('/api/ratings/livreur/:livreurId', (req, res) => {
+  const ratings = getRatingsByLivreur(req.params.livreurId);
+  const average = getAverageRatingLivreur(req.params.livreurId);
+  res.json({ ratings, average });
+});
+
+app.get('/api/ratings/pharmacie/:pharmacieId', (req, res) => {
+  const ratings = getRatingsByPharmacie(req.params.pharmacieId);
+  const average = getAverageRatingPharmacie(req.params.pharmacieId);
+  res.json({ ratings, average });
+});
+
+app.get('/api/ratings/patient/:patientId', requireJwt, (req, res) => {
+  const ratings = listRatingsByPatient(req.params.patientId);
+  res.json({ ratings });
 });
 
 // ==================== ROUTE : ASSISTANT IA SYMPTÔMES ====================
@@ -226,7 +293,7 @@ app.post('/api/symptomes', async (req, res) => {
   if (!symptomes || symptomes.trim().length < 3)
     return res.status(400).json({ success: false, message: 'Veuillez décrire vos symptômes.' });
 
-  const data           = readData();
+  const data           = { pharmacies: listPharmacies() };
   const stockDisponible = [];
   if (data.pharmacies?.length > 0) {
     data.pharmacies.forEach(pharma => {
@@ -307,7 +374,7 @@ Si symptômes graves, mets un message d'urgence court dans "alerte".`;
 app.get('/api/disponibilite/:nom', (req, res) => {
   const nomRecherche = decodeURIComponent(req.params.nom).toLowerCase().trim();
   const exclure      = (req.query.exclure || '').toLowerCase();
-  const data         = readData();
+  const data         = { pharmacies: listPharmacies() };
   const resultats    = [];
 
   if (data.pharmacies?.length > 0) {

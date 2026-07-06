@@ -317,7 +317,11 @@
         adresse:   document.getElementById('adresse').value.trim()
       };
       try {
-        const resp = await fetch(`/api/user/${user.id}`, { method:'PUT', headers:{'Content-Type':'application/json'}, body:JSON.stringify(updates) });
+        const resp = await Auth.authFetch(`/api/user/${user.id}`, {
+          method:'PUT',
+          headers:{'Content-Type':'application/json'},
+          body:JSON.stringify(updates)
+        });
         const data = await resp.json();
         if (data.success) {
           Auth.setUser(data.user);

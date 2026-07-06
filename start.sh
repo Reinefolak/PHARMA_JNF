@@ -48,6 +48,16 @@ if [ ! -d "node_modules" ] || [ ! -f "node_modules/.package-lock.json" ]; then
   echo -e "${GREEN}[OK]${NC} Dépendances installées."
 else
   echo -e "${GREEN}[OK]${NC} Dépendances déjà installées."
+  if ! npm ls --depth=0 ws jsonwebtoken better-sqlite3 >/dev/null 2>&1; then
+    echo ""
+    echo -e "${YELLOW}[INFO]${NC} Nouvelles dépendances détectées. Mise à jour en cours..."
+    npm install
+    if [ $? -ne 0 ]; then
+      echo -e "${RED}[ERREUR] npm install a échoué.${NC}"
+      exit 1
+    fi
+    echo -e "${GREEN}[OK]${NC} Dépendances mises à jour."
+  fi
 fi
 if [ ! -f "data.json" ]; then
   echo '{"clients": [], "pharmacies": []}' > data.json

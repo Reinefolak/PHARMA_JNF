@@ -158,7 +158,7 @@
         const data = await res.json();
 
         if (data.success) {
-          Auth.setUser(data.user);
+          Auth.setUser(data.user, data.token);
           showToast('Connexion réussie...', 'success');
           setTimeout(() => Auth.redirectByRole(data.user.role), 1000);
         } else {

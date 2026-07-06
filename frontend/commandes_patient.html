@@ -1,0 +1,425 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>Mes Commandes - PharmaLink Pro</title>
+  <script src="https://cdn.tailwindcss.com"></script>
+  <script src="https://cdn.jsdelivr.net/npm/feather-icons/dist/feather.min.js"></script>
+  <script src="auth.js"></script>
+  <script>
+    tailwind.config = {
+      darkMode: 'class',
+      theme: { extend: { colors: { brand: { 50:'#f0fdf4',100:'#dcfce7',200:'#bbf7d0',300:'#86efac',400:'#4ade80',500:'#22c55e',600:'#16a34a',700:'#15803d',800:'#166534',900:'#14532d' } } } }
+    }
+  </script>
+  <style>
+    @import url('https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap');
+    body { font-family: 'Inter', sans-serif; transition: background-color 0.3s, color 0.3s; }
+    ::-webkit-scrollbar { width: 6px; }
+    ::-webkit-scrollbar-track { background: transparent; }
+    ::-webkit-scrollbar-thumb { background: #cbd5e1; border-radius: 10px; }
+    .dark ::-webkit-scrollbar-thumb { background: #475569; }
+    .glass { background: rgba(255,255,255,0.8); backdrop-filter: blur(12px); border-bottom: 1px solid rgba(255,255,255,0.3); }
+    .dark .glass { background: rgba(30,41,59,0.8); border-bottom: 1px solid rgba(255,255,255,0.1); }
+    .star { cursor: pointer; transition: all 0.2s; }
+    .star:hover { transform: scale(1.2); }
+    .star.active { fill: currentColor; color: #fbbf24; }
+    .modal-backdrop { display: none; position: fixed; top: 0; left: 0; right: 0; bottom: 0; background: rgba(0,0,0,0.5); z-index: 40; }
+    .modal-backdrop.show { display: flex; align-items: center; justify-content: center; }
+  </style>
+</head>
+<body class="bg-slate-50 text-slate-800 dark:bg-slate-900 dark:text-slate-200">
+
+<!-- Navbar -->
+<nav class="sticky top-0 z-40 glass">
+  <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+    <div class="flex justify-between h-16">
+      <div class="flex items-center gap-3">
+        <div class="bg-brand-600 p-2 rounded-lg"><i data-feather="activity" class="h-6 w-6 text-white"></i></div>
+        <span class="text-xl font-bold bg-clip-text text-transparent bg-gradient-to-r from-brand-600 to-green-400 hidden sm:block">PharmaLink Pro</span>
+      </div>
+      <div class="flex items-center gap-3 sm:gap-4">
+        <div class="hidden md:flex items-center space-x-6 mr-4">
+          <a href="patient.html" class="text-slate-600 dark:text-slate-300 hover:text-brand-600 dark:hover:text-green-400 transition">Accueil</a>
+          <a href="pharmacies_patient.html" class="text-slate-600 dark:text-slate-300 hover:text-brand-600 dark:hover:text-green-400 transition">Pharmacies</a>
+          <a href="commandes_patient.html" class="text-brand-600 dark:text-green-400 font-medium">Commandes</a>
+          <a href="suivi.html" class="text-slate-600 dark:text-slate-300 hover:text-brand-600 dark:hover:text-green-400 transition">Suivi</a>
+        </div>
+        <button id="themeToggle" class="p-2 rounded-full hover:bg-slate-200 dark:hover:bg-slate-800 transition text-slate-600 dark:text-slate-300 focus:outline-none">
+          <i data-feather="moon" id="themeIcon" class="h-5 w-5"></i>
+        </button>
+        <button id="logoutBtn" class="flex items-center gap-2 px-4 py-2 bg-slate-900 text-white dark:bg-white dark:text-slate-900 rounded-full font-semibold hover:opacity-90 transition text-sm">
+          <i data-feather="log-out" class="h-4 w-4"></i> <span class="hidden sm:inline">Déconnexion</span>
+        </button>
+      </div>
+    </div>
+  </div>
+</nav>
+
+<!-- En-tête -->
+<section class="relative py-20 bg-gradient-to-br from-brand-600 to-green-500 dark:from-brand-800 dark:to-green-900 text-white text-center">
+  <div class="max-w-4xl mx-auto px-6">
+    <h1 class="text-4xl font-bold mb-4">Mes Commandes</h1>
+    <p class="text-brand-100 dark:text-brand-200 text-lg">Consultez vos commandes et notez la pharmacie et le livreur après chaque livraison.</p>
+  </div>
+</section>
+
+<!-- Contenu principal -->
+<section class="max-w-6xl mx-auto py-12 px-6">
+  <!-- Filtres -->
+  <div class="mb-8 flex flex-wrap gap-4 items-center">
+    <select id="statusFilter" class="px-4 py-2.5 bg-white dark:bg-slate-800 border border-slate-200 dark:border-slate-700 rounded-xl focus:ring-2 focus:ring-brand-500 outline-none text-sm dark:text-white transition cursor-pointer">
+      <option value="">Tous les statuts</option>
+      <option value="En attente">En attente</option>
+      <option value="En préparation">En préparation</option>
+      <option value="En livraison">En livraison</option>
+      <option value="Livrée">Livrée</option>
+      <option value="Annulée">Annulée</option>
+    </select>
+    <button id="clearFilters" class="flex items-center gap-2 px-4 py-2.5 bg-slate-200 dark:bg-slate-700 hover:bg-slate-300 dark:hover:bg-slate-600 text-slate-700 dark:text-slate-200 rounded-xl transition font-medium text-sm">
+      <i data-feather="x" class="h-4 w-4"></i> Réinitialiser
+    </button>
+  </div>
+
+  <!-- Liste des commandes -->
+  <div id="commandesList" class="space-y-4">
+    <!-- Les commandes s'affichent ici via JavaScript -->
+  </div>
+</section>
+
+<!-- Modal Notation -->
+<div id="ratingModal" class="modal-backdrop">
+  <div class="bg-white dark:bg-slate-800 rounded-2xl shadow-2xl p-8 max-w-2xl w-full mx-4 max-h-[90vh] overflow-y-auto">
+    <div class="flex justify-between items-center mb-6">
+      <h2 class="text-2xl font-bold text-slate-900 dark:text-white">Noter votre commande</h2>
+      <button id="closeRatingModal" class="text-slate-400 hover:text-slate-600 dark:hover:text-slate-300 transition">
+        <i data-feather="x" class="h-6 w-6"></i>
+      </button>
+    </div>
+
+    <!-- Infos commande -->
+    <div class="bg-slate-50 dark:bg-slate-900/50 rounded-xl p-4 mb-6">
+      <p class="text-sm text-slate-600 dark:text-slate-400"><strong>Commande ID:</strong> <span id="ratingCmdId" class="font-mono">CMD-2025-001</span></p>
+      <p class="text-sm text-slate-600 dark:text-slate-400 mt-1"><strong>Pharmacie:</strong> <span id="ratingPharmacieNom" class="font-medium">-</span></p>
+      <p class="text-sm text-slate-600 dark:text-slate-400 mt-1"><strong>Livreur:</strong> <span id="ratingLivreurNom" class="font-medium">-</span></p>
+    </div>
+
+    <!-- Note Pharmacie -->
+    <div class="mb-8">
+      <h3 class="text-lg font-semibold text-slate-900 dark:text-white mb-4 flex items-center gap-2">
+        <i data-feather="store" class="h-5 w-5 text-brand-600"></i>
+        Évaluez la pharmacie
+      </h3>
+      <div class="flex gap-3 mb-4">
+        <div class="flex gap-2">
+          <button class="pharmacieRating star text-3xl text-slate-300 dark:text-slate-600 hover:text-yellow-400" data-rating="1">★</button>
+          <button class="pharmacieRating star text-3xl text-slate-300 dark:text-slate-600 hover:text-yellow-400" data-rating="2">★</button>
+          <button class="pharmacieRating star text-3xl text-slate-300 dark:text-slate-600 hover:text-yellow-400" data-rating="3">★</button>
+          <button class="pharmacieRating star text-3xl text-slate-300 dark:text-slate-600 hover:text-yellow-400" data-rating="4">★</button>
+          <button class="pharmacieRating star text-3xl text-slate-300 dark:text-slate-600 hover:text-yellow-400" data-rating="5">★</button>
+        </div>
+        <span id="pharmacieRatingDisplay" class="text-lg font-semibold text-slate-600 dark:text-slate-300">0/5</span>
+      </div>
+      <textarea id="reviewPharmacie" placeholder="Partager votre expérience avec la pharmacie (optionnel)..." class="w-full px-4 py-3 bg-slate-50 dark:bg-slate-900/50 border border-slate-200 dark:border-slate-700 rounded-xl focus:ring-2 focus:ring-brand-500 outline-none resize-none dark:text-white" rows="3"></textarea>
+    </div>
+
+    <!-- Note Livreur -->
+    <div class="mb-8">
+      <h3 class="text-lg font-semibold text-slate-900 dark:text-white mb-4 flex items-center gap-2">
+        <i data-feather="truck" class="h-5 w-5 text-brand-600"></i>
+        Évaluez le livreur
+      </h3>
+      <div class="flex gap-3 mb-4">
+        <div class="flex gap-2">
+          <button class="livreurRating star text-3xl text-slate-300 dark:text-slate-600 hover:text-yellow-400" data-rating="1">★</button>
+          <button class="livreurRating star text-3xl text-slate-300 dark:text-slate-600 hover:text-yellow-400" data-rating="2">★</button>
+          <button class="livreurRating star text-3xl text-slate-300 dark:text-slate-600 hover:text-yellow-400" data-rating="3">★</button>
+          <button class="livreurRating star text-3xl text-slate-300 dark:text-slate-600 hover:text-yellow-400" data-rating="4">★</button>
+          <button class="livreurRating star text-3xl text-slate-300 dark:text-slate-600 hover:text-yellow-400" data-rating="5">★</button>
+        </div>
+        <span id="livreurRatingDisplay" class="text-lg font-semibold text-slate-600 dark:text-slate-300">0/5</span>
+      </div>
+      <textarea id="reviewLivreur" placeholder="Partager votre expérience avec le livreur (optionnel)..." class="w-full px-4 py-3 bg-slate-50 dark:bg-slate-900/50 border border-slate-200 dark:border-slate-700 rounded-xl focus:ring-2 focus:ring-brand-500 outline-none resize-none dark:text-white" rows="3"></textarea>
+    </div>
+
+    <!-- Boutons -->
+    <div class="flex gap-4">
+      <button id="cancelRating" class="flex-1 px-4 py-3 bg-slate-200 dark:bg-slate-700 hover:bg-slate-300 dark:hover:bg-slate-600 text-slate-700 dark:text-slate-200 rounded-xl font-semibold transition">
+        Annuler
+      </button>
+      <button id="submitRating" class="flex-1 px-4 py-3 bg-brand-600 hover:bg-brand-700 text-white rounded-xl font-semibold transition">
+        Envoyer la notation
+      </button>
+    </div>
+  </div>
+</div>
+
+<script>
+  let commandes = JSON.parse(localStorage.getItem('pharmalink-commandes') || '[]');
+  let ratings = {};
+  let currentRatingCommande = null;
+
+  // ==================== INIT ====================
+  document.addEventListener('DOMContentLoaded', () => {
+    Auth.requireAuth('patient');
+    loadCommandes();
+    setupEventListeners();
+    feather.replace();
+    applyTheme();
+  });
+
+  // ==================== THEME ====================
+  function applyTheme() {
+    const isDark = localStorage.getItem('theme') === 'dark';
+    if (isDark) document.documentElement.classList.add('dark');
+  }
+
+  document.getElementById('themeToggle')?.addEventListener('click', () => {
+    const isDark = document.documentElement.classList.toggle('dark');
+    localStorage.setItem('theme', isDark ? 'dark' : 'light');
+  });
+
+  // ==================== LOGOUT ====================
+  document.getElementById('logoutBtn')?.addEventListener('click', () => {
+    Auth.logout();
+  });
+
+  // ==================== LOAD COMMANDES ====================
+  async function loadCommandes() {
+    const user = Auth.getUser();
+    if (!user) {
+      Auth.logout();
+      return;
+    }
+
+    // Charger les commandes du patient
+    commandes = JSON.parse(localStorage.getItem('pharmalink-commandes') || '[]');
+    
+    // Charger les ratings depuis le serveur
+    try {
+      const response = await Auth.authFetch(`/api/ratings/patient/${user.id}`);
+      const data = await response.json();
+      if (data.ratings) {
+        data.ratings.forEach(r => {
+          ratings[r.commandeId] = r;
+        });
+      }
+    } catch (err) {
+      console.error('Erreur lors du chargement des notations:', err);
+    }
+
+    renderCommandes();
+  }
+
+  // ==================== RENDER COMMANDES ====================
+  function renderCommandes() {
+    const user = Auth.getUser();
+    const filter = document.getElementById('statusFilter').value;
+    const list = document.getElementById('commandesList');
+    list.innerHTML = '';
+
+    let filtered = commandes.filter(c => !filter || c.status === filter);
+
+    if (filtered.length === 0) {
+      list.innerHTML = `
+        <div class="text-center py-16">
+          <i data-feather="inbox" class="h-16 w-16 text-slate-300 dark:text-slate-600 mx-auto mb-4"></i>
+          <p class="text-slate-500 dark:text-slate-400 text-lg">Aucune commande trouvée.</p>
+        </div>
+      `;
+      feather.replace();
+      return;
+    }
+
+    filtered.forEach(cmd => {
+      const isDelivered = cmd.status === 'Livrée';
+      const isRated = ratings[cmd.id];
+      const card = document.createElement('div');
+      card.className = 'bg-white dark:bg-slate-800 rounded-xl shadow-sm border border-slate-100 dark:border-slate-700 p-6 hover:shadow-md transition';
+      
+      const statusColors = {
+        'En attente': 'bg-yellow-100 text-yellow-800 dark:bg-yellow-900/40 dark:text-yellow-400',
+        'En préparation': 'bg-blue-100 text-blue-800 dark:bg-blue-900/40 dark:text-blue-400',
+        'En livraison': 'bg-purple-100 text-purple-800 dark:bg-purple-900/40 dark:text-purple-400',
+        'Livrée': 'bg-green-100 text-green-800 dark:bg-green-900/40 dark:text-green-400',
+        'Annulée': 'bg-red-100 text-red-800 dark:bg-red-900/40 dark:text-red-400'
+      };
+
+      card.innerHTML = `
+        <div class="flex justify-between items-start mb-4">
+          <div>
+            <h3 class="text-lg font-semibold text-slate-900 dark:text-white">Commande ${cmd.id}</h3>
+            <p class="text-sm text-slate-500 dark:text-slate-400 mt-1">${formatDate(cmd.date)}</p>
+          </div>
+          <span class="px-3 py-1 rounded-lg text-xs font-semibold ${statusColors[cmd.status] || 'bg-slate-100 text-slate-800'}">
+            ${cmd.status}
+          </span>
+        </div>
+
+        <div class="space-y-2 mb-6">
+          <p class="text-sm"><strong class="text-slate-600 dark:text-slate-400">Produit:</strong> ${cmd.product}</p>
+          <p class="text-sm"><strong class="text-slate-600 dark:text-slate-400">Quantité:</strong> ${cmd.qty}</p>
+          ${cmd.pharmacy ? `<p class="text-sm"><strong class="text-slate-600 dark:text-slate-400">Pharmacie:</strong> ${cmd.pharmacy}</p>` : ''}
+          ${cmd.courier ? `<p class="text-sm"><strong class="text-slate-600 dark:text-slate-400">Livreur:</strong> ${cmd.courier}</p>` : ''}
+          ${cmd.address ? `<p class="text-sm"><strong class="text-slate-600 dark:text-slate-400">Adresse:</strong> ${cmd.address}</p>` : ''}
+        </div>
+
+        <div class="flex gap-2 pt-4 border-t border-slate-100 dark:border-slate-700">
+          ${isDelivered && !isRated ? `
+            <button class="rateBtn flex-1 bg-brand-600 hover:bg-brand-700 text-white px-4 py-2 rounded-lg font-medium transition flex items-center justify-center gap-2" data-id="${cmd.id}">
+              <i data-feather="star" class="h-4 w-4"></i>
+              Noter cette commande
+            </button>
+          ` : isDelivered && isRated ? `
+            <div class="flex-1 bg-green-50 dark:bg-green-900/20 border border-green-200 dark:border-green-800 px-4 py-2 rounded-lg flex items-center justify-center gap-2">
+              <i data-feather="check-circle" class="h-4 w-4 text-green-600 dark:text-green-400"></i>
+              <span class="text-sm font-medium text-green-700 dark:text-green-300">Notation envoyée</span>
+            </div>
+          ` : ''}
+        </div>
+      `;
+      list.appendChild(card);
+    });
+
+    document.querySelectorAll('.rateBtn').forEach(btn => {
+      btn.addEventListener('click', () => {
+        const cmdId = parseInt(btn.dataset.id);
+        openRatingModal(commandes.find(c => c.id === cmdId));
+      });
+    });
+
+    feather.replace();
+  }
+
+  // ==================== RATING MODAL ====================
+  function openRatingModal(commande) {
+    currentRatingCommande = commande;
+    document.getElementById('ratingCmdId').textContent = `CMD-2025-${String(commande.id).padStart(3, '0')}`;
+    document.getElementById('ratingPharmacieNom').textContent = commande.pharmacy || '-';
+    document.getElementById('ratingLivreurNom').textContent = commande.courier || '-';
+    
+    // Réinitialiser les ratings
+    document.querySelectorAll('.pharmacieRating').forEach(s => s.classList.remove('active'));
+    document.querySelectorAll('.livreurRating').forEach(s => s.classList.remove('active'));
+    document.getElementById('pharmacieRatingDisplay').textContent = '0/5';
+    document.getElementById('livreurRatingDisplay').textContent = '0/5';
+    document.getElementById('reviewPharmacie').value = '';
+    document.getElementById('reviewLivreur').value = '';
+
+    document.getElementById('ratingModal').classList.add('show');
+  }
+
+  function closeRatingModal() {
+    document.getElementById('ratingModal').classList.remove('show');
+    currentRatingCommande = null;
+  }
+
+  // ==================== STAR RATINGS ====================
+  document.querySelectorAll('.pharmacieRating').forEach(star => {
+    star.addEventListener('click', () => {
+      const rating = parseInt(star.dataset.rating);
+      document.querySelectorAll('.pharmacieRating').forEach((s, idx) => {
+        s.classList.toggle('active', idx < rating);
+      });
+      document.getElementById('pharmacieRatingDisplay').textContent = `${rating}/5`;
+    });
+  });
+
+  document.querySelectorAll('.livreurRating').forEach(star => {
+    star.addEventListener('click', () => {
+      const rating = parseInt(star.dataset.rating);
+      document.querySelectorAll('.livreurRating').forEach((s, idx) => {
+        s.classList.toggle('active', idx < rating);
+      });
+      document.getElementById('livreurRatingDisplay').textContent = `${rating}/5`;
+    });
+  });
+
+  // ==================== SUBMIT RATING ====================
+  document.getElementById('submitRating').addEventListener('click', async () => {
+    const user = Auth.getUser();
+    const ratingPharmacieElements = document.querySelectorAll('.pharmacieRating.active');
+    const ratingLivreurElements = document.querySelectorAll('.livreurRating.active');
+
+    const ratingPharmacie = ratingPharmacieElements.length || null;
+    const ratingLivreur = ratingLivreurElements.length || null;
+
+    if (!ratingPharmacie && !ratingLivreur) {
+      alert('Veuillez donner au moins une note.');
+      return;
+    }
+
+    if (ratingPharmacie && (ratingPharmacie < 1 || ratingPharmacie > 5)) {
+      alert('Notation pharmacie invalide.');
+      return;
+    }
+
+    if (ratingLivreur && (ratingLivreur < 1 || ratingLivreur > 5)) {
+      alert('Notation livreur invalide.');
+      return;
+    }
+
+    try {
+      // Récupérer les IDs depuis localStorage ou utiliser des valeurs par défaut
+      const pharmacies = JSON.parse(localStorage.getItem('pharmastock-pharmacies') || '[]');
+      const pharmacy = pharmacies.find(p => p.nom === currentRatingCommande.pharmacy);
+      const pharmacieId = pharmacy?.id;
+
+      const response = await Auth.authFetch('/api/ratings', {
+        method: 'POST',
+        body: JSON.stringify({
+          patientId: user.id,
+          livreurId: currentRatingCommande.livreurId || null,
+          pharmacieId: pharmacieId || null,
+          commandeId: `CMD-2025-${String(currentRatingCommande.id).padStart(3, '0')}`,
+          ratingLivreur,
+          ratingPharmacie,
+          reviewLivreur: document.getElementById('reviewLivreur').value || null,
+          reviewPharmacie: document.getElementById('reviewPharmacie').value || null
+        })
+      });
+
+      const result = await response.json();
+      if (result.success) {
+        ratings[currentRatingCommande.id] = result.rating;
+        closeRatingModal();
+        renderCommandes();
+        alert('Merci pour votre notation!');
+      } else {
+        alert('Erreur: ' + result.message);
+      }
+    } catch (err) {
+      console.error('Erreur lors de l\'envoi de la notation:', err);
+      alert('Erreur lors de l\'envoi de la notation');
+    }
+  });
+
+  // ==================== MODAL LISTENERS ====================
+  document.getElementById('closeRatingModal').addEventListener('click', closeRatingModal);
+  document.getElementById('cancelRating').addEventListener('click', closeRatingModal);
+  document.getElementById('ratingModal').addEventListener('click', (e) => {
+    if (e.target.id === 'ratingModal') closeRatingModal();
+  });
+
+  // ==================== FILTERS ====================
+  document.getElementById('statusFilter').addEventListener('change', renderCommandes);
+  document.getElementById('clearFilters').addEventListener('click', () => {
+    document.getElementById('statusFilter').value = '';
+    renderCommandes();
+  });
+
+  // ==================== UTILITIES ====================
+  function formatDate(dateStr) {
+    const date = new Date(dateStr);
+    return date.toLocaleDateString('fr-FR', { year: 'numeric', month: 'long', day: 'numeric' });
+  }
+
+  // ==================== EVENT LISTENERS ====================
+  function setupEventListeners() {
+    // Listeneurs déjà configurés ci-dessus
+  }
+</script>
+
+</body>
+</html>

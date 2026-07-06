@@ -181,7 +181,7 @@
         const data = await res.json();
 
         if (data.success) {
-          Auth.setUser(data.user);
+          Auth.setUser(data.user, data.token);
           showToast('Compte créé !', 'success');
           setTimeout(() => Auth.redirectByRole(data.user.role), 1500);
         } else {

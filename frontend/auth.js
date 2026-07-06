@@ -4,13 +4,15 @@
  */
 
 const AUTH_KEY = 'pharmalink_user';
+const AUTH_TOKEN_KEY = 'pharmalink_token';
 
 const Auth = {
   /**
    * Sauvegarder l'utilisateur connecté dans localStorage
    */
-  setUser(user) {
+  setUser(user, token = null) {
     localStorage.setItem(AUTH_KEY, JSON.stringify(user));
+    if (token) localStorage.setItem(AUTH_TOKEN_KEY, token);
   },
 
   /**
@@ -31,7 +33,24 @@ const Auth = {
    * Vérifier si un utilisateur est connecté
    */
   isLoggedIn() {
-    return this.getUser() !== null;
+    return this.getUser() !== null && !!this.getToken();
+  },
+
+  getToken() {
+    return localStorage.getItem(AUTH_TOKEN_KEY);
+  },
+
+  getAuthHeaders(extra = {}) {
+    const token = this.getToken();
+    return {
+      ...extra,
+      ...(token ? { Authorization: `Bearer ${token}` } : {})
+    };
+  },
+
+  async authFetch(url, options = {}) {
+    const headers = this.getAuthHeaders(options.headers || {});
+    return fetch(url, { ...options, headers });
   },
 
   /**
@@ -39,6 +58,7 @@ const Auth = {
    */
   logout() {
     localStorage.removeItem(AUTH_KEY);
+    localStorage.removeItem(AUTH_TOKEN_KEY);
     window.location.href = 'login.html';
   },
 
@@ -53,10 +73,11 @@ const Auth = {
     if (!confirmed) return;
 
     try {
-      const resp = await fetch(`/api/user/${user.id}`, { method: 'DELETE' });
+      const resp = await this.authFetch(`/api/user/${user.id}`, { method: 'DELETE' });
       const data = await resp.json();
       if (data.success) {
         localStorage.removeItem(AUTH_KEY);
+        localStorage.removeItem(AUTH_TOKEN_KEY);
         alert('Votre compte a bien été supprimé.');
         window.location.href = 'index.html';
       } else {
@@ -73,7 +94,10 @@ const Auth = {
    */
   requireAuth(requiredRole = null) {
     const user = this.getUser();
-    if (!user) {
+    const token = this.getToken();
+    if (!user || !token) {
+      localStorage.removeItem(AUTH_KEY);
+      localStorage.removeItem(AUTH_TOKEN_KEY);
       window.location.href = 'login.html';
       return null;
     }

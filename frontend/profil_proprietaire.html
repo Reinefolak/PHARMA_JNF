@@ -65,6 +65,25 @@
         <p class="text-sm text-gray-500 dark:text-slate-400 mt-1" id="displayEmail">email@exemple.com</p>
       </div>
 
+      <!-- Évaluations Moyennes Pharmacie -->
+      <div class="bg-gradient-to-br from-green-50 to-emerald-50 dark:from-slate-800 dark:to-slate-900 rounded-2xl p-6 shadow-sm border border-green-200 dark:border-slate-700">
+        <h3 class="font-bold text-gray-800 dark:text-white mb-4 flex items-center gap-2">
+          <i data-feather="star" class="h-5 w-5 text-green-500"></i> Évaluation de votre pharmacie
+        </h3>
+        <div class="space-y-3">
+          <div>
+            <div class="flex items-center justify-between mb-1">
+              <span class="text-sm font-medium text-gray-700 dark:text-slate-300">Note moyenne</span>
+              <span id="ratingValue" class="text-2xl font-bold text-green-600 dark:text-green-400">0.0</span>
+            </div>
+            <div class="flex items-center gap-1">
+              <div id="starsDisplay" class="flex gap-0.5"></div>
+              <span id="ratingCount" class="text-xs text-gray-500 dark:text-slate-400 ml-2">(0 évaluations)</span>
+            </div>
+          </div>
+        </div>
+      </div>
+
       <div class="bg-white dark:bg-slate-800 rounded-2xl p-6 shadow-sm border border-gray-100 dark:border-slate-700">
         <h3 class="font-bold text-gray-800 dark:text-white mb-4 flex items-center gap-2"><i data-feather="user" class="h-5 w-5 text-brand-500"></i> Infos Personnelles</h3>
         <form id="profileForm" class="space-y-4">
@@ -184,6 +203,49 @@
       
       const initials = ((user.prenom || '?')[0] + (user.nom || '?')[0]).toUpperCase();
       document.getElementById('avatarInitials').textContent = initials;
+      
+      // Charger les évaluations de la pharmacie
+      if (user.nomPharmacie) {
+        loadPharmacyRatings(user.nomPharmacie);
+      }
+    }
+
+    // ---- CHARGER LES ÉVALUATIONS DE LA PHARMACIE ----
+    async function loadPharmacyRatings(pharmacyName) {
+      try {
+        // Récupérer l'ID de la pharmacie depuis le localStorage
+        const pharmacies = JSON.parse(localStorage.getItem('pharmastock-pharmacies') || '[]');
+        const pharmacy = pharmacies.find(p => p.nom === pharmacyName);
+        
+        if (pharmacy) {
+          const response = await fetch(`/api/ratings/pharmacie/${pharmacy.id}`);
+          const data = await response.json();
+          if (data.average) {
+            displayPharmacyRatings(data.average);
+          }
+        }
+      } catch (err) {
+        console.error('Erreur lors du chargement des évaluations:', err);
+      }
+    }
+
+    function displayPharmacyRatings(avgRating) {
+      const rating = avgRating.average || 0;
+      const count = avgRating.count || 0;
+      
+      document.getElementById('ratingValue').textContent = rating.toFixed(1);
+      document.getElementById('ratingCount').textContent = `(${count} ${count === 1 ? 'évaluation' : 'évaluations'})`;
+      
+      // Afficher les stars
+      const starsDisplay = document.getElementById('starsDisplay');
+      starsDisplay.innerHTML = '';
+      for (let i = 1; i <= 5; i++) {
+        const star = document.createElement('i');
+        star.setAttribute('data-feather', i <= Math.round(rating) ? 'star' : 'star');
+        star.className = `h-5 w-5 ${i <= Math.round(rating) ? 'fill-green-400 text-green-400' : 'text-gray-300 dark:text-gray-600'}`;
+        starsDisplay.appendChild(star);
+      }
+      feather.replace();
     }
 
     function showToast(msg, type='success') {
@@ -217,7 +279,7 @@
       };
       
       try {
-        const resp = await fetch(`/api/user/${user.id}`, {
+        const resp = await Auth.authFetch(`/api/user/${user.id}`, {
           method: 'PUT', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify(updates)
         });
         const data = await resp.json();
