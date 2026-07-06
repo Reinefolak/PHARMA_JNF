@@ -295,7 +295,9 @@
       if(!saleProduct.value || !saleQuantity.value || !salePrice.value) return alert('Remplissez tous les champs.');
       const newSale = {
         product: saleProduct.value, category: saleCategory.value,
-        quantity: parseInt(saleQuantity.value), price: parseFloat(salePrice.value), date: saleDate.value
+        quantity: parseInt(saleQuantity.value), price: parseFloat(salePrice.value), date: saleDate.value,
+        time: new Date().toLocaleTimeString('fr-FR', { hour: '2-digit', minute: '2-digit' }),
+        createdAt: new Date().toISOString()
       };
       if (editing) {
         const id = parseInt(saleId.value);

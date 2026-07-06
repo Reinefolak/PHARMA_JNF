@@ -8,31 +8,33 @@
   <script>
     tailwind.config = {
       darkMode: 'class',
-      theme: {
-        extend: {
-          colors: {
-            brand: {
-              50: '#f0fdf4', 100: '#dcfce7', 200: '#bbf7d0', 300: '#86efac', 400: '#4ade80',
-              500: '#22c55e', 600: '#16a34a', 700: '#15803d', 800: '#166534', 900: '#14532d',
-            }
-          }
-        }
-      }
+      theme: { extend: { colors: { brand: { 50:'#f0fdf4',100:'#dcfce7',200:'#bbf7d0',300:'#86efac',400:'#4ade80',500:'#22c55e',600:'#16a34a',700:'#15803d',800:'#166534',900:'#14532d' } } } }
     }
   </script>
   <script src="https://cdn.jsdelivr.net/npm/feather-icons/dist/feather.min.js"></script>
   <style>
     @import url('https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap');
     body { font-family: 'Inter', sans-serif; transition: background-color 0.3s, color 0.3s; }
-    
     ::-webkit-scrollbar { width: 6px; }
     ::-webkit-scrollbar-track { background: transparent; }
     ::-webkit-scrollbar-thumb { background: #cbd5e1; border-radius: 10px; }
     .dark ::-webkit-scrollbar-thumb { background: #475569; }
+    .glass { background: rgba(255,255,255,0.8); backdrop-filter: blur(12px); border-bottom: 1px solid rgba(255,255,255,0.3); }
+    .dark .glass { background: rgba(30,41,59,0.8); border-bottom: 1px solid rgba(255,255,255,0.1); }
+    @keyframes fadeIn { from { opacity:0; transform:translateY(6px); } to { opacity:1; transform:translateY(0); } }
+    .fade-in { animation: fadeIn 0.2s ease forwards; }
 
-    .glass { background: rgba(255, 255, 255, 0.8); backdrop-filter: blur(12px); border-bottom: 1px solid rgba(255, 255, 255, 0.3); }
-    .dark .glass { background: rgba(30, 41, 59, 0.8); border-bottom: 1px solid rgba(255, 255, 255, 0.1); }
+    /* Zone drag-and-drop */
+    #dropZone { transition: border-color 0.2s, background-color 0.2s; }
+    #dropZone.drag-over { border-color: #16a34a !important; background-color: #f0fdf4; }
+    .dark #dropZone.drag-over { background-color: #052e16; }
 
+    /* Prévisualisation image */
+    #previewContainer { display: none; }
+    #previewContainer.visible { display: block; }
+
+    @keyframes spin { to { transform: rotate(360deg); } }
+    .spin { animation: spin 1s linear infinite; }
   </style>
 </head>
 <body class="bg-slate-50 text-slate-800 dark:bg-slate-900 dark:text-slate-200">
@@ -41,41 +43,42 @@
   <nav class="sticky top-0 z-40 glass">
     <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
       <div class="flex justify-between h-16">
-        <div class="flex items-center">
-          <i data-feather="activity" class="h-8 w-8 text-brand-600 dark:text-brand-400"></i>
-          <span class="ml-2 text-xl font-bold text-brand-600 dark:text-brand-400">PharmaLink Pro</span>
+        <div class="flex items-center gap-3">
+          <div class="bg-brand-600 p-2 rounded-lg"><i data-feather="activity" class="h-6 w-6 text-white"></i></div>
+          <span class="text-xl font-bold text-brand-600 dark:text-brand-400 hidden sm:block">PharmaLink Pro</span>
         </div>
-        <div class="flex items-center space-x-6">
-          <a href="patient.html" class="text-slate-600 dark:text-slate-300 hover:text-brand-600 dark:text-brand-400">Accueil</a>
-          <a href="pharmacies_patient.html" class="text-slate-600 dark:text-slate-300 hover:text-brand-600 dark:text-brand-400">Pharmacies</a>
-          <a href="com_patient.html" class="text-brand-600 dark:text-brand-400 font-medium">Mes commandes</a>
-          <a href="know_patient.html" class="text-slate-600 dark:text-slate-300 hover:text-brand-600 dark:text-brand-400">À propos</a>
-          <a href="services_patient.html" class="text-slate-600 dark:text-slate-300 hover:text-brand-600 dark:text-brand-400">Services</a>
-          <a href="contact_patient.html" class="text-slate-600 dark:text-slate-300 hover:text-brand-600 dark:text-brand-400">Contact</a>
-          <button id="themeToggle" class="p-2 rounded-full hover:bg-slate-200 dark:hover:bg-slate-800 transition text-slate-600 dark:text-slate-300 focus:outline-none ml-4 mr-2">
+        <div class="flex items-center gap-3 sm:gap-4">
+          <div class="hidden md:flex items-center space-x-6 mr-4">
+            <a href="patient.html" class="text-slate-600 dark:text-slate-300 hover:text-brand-600 transition">Accueil</a>
+            <a href="pharmacies_patient.html" class="text-slate-600 dark:text-slate-300 hover:text-brand-600 transition">Pharmacies</a>
+            <a href="com_patient.html" class="text-brand-600 dark:text-brand-400 font-medium">Mes commandes</a>
+            <a href="produits.html" class="text-slate-600 dark:text-slate-300 hover:text-brand-600 transition">Produits</a>
+          </div>
+          <button id="themeToggle" class="p-2 rounded-full hover:bg-slate-200 dark:hover:bg-slate-800 transition text-slate-600 dark:text-slate-300 focus:outline-none">
             <i data-feather="moon" id="themeIcon" class="h-5 w-5"></i>
           </button>
-          <a href="login.html" class="bg-brand-600 text-white px-4 py-2 rounded-md font-medium hover:bg-blue-700 transition">
-            <i data-feather="log-out" class="h-4 w-4 inline mr-1"></i> Déconnexion
+          <a href="login.html" class="hidden sm:flex items-center gap-2 px-4 py-2 bg-slate-900 text-white dark:bg-white dark:text-slate-900 rounded-full font-semibold hover:opacity-90 transition text-sm">
+            <i data-feather="log-out" class="h-4 w-4"></i> Déconnexion
           </a>
         </div>
       </div>
     </div>
   </nav>
 
-  <!-- En-tête -->
-  <section class="relative py-20 bg-gradient-to-br from-brand-600 to-green-500 dark:from-brand-800 dark:to-green-900 text-white text-center">
-    <div class="max-w-4xl mx-auto px-6">
-      <h1 class="text-4xl font-bold mb-4">Mes Commandes</h1>
-      <p class="text-brand-100 dark:text-brand-200 text-lg">Consultez et suivez vos commandes passées et en cours directement depuis votre tableau de bord.</p>
+  <!-- Header -->
+  <section class="relative py-16 bg-gradient-to-br from-brand-600 to-green-500 dark:from-brand-800 dark:to-green-900 text-white overflow-hidden">
+    <div class="absolute top-0 right-0 -mt-10 -mr-10 opacity-10 pointer-events-none"><i data-feather="package" class="w-64 h-64"></i></div>
+    <div class="max-w-7xl mx-auto px-6 relative z-10 text-center">
+      <h1 class="text-3xl sm:text-4xl font-bold mb-3">Mes Commandes</h1>
+      <p class="text-green-100 text-lg max-w-2xl mx-auto">Consultez vos commandes et joignez votre ordonnance directement depuis votre espace patient.</p>
     </div>
   </section>
 
-  <!-- Statistiques -->
-  <section class="max-w-6xl mx-auto py-10 px-6 grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-6">
+  <!-- Stats -->
+  <section class="max-w-6xl mx-auto py-8 px-6 grid grid-cols-2 lg:grid-cols-4 gap-4">
     <div class="bg-white dark:bg-slate-800 shadow-sm border border-slate-100 dark:border-slate-700 rounded-2xl p-5 text-center">
       <i data-feather="package" class="h-6 w-6 text-brand-600 dark:text-brand-400 mx-auto mb-2"></i>
-      <p class="text-slate-500 dark:text-slate-400 text-sm">Total commandes</p>
+      <p class="text-slate-500 dark:text-slate-400 text-sm">Total</p>
       <p id="totalCmd" class="text-2xl font-bold text-slate-900 dark:text-white">0</p>
     </div>
     <div class="bg-white dark:bg-slate-800 shadow-sm border border-slate-100 dark:border-slate-700 rounded-2xl p-5 text-center">
@@ -95,129 +98,468 @@
     </div>
   </section>
 
-  <!-- Filtres -->
-  <section class="max-w-6xl mx-auto px-6 mb-8 flex flex-col sm:flex-row sm:items-center sm:justify-between space-y-4 sm:space-y-0">
-    <div class="flex items-center space-x-2">
-      <input id="searchInput" type="text" placeholder="Rechercher une commande..." class="border border-slate-300 dark:border-slate-600 rounded-md px-3 py-2 w-64 focus:ring-2 focus:ring-blue-500 focus:outline-none">
-      <select id="filterStatus" class="border border-slate-300 dark:border-slate-600 rounded-md px-3 py-2 focus:ring-2 focus:ring-blue-500 focus:outline-none">
-        <option value="Tous">Tous les statuts</option>
-        <option value="En préparation">En préparation</option>
-        <option value="En cours">En cours</option>
-        <option value="Livrée">Livrée</option>
-        <option value="Annulée">Annulée</option>
-      </select>
-    </div>
-    <button id="refresh" class="flex items-center bg-brand-600 text-white px-4 py-2 rounded-md hover:bg-blue-700 transition">
-      <i data-feather="refresh-cw" class="h-5 w-5 mr-2"></i> Rafraîchir
-    </button>
-  </section>
+  <main class="max-w-6xl mx-auto px-6 pb-16 space-y-8">
 
-  <!-- Liste des commandes -->
-  <section class="max-w-6xl mx-auto px-6 pb-16">
-    <div id="ordersList" class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8">
-      <p class="col-span-full text-center text-slate-500 dark:text-slate-400">Chargement des commandes...</p>
-    </div>
-  </section>
+    <!-- ============================================================ -->
+    <!-- SECTION UPLOAD ORDONNANCE — NOUVELLE FONCTIONNALITÉ          -->
+    <!-- ============================================================ -->
+    <div class="bg-white dark:bg-slate-800 rounded-2xl shadow-sm border border-slate-100 dark:border-slate-700 overflow-hidden">
+      <div class="p-6 border-b border-slate-100 dark:border-slate-700 flex items-center justify-between flex-wrap gap-3">
+        <div class="flex items-center gap-3">
+          <div class="p-2 bg-violet-100 dark:bg-violet-900/30 rounded-xl">
+            <i data-feather="camera" class="h-5 w-5 text-violet-600 dark:text-violet-400"></i>
+          </div>
+          <div>
+            <h2 class="text-lg font-bold text-slate-900 dark:text-white">Joindre une ordonnance</h2>
+            <p class="text-xs text-slate-400 dark:text-slate-500">Photo ou scan — le pharmacien la recevra avant d'expédier</p>
+          </div>
+        </div>
+        <span class="px-2.5 py-1 bg-violet-100 text-violet-700 dark:bg-violet-900/40 dark:text-violet-300 rounded-full text-xs font-semibold">Nouveau</span>
+      </div>
 
-  <!-- Modal détails commande -->
-  <div id="modal" class="hidden fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50">
-    <div class="bg-white rounded-lg p-6 max-w-lg w-full shadow-lg">
-      <h3 id="modalTitle" class="text-xl font-semibold text-slate-900 dark:text-white mb-4"></h3>
-      <div id="modalContent" class="text-gray-700 space-y-2"></div>
-      <button id="closeModal" class="mt-6 bg-brand-600 text-white px-4 py-2 rounded-md hover:bg-blue-700 transition w-full">Fermer</button>
+      <div class="p-6">
+        <!-- Sélecteur de commande -->
+        <div class="mb-5">
+          <label class="block text-xs font-bold text-slate-500 dark:text-slate-400 uppercase tracking-wide mb-2">Associer à une commande</label>
+          <select id="ordoCommande" class="w-full bg-slate-50 dark:bg-slate-900/50 border border-slate-200 dark:border-slate-700 rounded-xl px-4 py-2.5 focus:ring-2 focus:ring-violet-500 outline-none text-sm dark:text-white transition cursor-pointer">
+            <option value="">— Sélectionner une commande —</option>
+            <option value="CMD-2025-0010">CMD-2025-0010 · Ibuprofène 400mg · En préparation</option>
+            <option value="CMD-2025-0012">CMD-2025-0012 · Paracétamol + Doliprane · En cours</option>
+          </select>
+        </div>
+
+        <!-- Zone drag & drop -->
+        <div id="dropZone"
+          class="relative border-2 border-dashed border-slate-200 dark:border-slate-600 rounded-2xl p-8 text-center cursor-pointer hover:border-brand-400 dark:hover:border-green-500 transition"
+          onclick="document.getElementById('ordoInput').click()"
+          ondragover="handleDragOver(event)"
+          ondragleave="handleDragLeave(event)"
+          ondrop="handleDrop(event)">
+          <input type="file" id="ordoInput" accept="image/*,.pdf" class="hidden" onchange="handleFileSelect(event)">
+          <div id="dropContent">
+            <div class="mx-auto mb-4 h-14 w-14 bg-slate-100 dark:bg-slate-700 rounded-2xl flex items-center justify-center">
+              <i data-feather="upload-cloud" class="h-7 w-7 text-slate-400 dark:text-slate-500"></i>
+            </div>
+            <p class="text-sm font-semibold text-slate-700 dark:text-slate-200 mb-1">Glissez votre ordonnance ici</p>
+            <p class="text-xs text-slate-400 dark:text-slate-500 mb-3">ou cliquez pour choisir un fichier</p>
+            <div class="flex items-center justify-center gap-3 flex-wrap">
+              <span class="text-xs px-2.5 py-1 bg-slate-100 dark:bg-slate-700 text-slate-500 dark:text-slate-400 rounded-full">JPG</span>
+              <span class="text-xs px-2.5 py-1 bg-slate-100 dark:bg-slate-700 text-slate-500 dark:text-slate-400 rounded-full">PNG</span>
+              <span class="text-xs px-2.5 py-1 bg-slate-100 dark:bg-slate-700 text-slate-500 dark:text-slate-400 rounded-full">PDF</span>
+              <span class="text-xs text-slate-400">· Max 5 Mo</span>
+            </div>
+          </div>
+        </div>
+
+        <!-- Prévisualisation -->
+        <div id="previewContainer" class="mt-4">
+          <div class="flex items-start gap-4 p-4 bg-slate-50 dark:bg-slate-900/50 rounded-xl border border-slate-100 dark:border-slate-700">
+            <div class="relative shrink-0">
+              <img id="previewImg" src="" alt="Ordonnance" class="h-24 w-24 object-cover rounded-xl border border-slate-200 dark:border-slate-600 shadow-sm hidden">
+              <div id="previewPdf" class="h-24 w-24 bg-red-50 dark:bg-red-900/20 rounded-xl border border-red-200 dark:border-red-800 flex flex-col items-center justify-center gap-1 hidden">
+                <i data-feather="file-text" class="h-8 w-8 text-red-500"></i>
+                <span class="text-[10px] font-bold text-red-500">PDF</span>
+              </div>
+            </div>
+            <div class="flex-1 min-w-0">
+              <p class="font-semibold text-sm text-slate-800 dark:text-slate-200 truncate" id="previewName"></p>
+              <p class="text-xs text-slate-400 dark:text-slate-500 mt-0.5" id="previewSize"></p>
+              <div class="flex items-center gap-1.5 mt-2">
+                <span class="h-2 w-2 rounded-full bg-green-500 inline-block"></span>
+                <span class="text-xs text-green-600 dark:text-green-400 font-medium">Fichier prêt à envoyer</span>
+              </div>
+            </div>
+            <button onclick="resetUpload()" class="p-1.5 hover:bg-slate-200 dark:hover:bg-slate-700 rounded-lg transition shrink-0">
+              <i data-feather="x" class="h-4 w-4 text-slate-400"></i>
+            </button>
+          </div>
+        </div>
+
+        <!-- Note optionnelle -->
+        <div class="mt-4">
+          <label class="block text-xs font-bold text-slate-500 dark:text-slate-400 uppercase tracking-wide mb-2">Note pour le pharmacien (optionnel)</label>
+          <textarea id="ordoNote" rows="2" placeholder="Ex: Traitement à renouveler, médecin Dr. Kossou..." class="w-full bg-slate-50 dark:bg-slate-900/50 border border-slate-200 dark:border-slate-700 rounded-xl px-4 py-3 text-sm focus:ring-2 focus:ring-violet-500 outline-none dark:text-white transition resize-none"></textarea>
+        </div>
+
+        <!-- Bouton envoi -->
+        <div class="mt-5 flex flex-col sm:flex-row gap-3">
+          <button id="sendOrdoBtn" onclick="envoyerOrdonnance()"
+            class="flex items-center justify-center gap-2 bg-violet-600 hover:bg-violet-700 active:scale-95 text-white px-6 py-3 rounded-xl font-bold transition shadow-md shadow-violet-500/20 text-sm flex-1 sm:flex-none">
+            <i data-feather="send" class="h-4 w-4"></i>
+            <span id="sendOrdoBtnText">Envoyer l'ordonnance</span>
+          </button>
+          <button onclick="resetUpload()" class="text-sm text-slate-400 hover:text-slate-600 dark:hover:text-slate-300 transition px-4 py-3">
+            Effacer
+          </button>
+        </div>
+
+        <!-- Historique ordonnances envoyées -->
+        <div id="ordoHistorique" class="mt-6 hidden">
+          <p class="text-xs font-bold text-slate-400 dark:text-slate-500 uppercase tracking-wide mb-3">Ordonnances envoyées récemment</p>
+          <div id="ordoHistoriqueList" class="space-y-2"></div>
+        </div>
+
+        <!-- Feedback succès -->
+        <div id="ordoSucces" class="hidden mt-4 p-4 bg-green-50 dark:bg-green-900/20 border border-green-200 dark:border-green-800 rounded-xl flex items-center gap-3">
+          <i data-feather="check-circle" class="h-5 w-5 text-green-600 dark:text-green-400 shrink-0"></i>
+          <div>
+            <p class="text-sm font-semibold text-green-700 dark:text-green-300">Ordonnance envoyée avec succès !</p>
+            <p class="text-xs text-green-600 dark:text-green-400 mt-0.5">Le pharmacien l'a reçue et va la vérifier avant de préparer votre commande.</p>
+          </div>
+        </div>
+      </div>
+    </div>
+    <!-- ============================================================ -->
+    <!-- FIN SECTION UPLOAD ORDONNANCE                                -->
+    <!-- ============================================================ -->
+
+    <!-- Filtres -->
+    <div class="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4">
+      <div class="flex items-center gap-3">
+        <div class="relative">
+          <i data-feather="search" class="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-slate-400 pointer-events-none"></i>
+          <input id="searchInput" type="text" placeholder="Rechercher une commande..." class="pl-9 pr-4 py-2.5 border border-slate-200 dark:border-slate-600 rounded-xl w-56 focus:ring-2 focus:ring-brand-500 focus:outline-none text-sm bg-white dark:bg-slate-800 dark:text-white transition">
+        </div>
+        <select id="filterStatus" class="border border-slate-200 dark:border-slate-600 rounded-xl px-3 py-2.5 focus:ring-2 focus:ring-brand-500 focus:outline-none text-sm bg-white dark:bg-slate-800 dark:text-white transition cursor-pointer">
+          <option value="Tous">Tous les statuts</option>
+          <option value="En préparation">En préparation</option>
+          <option value="En cours">En cours</option>
+          <option value="Livrée">Livrée</option>
+          <option value="Annulée">Annulée</option>
+        </select>
+      </div>
+      <button id="refresh" class="flex items-center gap-2 bg-brand-600 text-white px-4 py-2.5 rounded-xl hover:bg-brand-700 transition text-sm font-semibold">
+        <i data-feather="refresh-cw" class="h-4 w-4"></i> Rafraîchir
+      </button>
+    </div>
+
+    <!-- Liste des commandes -->
+    <div id="ordersList" class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+      <p class="col-span-full text-center text-slate-500 dark:text-slate-400">Chargement...</p>
+    </div>
+  </main>
+
+  <!-- Modal détails -->
+  <div id="modal" class="fixed inset-0 z-50 hidden items-center justify-center p-4">
+    <div class="absolute inset-0 bg-slate-900/60 backdrop-blur-sm" onclick="document.getElementById('modal').classList.add('hidden');document.getElementById('modal').classList.remove('flex');"></div>
+    <div class="relative bg-white dark:bg-slate-800 rounded-2xl shadow-xl w-full max-w-lg overflow-hidden">
+      <div class="p-6 border-b border-slate-100 dark:border-slate-700 flex items-center justify-between">
+        <h3 id="modalTitle" class="text-xl font-bold text-slate-900 dark:text-white"></h3>
+        <button onclick="document.getElementById('modal').classList.add('hidden');document.getElementById('modal').classList.remove('flex');" class="p-2 hover:bg-slate-100 dark:hover:bg-slate-700 rounded-full transition">
+          <i data-feather="x" class="h-5 w-5 text-slate-500"></i>
+        </button>
+      </div>
+      <div id="modalContent" class="p-6 space-y-3 text-sm text-slate-700 dark:text-slate-300"></div>
+      <div class="p-4 border-t border-slate-100 dark:border-slate-700 flex justify-end">
+        <button onclick="document.getElementById('modal').classList.add('hidden');document.getElementById('modal').classList.remove('flex');" class="bg-brand-600 text-white px-5 py-2.5 rounded-xl hover:bg-brand-700 transition font-semibold text-sm">Fermer</button>
+      </div>
     </div>
   </div>
 
-  <!-- Footer -->
   <footer class="bg-gray-800 py-8">
-    <div class="max-w-7xl mx-auto text-center text-gray-400">
-      <p>&copy; 2025 PharmaLink Pro. Tous droits réservés.</p>
-    </div>
+    <div class="max-w-7xl mx-auto text-center text-gray-400"><p>&copy; 2025 PharmaLink Pro.</p></div>
   </footer>
 
-  <!-- Scripts -->
   <script>
     feather.replace();
 
+    // ---- DARK MODE ----
+    const themeToggle = document.getElementById('themeToggle');
+    const themeIcon   = document.getElementById('themeIcon');
+    const htmlClass   = document.documentElement.classList;
+    if (localStorage.getItem('theme') === 'dark' || (!('theme' in localStorage) && window.matchMedia('(prefers-color-scheme: dark)').matches)) {
+      htmlClass.add('dark'); themeIcon.setAttribute('data-feather', 'sun');
+    }
+    themeToggle.addEventListener('click', () => {
+      htmlClass.toggle('dark');
+      const isDark = htmlClass.contains('dark');
+      localStorage.setItem('theme', isDark ? 'dark' : 'light');
+      themeIcon.setAttribute('data-feather', isDark ? 'sun' : 'moon');
+      feather.replace();
+    });
+
+    // ---- COMMANDES ----
     const commandes = [
-      { id: "CMD-2025-0012", produits: "Paracétamol 500mg, Doliprane 1000mg", date: "2025-11-01", montant: "7 500 F", statut: "En cours", pharmacie: "Pharmacie du Soleil", adresse: "Cotonou - Zogbo", livraison: "02/11/2025" },
-      { id: "CMD-2025-0009", produits: "Vitamine C 1000mg", date: "2025-10-29", montant: "3 200 F", statut: "Livrée", pharmacie: "Pharmacie Les Anges", adresse: "Cotonou - Cadjehoun", livraison: "30/10/2025" },
-      { id: "CMD-2025-0010", produits: "Ibuprofène 400mg", date: "2025-10-30", montant: "4 000 F", statut: "En préparation", pharmacie: "Pharmacie du Littoral", adresse: "Cotonou - Fidjrossè", livraison: "À venir" },
-      { id: "CMD-2025-0007", produits: "Panadol, Sirop Toplexil", date: "2025-10-27", montant: "5 500 F", statut: "Annulée", pharmacie: "Pharmacie Centrale", adresse: "Abomey-Calavi", livraison: "-" }
+      { id:'CMD-2025-0012', produits:'Paracétamol 500mg, Doliprane 1000mg', date:'2025-11-01', montant:'7 500 F', statut:'En cours',       pharmacie:'Pharmacie du Soleil',   adresse:'Cotonou - Zogbo',      livraison:'02/11/2025' },
+      { id:'CMD-2025-0009', produits:'Vitamine C 1000mg',                   date:'2025-10-29', montant:'3 200 F', statut:'Livrée',           pharmacie:'Pharmacie Les Anges',   adresse:'Cotonou - Cadjehoun',  livraison:'30/10/2025' },
+      { id:'CMD-2025-0010', produits:'Ibuprofène 400mg',                    date:'2025-10-30', montant:'4 000 F', statut:'En préparation',   pharmacie:'Pharmacie du Littoral', adresse:'Cotonou - Fidjrossè',  livraison:'À venir' },
+      { id:'CMD-2025-0007', produits:'Panadol, Sirop Toplexil',             date:'2025-10-27', montant:'5 500 F', statut:'Annulée',          pharmacie:'Pharmacie Centrale',    adresse:'Abomey-Calavi',        livraison:'-' },
     ];
 
-    const ordersList = document.getElementById("ordersList");
-    const modal = document.getElementById("modal");
-    const modalTitle = document.getElementById("modalTitle");
-    const modalContent = document.getElementById("modalContent");
-    const closeModal = document.getElementById("closeModal");
+    const statusColors = {
+      'En cours':       'bg-yellow-100 text-yellow-700 dark:bg-yellow-900/30 dark:text-yellow-400',
+      'Livrée':         'bg-green-100 text-green-700 dark:bg-green-900/30 dark:text-green-400',
+      'En préparation': 'bg-blue-100 text-blue-700 dark:bg-blue-900/30 dark:text-blue-400',
+      'Annulée':        'bg-red-100 text-red-700 dark:bg-red-900/30 dark:text-red-400',
+    };
 
     function renderOrders(list) {
-      ordersList.innerHTML = "";
+      const el = document.getElementById('ordersList');
+      el.innerHTML = '';
       if (list.length === 0) {
-        ordersList.innerHTML = `<p class="col-span-full text-center text-slate-500 dark:text-slate-400">Aucune commande trouvée.</p>`;
+        el.innerHTML = '<p class="col-span-full text-center text-slate-500 dark:text-slate-400 py-10">Aucune commande trouvée.</p>';
         return;
       }
-
       list.forEach(cmd => {
-        const card = document.createElement("div");
-        card.className = "bg-white dark:bg-slate-800 shadow-sm border border-slate-100 dark:border-slate-700 rounded-2xl p-6 hover:shadow-lg transition";
+        const hasordo = getOrdosForCmd(cmd.id).length > 0;
+        const card = document.createElement('div');
+        card.className = 'bg-white dark:bg-slate-800 shadow-sm border border-slate-100 dark:border-slate-700 rounded-2xl p-5 hover:shadow-md transition fade-in';
         card.innerHTML = `
-          <h3 class="text-lg font-semibold text-slate-900 dark:text-white mb-2">${cmd.id}</h3>
-          <p class="text-slate-600 dark:text-slate-300 mb-1"><strong>Produits :</strong> ${cmd.produits}</p>
-          <p class="text-slate-600 dark:text-slate-300 mb-1"><strong>Date :</strong> ${cmd.date}</p>
-          <p class="text-slate-600 dark:text-slate-300 mb-1"><strong>Montant :</strong> ${cmd.montant}</p>
-          <p class="text-slate-600 dark:text-slate-300 mb-4"><strong>Statut :</strong> ${cmd.statut}</p>
-          <button onclick="openModal('${cmd.id}')" class="bg-brand-600 text-white w-full px-4 py-2 rounded-md hover:bg-blue-700 transition">📦 Voir les détails</button>
+          <div class="flex items-center justify-between mb-3">
+            <h3 class="font-bold text-slate-900 dark:text-white text-sm">${cmd.id}</h3>
+            <span class="text-[10px] font-bold px-2.5 py-1 rounded-full ${statusColors[cmd.statut] || 'bg-slate-100 text-slate-600'}">${cmd.statut}</span>
+          </div>
+          <p class="text-xs text-slate-500 dark:text-slate-400 mb-1 truncate">📦 ${cmd.produits}</p>
+          <p class="text-xs text-slate-500 dark:text-slate-400 mb-1">🏥 ${cmd.pharmacie}</p>
+          <p class="text-xs text-slate-500 dark:text-slate-400 mb-3">📅 ${cmd.date} · 💰 ${cmd.montant}</p>
+          ${hasordo ? `<div class="flex items-center gap-1.5 mb-3 text-xs text-violet-600 dark:text-violet-400 font-medium"><i data-feather="paperclip" class="h-3 w-3"></i> Ordonnance jointe</div>` : ''}
+          <div class="flex gap-2">
+            <button onclick="openModal('${cmd.id}')" class="flex-1 flex items-center justify-center gap-1.5 bg-brand-600 text-white py-2 rounded-xl text-xs font-semibold hover:bg-brand-700 transition">
+              <i data-feather="eye" class="h-3.5 w-3.5"></i> Détails
+            </button>
+            ${cmd.statut === 'En préparation' ? `
+            <button onclick="document.getElementById('ordoCommande').value='${cmd.id}';document.getElementById('ordoSection').scrollIntoView({behavior:'smooth'})"
+              class="flex items-center justify-center gap-1 px-3 py-2 bg-violet-100 dark:bg-violet-900/30 text-violet-700 dark:text-violet-300 rounded-xl text-xs font-semibold hover:bg-violet-200 dark:hover:bg-violet-900/50 transition">
+              <i data-feather="camera" class="h-3.5 w-3.5"></i> Ordo
+            </button>` : ''}
+          </div>
         `;
-        ordersList.appendChild(card);
+        el.appendChild(card);
       });
       feather.replace();
     }
 
     function openModal(id) {
       const cmd = commandes.find(c => c.id === id);
-      modalTitle.textContent = `Détails de la commande ${cmd.id}`;
-      modalContent.innerHTML = `
-        <p><strong>Produits :</strong> ${cmd.produits}</p>
-        <p><strong>Pharmacie :</strong> ${cmd.pharmacie}</p>
-        <p><strong>Adresse :</strong> ${cmd.adresse}</p>
-        <p><strong>Date de commande :</strong> ${cmd.date}</p>
-        <p><strong>Date de livraison :</strong> ${cmd.livraison}</p>
-        <p><strong>Montant total :</strong> ${cmd.montant}</p>
-        <p><strong>Statut :</strong> ${cmd.statut}</p>
+      const ordos = getOrdosForCmd(id);
+      document.getElementById('modalTitle').textContent = `Commande ${cmd.id}`;
+      document.getElementById('modalContent').innerHTML = `
+        <div class="grid grid-cols-2 gap-3">
+          <div class="p-3 bg-slate-50 dark:bg-slate-900/50 rounded-xl">
+            <p class="text-xs text-slate-400 mb-0.5">Produits</p>
+            <p class="font-medium text-slate-800 dark:text-slate-200">${cmd.produits}</p>
+          </div>
+          <div class="p-3 bg-slate-50 dark:bg-slate-900/50 rounded-xl">
+            <p class="text-xs text-slate-400 mb-0.5">Statut</p>
+            <span class="text-xs font-bold px-2 py-1 rounded-full ${statusColors[cmd.statut] || ''}">${cmd.statut}</span>
+          </div>
+          <div class="p-3 bg-slate-50 dark:bg-slate-900/50 rounded-xl">
+            <p class="text-xs text-slate-400 mb-0.5">Pharmacie</p>
+            <p class="font-medium text-slate-800 dark:text-slate-200">${cmd.pharmacie}</p>
+          </div>
+          <div class="p-3 bg-slate-50 dark:bg-slate-900/50 rounded-xl">
+            <p class="text-xs text-slate-400 mb-0.5">Montant</p>
+            <p class="font-bold text-brand-600 dark:text-green-400">${cmd.montant}</p>
+          </div>
+          <div class="p-3 bg-slate-50 dark:bg-slate-900/50 rounded-xl">
+            <p class="text-xs text-slate-400 mb-0.5">Date commande</p>
+            <p class="font-medium text-slate-800 dark:text-slate-200">${cmd.date}</p>
+          </div>
+          <div class="p-3 bg-slate-50 dark:bg-slate-900/50 rounded-xl">
+            <p class="text-xs text-slate-400 mb-0.5">Livraison prévue</p>
+            <p class="font-medium text-slate-800 dark:text-slate-200">${cmd.livraison}</p>
+          </div>
+        </div>
+        ${ordos.length > 0 ? `
+        <div class="mt-3 p-3 bg-violet-50 dark:bg-violet-900/20 rounded-xl border border-violet-100 dark:border-violet-800">
+          <p class="text-xs font-bold text-violet-700 dark:text-violet-300 mb-2 flex items-center gap-1"><i data-feather="paperclip" class="h-3 w-3"></i> Ordonnance(s) jointe(s)</p>
+          ${ordos.map(o => `<p class="text-xs text-violet-600 dark:text-violet-400">📎 ${o.nom} — <span class="text-violet-400">${o.note || 'Aucune note'}</span></p>`).join('')}
+        </div>` : ''}
       `;
-      modal.classList.remove("hidden");
+      document.getElementById('modal').classList.remove('hidden');
+      document.getElementById('modal').classList.add('flex');
+      feather.replace();
     }
 
-    closeModal.addEventListener("click", () => modal.classList.add("hidden"));
-    window.addEventListener("click", (e) => { if (e.target === modal) modal.classList.add("hidden"); });
-
-    // Filtres
-    document.getElementById("filterStatus").addEventListener("change", filterOrders);
-    document.getElementById("searchInput").addEventListener("input", filterOrders);
-    document.getElementById("refresh").addEventListener("click", () => renderOrders(commandes));
-
     function filterOrders() {
-      const search = document.getElementById("searchInput").value.toLowerCase();
-      const status = document.getElementById("filterStatus").value;
+      const search = document.getElementById('searchInput').value.toLowerCase();
+      const status = document.getElementById('filterStatus').value;
       const filtered = commandes.filter(c =>
-        (status === "Tous" || c.statut === status) &&
+        (status === 'Tous' || c.statut === status) &&
         (c.produits.toLowerCase().includes(search) || c.id.toLowerCase().includes(search))
       );
       renderOrders(filtered);
     }
 
     function updateStats() {
-      document.getElementById("totalCmd").textContent = commandes.length;
-      document.getElementById("cmdCours").textContent = commandes.filter(c => c.statut === "En cours" || c.statut === "En préparation").length;
-      document.getElementById("cmdLivre").textContent = commandes.filter(c => c.statut === "Livrée").length;
-      document.getElementById("cmdAnnule").textContent = commandes.filter(c => c.statut === "Annulée").length;
+      document.getElementById('totalCmd').textContent   = commandes.length;
+      document.getElementById('cmdCours').textContent   = commandes.filter(c => c.statut === 'En cours' || c.statut === 'En préparation').length;
+      document.getElementById('cmdLivre').textContent   = commandes.filter(c => c.statut === 'Livrée').length;
+      document.getElementById('cmdAnnule').textContent  = commandes.filter(c => c.statut === 'Annulée').length;
     }
 
-    // Initialisation
+    document.getElementById('filterStatus').addEventListener('change', filterOrders);
+    document.getElementById('searchInput').addEventListener('input', filterOrders);
+    document.getElementById('refresh').addEventListener('click', () => renderOrders(commandes));
     renderOrders(commandes);
     updateStats();
+
+    // ================================================================
+    // LOGIQUE UPLOAD ORDONNANCE
+    // ================================================================
+    let selectedFile = null;
+    let fileBase64   = null;
+
+    // Storage local pour les ordonnances (simule le backend)
+    function getOrdos() {
+      try { return JSON.parse(localStorage.getItem('pharmalink_ordos') || '[]'); } catch { return []; }
+    }
+    function saveOrdos(ordos) {
+      localStorage.setItem('pharmalink_ordos', JSON.stringify(ordos));
+    }
+    function getOrdosForCmd(cmdId) {
+      return getOrdos().filter(o => o.cmdId === cmdId);
+    }
+
+    function handleDragOver(e) {
+      e.preventDefault();
+      document.getElementById('dropZone').classList.add('drag-over');
+    }
+    function handleDragLeave(e) {
+      document.getElementById('dropZone').classList.remove('drag-over');
+    }
+    function handleDrop(e) {
+      e.preventDefault();
+      document.getElementById('dropZone').classList.remove('drag-over');
+      const file = e.dataTransfer.files[0];
+      if (file) processFile(file);
+    }
+    function handleFileSelect(e) {
+      const file = e.target.files[0];
+      if (file) processFile(file);
+    }
+
+    function processFile(file) {
+      // Validation
+      const maxSize = 5 * 1024 * 1024;
+      if (file.size > maxSize) {
+        alert('Fichier trop volumineux. Maximum : 5 Mo.');
+        return;
+      }
+      const allowed = ['image/jpeg', 'image/png', 'image/gif', 'image/webp', 'application/pdf'];
+      if (!allowed.includes(file.type)) {
+        alert('Format non supporté. Utilisez JPG, PNG ou PDF.');
+        return;
+      }
+
+      selectedFile = file;
+
+      // Prévisualisation
+      const reader = new FileReader();
+      reader.onload = (e) => {
+        fileBase64 = e.target.result;
+        const preview = document.getElementById('previewContainer');
+        const img     = document.getElementById('previewImg');
+        const pdf     = document.getElementById('previewPdf');
+        const name    = document.getElementById('previewName');
+        const size    = document.getElementById('previewSize');
+
+        if (file.type === 'application/pdf') {
+          img.classList.add('hidden');
+          pdf.classList.remove('hidden');
+        } else {
+          img.src = fileBase64;
+          img.classList.remove('hidden');
+          pdf.classList.add('hidden');
+        }
+
+        name.textContent = file.name;
+        size.textContent = `${(file.size / 1024).toFixed(1)} Ko`;
+        preview.classList.add('visible');
+        feather.replace();
+      };
+      reader.readAsDataURL(file);
+    }
+
+    function resetUpload() {
+      selectedFile = null;
+      fileBase64   = null;
+      document.getElementById('ordoInput').value = '';
+      document.getElementById('previewContainer').classList.remove('visible');
+      document.getElementById('ordoSucces').classList.add('hidden');
+    }
+
+    function envoyerOrdonnance() {
+      const cmdId = document.getElementById('ordoCommande').value;
+      const note  = document.getElementById('ordoNote').value.trim();
+
+      if (!cmdId) {
+        alert('Veuillez sélectionner une commande.');
+        document.getElementById('ordoCommande').focus();
+        return;
+      }
+      if (!fileBase64) {
+        alert('Veuillez joindre une photo ou un scan de votre ordonnance.');
+        return;
+      }
+
+      // UI chargement
+      const btn  = document.getElementById('sendOrdoBtn');
+      const text = document.getElementById('sendOrdoBtnText');
+      btn.disabled = true;
+      btn.classList.add('opacity-70', 'cursor-not-allowed');
+      text.textContent = 'Envoi en cours…';
+
+      // Simuler envoi (en production : POST /api/ordonnances)
+      setTimeout(() => {
+        const ordos = getOrdos();
+        ordos.push({
+          id:        Date.now(),
+          cmdId,
+          nom:       selectedFile.name,
+          type:      selectedFile.type,
+          taille:    selectedFile.size,
+          base64:    fileBase64,
+          note,
+          date:      new Date().toISOString(),
+          statut:    'En attente de validation',
+          validee:   false
+        });
+        saveOrdos(ordos);
+
+        // Afficher succès
+        document.getElementById('ordoSucces').classList.remove('hidden');
+        btn.disabled = false;
+        btn.classList.remove('opacity-70', 'cursor-not-allowed');
+        text.textContent = 'Envoyer l\'ordonnance';
+        resetUpload();
+        afficherHistorique();
+        renderOrders(commandes); // Rafraîchir les cartes pour afficher le badge "Ordonnance jointe"
+        feather.replace();
+      }, 1000);
+    }
+
+    function afficherHistorique() {
+      const ordos   = getOrdos();
+      const histEl  = document.getElementById('ordoHistorique');
+      const listEl  = document.getElementById('ordoHistoriqueList');
+
+      if (ordos.length === 0) { histEl.classList.add('hidden'); return; }
+      histEl.classList.remove('hidden');
+
+      listEl.innerHTML = '';
+      [...ordos].reverse().slice(0, 5).forEach(o => {
+        const div = document.createElement('div');
+        div.className = 'flex items-center justify-between p-3 bg-slate-50 dark:bg-slate-900/50 rounded-xl border border-slate-100 dark:border-slate-700 text-xs';
+        div.innerHTML = `
+          <div class="flex items-center gap-2">
+            <i data-feather="${o.type === 'application/pdf' ? 'file-text' : 'image'}" class="h-4 w-4 text-slate-400 shrink-0"></i>
+            <div>
+              <p class="font-medium text-slate-700 dark:text-slate-300 truncate max-w-[180px]">${o.nom}</p>
+              <p class="text-slate-400">${o.cmdId} · ${new Date(o.date).toLocaleDateString('fr-FR')}</p>
+            </div>
+          </div>
+          <span class="px-2 py-1 rounded-full font-semibold ${o.validee ? 'bg-green-100 text-green-700 dark:bg-green-900/30 dark:text-green-400' : 'bg-yellow-100 text-yellow-700 dark:bg-yellow-900/30 dark:text-yellow-400'}">
+            ${o.validee ? '✓ Validée' : 'En attente'}
+          </span>
+        `;
+        listEl.appendChild(div);
+      });
+      feather.replace();
+    }
+
+    // Afficher l'historique au chargement
+    afficherHistorique();
   </script>
 </body>
 </html>

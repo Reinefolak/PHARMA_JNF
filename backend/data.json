@@ -14,7 +14,7 @@
       "prenom": "Mitsuri",
       "nom": "faw",
       "email": "mitsurifaw@gmail.com",
-      "password": "ef797c8118f02dfb649607dd5d3f8c7623048c9c063d532cc95c5ed7a898a64f",
+      "password": "e24df920078c3dd4e7e8d2442f00e5c9ab2a231bb3918d65cc50906e49ecaef4",
       "role": "livreur",
       "createdAt": "2026-06-15T15:57:41.418Z"
     },
@@ -26,6 +26,15 @@
       "password": "ef797c8118f02dfb649607dd5d3f8c7623048c9c063d532cc95c5ed7a898a64f",
       "role": "proprietaire",
       "createdAt": "2026-06-15T15:59:19.619Z"
+    },
+    {
+      "id": 1782127161611,
+      "prenom": "jean",
+      "nom": "Dupont",
+      "email": "faw.vidjannagni@epitech.eu",
+      "password": "f14f286ca435d1fa3b9d8041e8f06aa0af7ab28ea8edcd7e11fd485a100b632b",
+      "role": "patient",
+      "createdAt": "2026-06-22T11:19:21.611Z"
     }
   ],
   "clients": [],

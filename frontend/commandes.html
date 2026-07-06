@@ -9,29 +9,22 @@
   <script>
     tailwind.config = {
       darkMode: 'class',
-      theme: {
-        extend: {
-          colors: {
-            brand: {
-              50: '#f0fdf4', 100: '#dcfce7', 200: '#bbf7d0', 300: '#86efac', 400: '#4ade80',
-              500: '#22c55e', 600: '#16a34a', 700: '#15803d', 800: '#166534', 900: '#14532d',
-            }
-          }
-        }
-      }
+      theme: { extend: { colors: { brand: { 50:'#f0fdf4',100:'#dcfce7',200:'#bbf7d0',300:'#86efac',400:'#4ade80',500:'#22c55e',600:'#16a34a',700:'#15803d',800:'#166534',900:'#14532d' } } } }
     }
   </script>
   <style>
     @import url('https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap');
     body { font-family: 'Inter', sans-serif; transition: background-color 0.3s, color 0.3s; }
-    
-    ::-webkit-scrollbar { width: 6px; }
-    ::-webkit-scrollbar-track { background: transparent; }
+    ::-webkit-scrollbar { width: 6px; } ::-webkit-scrollbar-track { background: transparent; }
     ::-webkit-scrollbar-thumb { background: #cbd5e1; border-radius: 10px; }
     .dark ::-webkit-scrollbar-thumb { background: #475569; }
-
-    .glass { background: rgba(255, 255, 255, 0.8); backdrop-filter: blur(12px); border-bottom: 1px solid rgba(255, 255, 255, 0.3); }
-    .dark .glass { background: rgba(30, 41, 59, 0.8); border-bottom: 1px solid rgba(255, 255, 255, 0.1); }
+    .glass { background: rgba(255,255,255,0.8); backdrop-filter: blur(12px); border-bottom: 1px solid rgba(255,255,255,0.3); }
+    .dark .glass { background: rgba(30,41,59,0.8); border-bottom: 1px solid rgba(255,255,255,0.1); }
+    @keyframes fadeIn { from { opacity:0; transform:translateY(4px); } to { opacity:1; transform:translateY(0); } }
+    .fade-in { animation: fadeIn 0.2s ease forwards; }
+    /* Badge ordonnance en attente — pulse */
+    .ordo-badge-pulse { animation: pulse 2s infinite; }
+    @keyframes pulse { 0%,100%{opacity:1} 50%{opacity:0.6} }
   </style>
 </head>
 <body class="bg-slate-50 text-slate-800 dark:bg-slate-900 dark:text-slate-200">
@@ -41,23 +34,19 @@
     <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
       <div class="flex justify-between h-16">
         <div class="flex items-center gap-3">
-          <div class="bg-brand-600 p-2 rounded-lg">
-            <i data-feather="activity" class="h-6 w-6 text-white"></i>
-          </div>
+          <div class="bg-brand-600 p-2 rounded-lg"><i data-feather="activity" class="h-6 w-6 text-white"></i></div>
           <span class="text-xl font-bold bg-clip-text text-transparent bg-gradient-to-r from-brand-600 to-green-400 dark:from-green-400 dark:to-brand-200 hidden sm:block">PharmaLink Pro</span>
         </div>
         <div class="flex items-center gap-3 sm:gap-4">
           <div class="hidden md:flex items-center space-x-6 mr-4">
             <a href="proprietaire.html" class="text-slate-600 dark:text-slate-300 hover:text-brand-600 dark:hover:text-green-400 transition">Tableau de bord</a>
             <a href="stock.html" class="text-slate-600 dark:text-slate-300 hover:text-brand-600 dark:hover:text-green-400 transition">Stock</a>
-            <a href="commandes.html" class="text-brand-600 dark:text-green-400 font-medium transition">Commandes</a>
+            <a href="commandes.html" class="text-brand-600 dark:text-green-400 font-medium">Commandes</a>
             <a href="vente.html" class="text-slate-600 dark:text-slate-300 hover:text-brand-600 dark:hover:text-green-400 transition">Ventes</a>
           </div>
-
           <button id="themeToggle" class="p-2 rounded-full hover:bg-slate-200 dark:hover:bg-slate-800 transition text-slate-600 dark:text-slate-300 focus:outline-none">
             <i data-feather="moon" id="themeIcon" class="h-5 w-5"></i>
           </button>
-
           <a href="login.html" class="hidden sm:flex items-center gap-2 px-4 py-2 bg-slate-900 text-white dark:bg-white dark:text-slate-900 rounded-full font-semibold hover:opacity-90 transition text-sm">
             <i data-feather="log-out" class="h-4 w-4"></i> Déconnexion
           </a>
@@ -68,24 +57,53 @@
 
   <!-- Header -->
   <header class="relative py-12 bg-gradient-to-br from-brand-600 to-green-500 dark:from-brand-800 dark:to-green-900 text-white overflow-hidden">
-    <div class="absolute top-0 right-0 -mt-10 -mr-10 opacity-10 pointer-events-none">
-      <i data-feather="shopping-cart" class="w-64 h-64"></i>
-    </div>
-    <div class="max-w-7xl mx-auto px-6 relative z-10">
-      <h1 class="text-3xl sm:text-4xl font-bold mb-2">Gestion des Commandes</h1>
-      <p class="text-green-50 text-lg">Consultez, préparez et assignez un livreur pour chaque commande client.</p>
+    <div class="absolute top-0 right-0 -mt-10 -mr-10 opacity-10 pointer-events-none"><i data-feather="shopping-cart" class="w-64 h-64"></i></div>
+    <div class="max-w-7xl mx-auto px-6 relative z-10 flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4">
+      <div>
+        <h1 class="text-3xl sm:text-4xl font-bold mb-1">Gestion des Commandes</h1>
+        <p class="text-green-50 text-lg">Consultez, préparez et validez les ordonnances avant expédition.</p>
+      </div>
+      <!-- Badge ordonnances en attente -->
+      <div id="ordoBadgeHeader" class="hidden bg-white/20 border border-white/30 backdrop-blur-sm rounded-2xl px-4 py-3 text-center">
+        <p class="text-xs text-white/80 mb-1">Ordonnances à valider</p>
+        <p id="ordoBadgeCount" class="text-3xl font-bold text-white">0</p>
+      </div>
     </div>
   </header>
 
-  <!-- Main Content -->
   <main class="max-w-7xl mx-auto py-8 px-4 sm:px-6 lg:px-8 space-y-6">
 
+    <!-- ============================================================ -->
+    <!-- SECTION ORDONNANCES À VALIDER — NOUVELLE FONCTIONNALITÉ      -->
+    <!-- ============================================================ -->
+    <div id="ordoSection" class="hidden bg-white dark:bg-slate-800 rounded-2xl shadow-sm border border-violet-200 dark:border-violet-800 overflow-hidden">
+      <div class="p-5 border-b border-violet-100 dark:border-violet-800 flex items-center justify-between flex-wrap gap-3 bg-violet-50 dark:bg-violet-900/20">
+        <div class="flex items-center gap-3">
+          <div class="p-2 bg-violet-100 dark:bg-violet-900/40 rounded-xl">
+            <i data-feather="file-text" class="h-5 w-5 text-violet-600 dark:text-violet-400"></i>
+          </div>
+          <div>
+            <h2 class="font-bold text-violet-900 dark:text-violet-200 flex items-center gap-2">
+              Ordonnances reçues
+              <span id="ordoWaitingCount" class="px-2 py-0.5 bg-violet-600 text-white text-xs rounded-full font-bold ordo-badge-pulse">0</span>
+            </h2>
+            <p class="text-xs text-violet-600 dark:text-violet-400">À valider avant d'expédier les commandes</p>
+          </div>
+        </div>
+        <button onclick="document.getElementById('ordoSection').classList.toggle('hidden')" class="text-xs text-violet-500 hover:text-violet-700 transition">Masquer</button>
+      </div>
+      <div id="ordoList" class="divide-y divide-slate-100 dark:divide-slate-700"></div>
+    </div>
+    <!-- ============================================================ -->
+    <!-- FIN SECTION ORDONNANCES                                       -->
+    <!-- ============================================================ -->
+
     <!-- Controls -->
-    <div class="bg-white dark:bg-slate-800 shadow-sm border border-slate-100 dark:border-slate-700 rounded-2xl p-6">
+    <div class="bg-white dark:bg-slate-800 shadow-sm border border-slate-100 dark:border-slate-700 rounded-2xl p-5">
       <div class="flex flex-col lg:flex-row lg:items-center justify-between gap-4">
         <div class="flex-1 flex flex-col sm:flex-row gap-3">
           <div class="relative flex-1 max-w-sm">
-            <i data-feather="search" class="absolute left-4 top-1/2 -translate-y-1/2 h-5 w-5 text-slate-400"></i>
+            <i data-feather="search" class="absolute left-4 top-1/2 -translate-y-1/2 h-5 w-5 text-slate-400 pointer-events-none"></i>
             <input id="searchOrders" type="text" placeholder="Rechercher (client, produit...)" class="w-full pl-12 pr-4 py-2.5 bg-slate-50 dark:bg-slate-900/50 border border-slate-200 dark:border-slate-700 rounded-xl focus:ring-2 focus:ring-brand-500 outline-none text-sm dark:text-white transition">
           </div>
           <select id="statusFilter" class="px-4 py-2.5 bg-slate-50 dark:bg-slate-900/50 border border-slate-200 dark:border-slate-700 rounded-xl focus:ring-2 focus:ring-brand-500 outline-none text-sm dark:text-white transition cursor-pointer max-w-[200px]">
@@ -97,19 +115,18 @@
             <option value="Annulée">Annulée</option>
           </select>
         </div>
-
         <div class="flex gap-3 items-center">
           <button id="refreshBtn" class="flex items-center gap-2 bg-slate-100 hover:bg-slate-200 dark:bg-slate-700 dark:hover:bg-slate-600 text-slate-700 dark:text-slate-200 px-4 py-2.5 rounded-xl font-medium transition text-sm">
             <i data-feather="refresh-cw" class="h-4 w-4"></i> <span class="hidden sm:inline">Actualiser</span>
           </button>
-          <button id="newOrderBtn" class="flex items-center gap-2 bg-brand-600 hover:bg-brand-700 text-white px-5 py-2.5 rounded-xl font-semibold shadow-md shadow-brand-500/30 transition transform hover:-translate-y-0.5 text-sm">
+          <button id="newOrderBtn" class="flex items-center gap-2 bg-brand-600 hover:bg-brand-700 text-white px-5 py-2.5 rounded-xl font-semibold shadow-md shadow-brand-500/30 transition text-sm">
             <i data-feather="plus" class="h-4 w-4"></i> Nouvelle commande
           </button>
         </div>
       </div>
     </div>
 
-    <!-- Orders list -->
+    <!-- Table commandes -->
     <div class="bg-white dark:bg-slate-800 shadow-sm border border-slate-100 dark:border-slate-700 rounded-2xl overflow-hidden">
       <div class="overflow-x-auto">
         <table class="min-w-full divide-y divide-slate-200 dark:divide-slate-700">
@@ -119,35 +136,95 @@
               <th class="px-6 py-4 text-left text-xs font-bold text-slate-500 dark:text-slate-400 uppercase tracking-wider">Client</th>
               <th class="px-6 py-4 text-left text-xs font-bold text-slate-500 dark:text-slate-400 uppercase tracking-wider">Produit / Qté</th>
               <th class="px-6 py-4 text-left text-xs font-bold text-slate-500 dark:text-slate-400 uppercase tracking-wider">Date</th>
-              <th class="px-6 py-4 text-left text-xs font-bold text-slate-500 dark:text-slate-400 uppercase tracking-wider">Statut & Livreur</th>
+              <th class="px-6 py-4 text-left text-xs font-bold text-slate-500 dark:text-slate-400 uppercase tracking-wider">Statut & Ordonnance</th>
               <th class="px-6 py-4 text-right text-xs font-bold text-slate-500 dark:text-slate-400 uppercase tracking-wider">Actions</th>
             </tr>
           </thead>
-          <tbody id="ordersTable" class="divide-y divide-slate-200 dark:divide-slate-700 bg-white dark:bg-slate-800">
-            <!-- inserted by JS -->
-          </tbody>
+          <tbody id="ordersTable" class="divide-y divide-slate-200 dark:divide-slate-700 bg-white dark:bg-slate-800"></tbody>
         </table>
       </div>
     </div>
   </main>
 
+  <!-- ===== MODAL VISUALISATION ORDONNANCE ===== -->
+  <div id="ordoViewModal" class="fixed inset-0 z-50 hidden items-center justify-center p-4">
+    <div class="absolute inset-0 bg-slate-900/70 backdrop-blur-sm" onclick="closeOrdoModal()"></div>
+    <div class="relative bg-white dark:bg-slate-800 rounded-2xl shadow-2xl w-full max-w-2xl overflow-hidden">
+      <div class="p-5 border-b border-slate-100 dark:border-slate-700 flex items-center justify-between">
+        <div>
+          <h3 class="text-lg font-bold text-slate-900 dark:text-white flex items-center gap-2">
+            <i data-feather="file-text" class="h-5 w-5 text-violet-600"></i> Ordonnance du patient
+          </h3>
+          <p id="ordoModalSubtitle" class="text-xs text-slate-400 dark:text-slate-500 mt-0.5"></p>
+        </div>
+        <button onclick="closeOrdoModal()" class="p-2 hover:bg-slate-100 dark:hover:bg-slate-700 rounded-full transition">
+          <i data-feather="x" class="h-5 w-5 text-slate-500"></i>
+        </button>
+      </div>
+
+      <!-- Image ou PDF -->
+      <div class="p-5">
+        <div id="ordoImgWrap" class="flex items-center justify-center bg-slate-50 dark:bg-slate-900/50 rounded-xl min-h-64 overflow-hidden border border-slate-200 dark:border-slate-700">
+          <img id="ordoModalImg" src="" alt="Ordonnance" class="max-w-full max-h-96 object-contain rounded-lg hidden">
+          <div id="ordoModalPdf" class="text-center py-12 hidden">
+            <i data-feather="file-text" class="h-16 w-16 text-red-400 mx-auto mb-3"></i>
+            <p class="font-semibold text-slate-700 dark:text-slate-200" id="ordoModalPdfName"></p>
+            <p class="text-xs text-slate-400 mt-1">Fichier PDF</p>
+          </div>
+        </div>
+
+        <!-- Infos -->
+        <div class="mt-4 grid grid-cols-2 gap-3 text-sm">
+          <div class="p-3 bg-slate-50 dark:bg-slate-900/50 rounded-xl">
+            <p class="text-xs text-slate-400 mb-0.5">Commande associée</p>
+            <p class="font-semibold text-slate-800 dark:text-slate-200" id="ordoModalCmd"></p>
+          </div>
+          <div class="p-3 bg-slate-50 dark:bg-slate-900/50 rounded-xl">
+            <p class="text-xs text-slate-400 mb-0.5">Date d'envoi</p>
+            <p class="font-semibold text-slate-800 dark:text-slate-200" id="ordoModalDate"></p>
+          </div>
+        </div>
+
+        <!-- Note patient -->
+        <div id="ordoModalNoteWrap" class="hidden mt-3 p-3 bg-violet-50 dark:bg-violet-900/20 rounded-xl border border-violet-100 dark:border-violet-800">
+          <p class="text-xs text-violet-500 dark:text-violet-400 font-semibold mb-1">Note du patient</p>
+          <p id="ordoModalNote" class="text-sm text-violet-800 dark:text-violet-200"></p>
+        </div>
+      </div>
+
+      <!-- Actions validation -->
+      <div class="p-5 border-t border-slate-100 dark:border-slate-700 flex flex-col sm:flex-row gap-3">
+        <button id="btnValiderOrdo" onclick="validerOrdonnance()"
+          class="flex-1 flex items-center justify-center gap-2 bg-green-600 hover:bg-green-700 text-white py-2.5 rounded-xl font-bold transition text-sm">
+          <i data-feather="check-circle" class="h-4 w-4"></i> Valider — Préparer la commande
+        </button>
+        <button id="btnRefuserOrdo" onclick="refuserOrdonnance()"
+          class="flex-1 flex items-center justify-center gap-2 bg-red-50 dark:bg-red-900/20 hover:bg-red-100 text-red-600 dark:text-red-400 py-2.5 rounded-xl font-bold transition text-sm border border-red-200 dark:border-red-800">
+          <i data-feather="x-circle" class="h-4 w-4"></i> Refuser
+        </button>
+        <button onclick="closeOrdoModal()" class="px-5 py-2.5 bg-slate-100 dark:bg-slate-700 text-slate-600 dark:text-slate-300 rounded-xl font-semibold text-sm hover:bg-slate-200 transition">
+          Fermer
+        </button>
+      </div>
+    </div>
+  </div>
+  <!-- ===== FIN MODAL ORDONNANCE ===== -->
+
   <!-- Assign Modal -->
   <div id="assignModal" class="fixed inset-0 z-50 hidden items-center justify-center p-4">
     <div class="absolute inset-0 bg-slate-900/50 backdrop-blur-sm"></div>
-    <div class="relative bg-white dark:bg-slate-800 rounded-2xl shadow-xl w-full max-w-md overflow-hidden transform transition-all">
+    <div class="relative bg-white dark:bg-slate-800 rounded-2xl shadow-xl w-full max-w-md overflow-hidden">
       <div class="p-6 border-b border-slate-100 dark:border-slate-700">
         <h3 class="text-xl font-bold text-slate-900 dark:text-white">Assigner un livreur</h3>
         <p class="text-sm text-slate-500 dark:text-slate-400 mt-1">Choisissez un livreur disponible pour cette commande.</p>
       </div>
       <div class="p-6">
-        <label class="block text-xs font-bold text-slate-600 dark:text-slate-400 uppercase tracking-wide mb-2">Sélectionner le livreur</label>
-        <select id="courierSelect" class="w-full bg-slate-50 dark:bg-slate-900/50 border border-slate-200 dark:border-slate-700 rounded-xl px-4 py-2.5 focus:ring-2 focus:ring-brand-500 outline-none text-sm dark:text-white transition cursor-pointer">
-          <!-- options via JS -->
-        </select>
+        <label class="block text-xs font-bold text-slate-500 dark:text-slate-400 uppercase tracking-wide mb-2">Sélectionner le livreur</label>
+        <select id="courierSelect" class="w-full bg-slate-50 dark:bg-slate-900/50 border border-slate-200 dark:border-slate-700 rounded-xl px-4 py-2.5 focus:ring-2 focus:ring-brand-500 outline-none text-sm dark:text-white transition cursor-pointer"></select>
       </div>
-      <div class="p-6 bg-slate-50 dark:bg-slate-800/50 border-t border-slate-100 dark:border-slate-700 flex justify-end gap-3">
-        <button id="cancelAssign" class="px-5 py-2.5 bg-white dark:bg-slate-700 border border-slate-200 dark:border-slate-600 text-slate-700 dark:text-slate-200 rounded-xl font-semibold hover:bg-slate-50 dark:hover:bg-slate-600 transition text-sm">Annuler</button>
-        <button id="confirmAssign" class="px-5 py-2.5 bg-brand-600 text-white rounded-xl font-semibold hover:bg-brand-700 transition shadow-md shadow-brand-500/30 text-sm">Valider l'assignation</button>
+      <div class="p-5 bg-slate-50 dark:bg-slate-800/50 border-t border-slate-100 dark:border-slate-700 flex justify-end gap-3">
+        <button id="cancelAssign" class="px-5 py-2.5 bg-white dark:bg-slate-700 border border-slate-200 dark:border-slate-600 text-slate-700 dark:text-slate-200 rounded-xl font-semibold hover:bg-slate-50 transition text-sm">Annuler</button>
+        <button id="confirmAssign" class="px-5 py-2.5 bg-brand-600 text-white rounded-xl font-semibold hover:bg-brand-700 transition text-sm">Valider l'assignation</button>
       </div>
     </div>
   </div>
@@ -155,7 +232,7 @@
   <!-- New/Edit Order Modal -->
   <div id="orderModal" class="fixed inset-0 z-50 hidden items-center justify-center p-4">
     <div class="absolute inset-0 bg-slate-900/50 backdrop-blur-sm"></div>
-    <div class="relative bg-white dark:bg-slate-800 rounded-2xl shadow-xl w-full max-w-lg overflow-hidden transform transition-all">
+    <div class="relative bg-white dark:bg-slate-800 rounded-2xl shadow-xl w-full max-w-lg overflow-hidden">
       <div class="p-6 border-b border-slate-100 dark:border-slate-700">
         <h3 id="orderModalTitle" class="text-xl font-bold text-slate-900 dark:text-white">Nouvelle commande</h3>
       </div>
@@ -163,40 +240,36 @@
         <form id="orderForm" class="space-y-4">
           <input type="hidden" id="orderId" />
           <div>
-            <label class="block text-xs font-bold text-slate-600 dark:text-slate-400 uppercase tracking-wide mb-2">Nom du client</label>
+            <label class="block text-xs font-bold text-slate-500 dark:text-slate-400 uppercase tracking-wide mb-2">Nom du client</label>
             <input id="orderClient" type="text" class="w-full bg-slate-50 dark:bg-slate-900/50 border border-slate-200 dark:border-slate-700 rounded-xl px-4 py-2.5 focus:ring-2 focus:ring-brand-500 outline-none text-sm dark:text-white transition" required>
           </div>
           <div class="grid grid-cols-3 gap-4">
             <div class="col-span-2">
-              <label class="block text-xs font-bold text-slate-600 dark:text-slate-400 uppercase tracking-wide mb-2">Produit</label>
+              <label class="block text-xs font-bold text-slate-500 dark:text-slate-400 uppercase tracking-wide mb-2">Produit</label>
               <input id="orderProduct" type="text" class="w-full bg-slate-50 dark:bg-slate-900/50 border border-slate-200 dark:border-slate-700 rounded-xl px-4 py-2.5 focus:ring-2 focus:ring-brand-500 outline-none text-sm dark:text-white transition" required>
             </div>
             <div>
-              <label class="block text-xs font-bold text-slate-600 dark:text-slate-400 uppercase tracking-wide mb-2">Qté</label>
+              <label class="block text-xs font-bold text-slate-500 dark:text-slate-400 uppercase tracking-wide mb-2">Qté</label>
               <input id="orderQty" type="number" min="1" value="1" class="w-full bg-slate-50 dark:bg-slate-900/50 border border-slate-200 dark:border-slate-700 rounded-xl px-4 py-2.5 focus:ring-2 focus:ring-brand-500 outline-none text-sm dark:text-white transition" required>
             </div>
           </div>
           <div class="grid grid-cols-2 gap-4">
             <div>
-              <label class="block text-xs font-bold text-slate-600 dark:text-slate-400 uppercase tracking-wide mb-2">Date</label>
+              <label class="block text-xs font-bold text-slate-500 dark:text-slate-400 uppercase tracking-wide mb-2">Date</label>
               <input id="orderDate" type="date" class="w-full bg-slate-50 dark:bg-slate-900/50 border border-slate-200 dark:border-slate-700 rounded-xl px-4 py-2.5 focus:ring-2 focus:ring-brand-500 outline-none text-sm dark:text-white transition">
             </div>
             <div>
-              <label class="block text-xs font-bold text-slate-600 dark:text-slate-400 uppercase tracking-wide mb-2">Statut</label>
+              <label class="block text-xs font-bold text-slate-500 dark:text-slate-400 uppercase tracking-wide mb-2">Statut</label>
               <select id="orderStatus" class="w-full bg-slate-50 dark:bg-slate-900/50 border border-slate-200 dark:border-slate-700 rounded-xl px-4 py-2.5 focus:ring-2 focus:ring-brand-500 outline-none text-sm dark:text-white transition cursor-pointer">
-                <option>En attente</option>
-                <option>En préparation</option>
-                <option>En livraison</option>
-                <option>Livrée</option>
-                <option>Annulée</option>
+                <option>En attente</option><option>En préparation</option><option>En livraison</option><option>Livrée</option><option>Annulée</option>
               </select>
             </div>
           </div>
         </form>
       </div>
-      <div class="p-6 bg-slate-50 dark:bg-slate-800/50 border-t border-slate-100 dark:border-slate-700 flex justify-end gap-3">
-        <button type="button" id="cancelOrder" class="px-5 py-2.5 bg-white dark:bg-slate-700 border border-slate-200 dark:border-slate-600 text-slate-700 dark:text-slate-200 rounded-xl font-semibold hover:bg-slate-50 dark:hover:bg-slate-600 transition text-sm">Annuler</button>
-        <button type="submit" form="orderForm" id="saveOrder" class="px-5 py-2.5 bg-brand-600 text-white rounded-xl font-semibold hover:bg-brand-700 transition shadow-md shadow-brand-500/30 text-sm">Enregistrer</button>
+      <div class="p-5 bg-slate-50 dark:bg-slate-800/50 border-t border-slate-100 dark:border-slate-700 flex justify-end gap-3">
+        <button type="button" id="cancelOrder" class="px-5 py-2.5 bg-white dark:bg-slate-700 border border-slate-200 dark:border-slate-600 text-slate-700 dark:text-slate-200 rounded-xl font-semibold hover:bg-slate-50 transition text-sm">Annuler</button>
+        <button type="submit" form="orderForm" class="px-5 py-2.5 bg-brand-600 text-white rounded-xl font-semibold hover:bg-brand-700 transition text-sm">Enregistrer</button>
       </div>
     </div>
   </div>
@@ -204,10 +277,10 @@
   <script>
     feather.replace();
 
-    // Dark Mode Theme init
+    // ---- DARK MODE ----
     const themeToggle = document.getElementById('themeToggle');
-    const themeIcon = document.getElementById('themeIcon');
-    const htmlClass = document.documentElement.classList;
+    const themeIcon   = document.getElementById('themeIcon');
+    const htmlClass   = document.documentElement.classList;
     if (localStorage.getItem('theme') === 'dark' || (!('theme' in localStorage) && window.matchMedia('(prefers-color-scheme: dark)').matches)) {
       htmlClass.add('dark'); themeIcon.setAttribute('data-feather', 'sun'); feather.replace();
     }
@@ -220,73 +293,246 @@
     });
 
     const couriers = [
-      { id: 1, name: 'Livreur A (BeninExpress)' }, { id: 2, name: 'Marie - Indépendant' }, { id: 3, name: 'Koffi - MotoRapid' }
+      { id:1, name:'Jean K. (BeninExpress)' }, { id:2, name:'Marie D. — Indépendant' }, { id:3, name:'Koffi S. — MotoRapid' }
     ];
 
     let orders = JSON.parse(localStorage.getItem('pharmalink-orders')) || [
-      { id: 1, client: 'Jean Dupont', product: 'Paracétamol 500mg', qty: 2, date: '2025-10-20', status: 'En attente', courier: '' },
-      { id: 2, client: 'Amina T.', product: 'Gel hydroalcoolique', qty: 1, date: '2025-10-19', status: 'En préparation', courier: '' },
-      { id: 3, client: 'Paul Z.', product: 'Crème hydratante', qty: 3, date: '2025-10-18', status: 'En livraison', courier: 'Koffi - MotoRapid' }
+      { id:1, client:'Jean Dupont',  product:'Paracétamol 500mg',   qty:2, date:'2025-10-20', status:'En attente',     courier:'' },
+      { id:2, client:'Amina T.',     product:'Gel hydroalcoolique',  qty:1, date:'2025-10-19', status:'En préparation', courier:'' },
+      { id:3, client:'Paul Z.',      product:'Crème hydratante',     qty:3, date:'2025-10-18', status:'En livraison',   courier:'Koffi S. — MotoRapid' },
     ];
 
-    const ordersTable = document.getElementById('ordersTable');
-    const statusFilter = document.getElementById('statusFilter');
-    const searchOrders = document.getElementById('searchOrders');
-    const refreshBtn = document.getElementById('refreshBtn');
-    const newOrderBtn = document.getElementById('newOrderBtn');
-    const assignModal = document.getElementById('assignModal');
-    const courierSelect = document.getElementById('courierSelect');
-    const cancelAssign = document.getElementById('cancelAssign');
-    const confirmAssign = document.getElementById('confirmAssign');
-    const orderModal = document.getElementById('orderModal');
-    const orderForm = document.getElementById('orderForm');
-    const orderModalTitle = document.getElementById('orderModalTitle');
-    const orderIdInput = document.getElementById('orderId');
-    const orderClient = document.getElementById('orderClient');
-    const orderProduct = document.getElementById('orderProduct');
-    const orderQty = document.getElementById('orderQty');
-    const orderDate = document.getElementById('orderDate');
-    const orderStatus = document.getElementById('orderStatus');
-    const cancelOrder = document.getElementById('cancelOrder');
-
     let orderToAssignId = null;
+    let currentOrdoId   = null;   // ID ordonnance en cours de visualisation
 
     function saveOrders() { localStorage.setItem('pharmalink-orders', JSON.stringify(orders)); }
 
+    // ================================================================
+    // LECTURE DES ORDONNANCES (partagé avec com_patient.html via localStorage)
+    // ================================================================
+    function getOrdos() {
+      try { return JSON.parse(localStorage.getItem('pharmalink_ordos') || '[]'); } catch { return []; }
+    }
+    function saveOrdos(list) { localStorage.setItem('pharmalink_ordos', JSON.stringify(list)); }
+
+    function getOrdosEnAttente() {
+      return getOrdos().filter(o => !o.validee && o.statut !== 'Refusée');
+    }
+
+    // ================================================================
+    // AFFICHAGE SECTION ORDONNANCES
+    // ================================================================
+    function renderOrdoSection() {
+      const attente = getOrdosEnAttente();
+      const section = document.getElementById('ordoSection');
+      const listEl  = document.getElementById('ordoList');
+      const count   = document.getElementById('ordoWaitingCount');
+      const header  = document.getElementById('ordoBadgeHeader');
+      const hCount  = document.getElementById('ordoBadgeCount');
+
+      count.textContent  = attente.length;
+      hCount.textContent = attente.length;
+
+      if (attente.length > 0) {
+        section.classList.remove('hidden');
+        header.classList.remove('hidden');
+      } else {
+        header.classList.add('hidden');
+      }
+
+      listEl.innerHTML = '';
+      if (attente.length === 0) {
+        listEl.innerHTML = '<div class="p-6 text-center text-sm text-slate-400 dark:text-slate-500">Aucune ordonnance en attente de validation.</div>';
+        return;
+      }
+
+      attente.forEach(ordo => {
+        const div = document.createElement('div');
+        div.className = 'fade-in flex flex-col sm:flex-row sm:items-center justify-between gap-4 p-5 hover:bg-slate-50 dark:hover:bg-slate-700/30 transition';
+        div.innerHTML = `
+          <div class="flex items-center gap-4">
+            <!-- Miniature -->
+            <div class="h-14 w-14 rounded-xl overflow-hidden border border-slate-200 dark:border-slate-600 bg-slate-100 dark:bg-slate-700 flex items-center justify-center shrink-0 cursor-pointer" onclick="ouvrirOrdonnance(${ordo.id})">
+              ${ordo.type !== 'application/pdf'
+                ? `<img src="${ordo.base64}" alt="ordo" class="h-full w-full object-cover">`
+                : `<i data-feather="file-text" class="h-6 w-6 text-red-400"></i>`}
+            </div>
+            <div>
+              <p class="font-semibold text-sm text-slate-800 dark:text-slate-200">${ordo.nom}</p>
+              <p class="text-xs text-slate-400 dark:text-slate-500 mt-0.5">Commande <strong class="text-slate-600 dark:text-slate-300">${ordo.cmdId}</strong> · ${new Date(ordo.date).toLocaleDateString('fr-FR', { day:'2-digit', month:'short', hour:'2-digit', minute:'2-digit' })}</p>
+              ${ordo.note ? `<p class="text-xs text-violet-600 dark:text-violet-400 mt-1">💬 "${ordo.note}"</p>` : ''}
+            </div>
+          </div>
+          <div class="flex items-center gap-2 sm:shrink-0">
+            <button onclick="ouvrirOrdonnance(${ordo.id})"
+              class="flex items-center gap-1.5 px-4 py-2 bg-violet-600 hover:bg-violet-700 text-white rounded-xl text-xs font-bold transition">
+              <i data-feather="eye" class="h-3.5 w-3.5"></i> Visualiser
+            </button>
+            <button onclick="validerDirectement(${ordo.id})"
+              class="flex items-center gap-1.5 px-4 py-2 bg-green-600 hover:bg-green-700 text-white rounded-xl text-xs font-bold transition">
+              <i data-feather="check" class="h-3.5 w-3.5"></i> Valider
+            </button>
+            <button onclick="refuserDirectement(${ordo.id})"
+              class="flex items-center gap-1.5 px-3 py-2 bg-red-50 dark:bg-red-900/20 text-red-600 dark:text-red-400 border border-red-200 dark:border-red-800 rounded-xl text-xs font-bold hover:bg-red-100 transition">
+              <i data-feather="x" class="h-3.5 w-3.5"></i>
+            </button>
+          </div>
+        `;
+        listEl.appendChild(div);
+      });
+      feather.replace();
+    }
+
+    // ================================================================
+    // MODAL VISUALISATION ORDONNANCE
+    // ================================================================
+    function ouvrirOrdonnance(id) {
+      const ordo = getOrdos().find(o => o.id === id);
+      if (!ordo) return;
+      currentOrdoId = id;
+
+      document.getElementById('ordoModalSubtitle').textContent = `Commande ${ordo.cmdId} · ${ordo.nom}`;
+      document.getElementById('ordoModalCmd').textContent  = ordo.cmdId;
+      document.getElementById('ordoModalDate').textContent = new Date(ordo.date).toLocaleDateString('fr-FR', { dateStyle: 'long' });
+
+      const img     = document.getElementById('ordoModalImg');
+      const pdfDiv  = document.getElementById('ordoModalPdf');
+      const pdfName = document.getElementById('ordoModalPdfName');
+
+      if (ordo.type !== 'application/pdf') {
+        img.src = ordo.base64;
+        img.classList.remove('hidden');
+        pdfDiv.classList.add('hidden');
+      } else {
+        img.classList.add('hidden');
+        pdfName.textContent = ordo.nom;
+        pdfDiv.classList.remove('hidden');
+      }
+
+      const noteWrap = document.getElementById('ordoModalNoteWrap');
+      const noteEl   = document.getElementById('ordoModalNote');
+      if (ordo.note) {
+        noteEl.textContent = ordo.note;
+        noteWrap.classList.remove('hidden');
+      } else {
+        noteWrap.classList.add('hidden');
+      }
+
+      // Masquer les boutons si déjà traitée
+      const deja = ordo.validee || ordo.statut === 'Refusée';
+      document.getElementById('btnValiderOrdo').classList.toggle('hidden', deja);
+      document.getElementById('btnRefuserOrdo').classList.toggle('hidden', deja);
+
+      document.getElementById('ordoViewModal').classList.remove('hidden');
+      document.getElementById('ordoViewModal').classList.add('flex');
+      feather.replace();
+    }
+
+    function closeOrdoModal() {
+      document.getElementById('ordoViewModal').classList.add('hidden');
+      document.getElementById('ordoViewModal').classList.remove('flex');
+      currentOrdoId = null;
+    }
+
+    function validerOrdonnance() {
+      if (!currentOrdoId) return;
+      validerDirectement(currentOrdoId);
+      closeOrdoModal();
+    }
+    function refuserOrdonnance() {
+      if (!currentOrdoId) return;
+      refuserDirectement(currentOrdoId);
+      closeOrdoModal();
+    }
+
+    function validerDirectement(id) {
+      const ordos = getOrdos();
+      const idx   = ordos.findIndex(o => o.id === id);
+      if (idx === -1) return;
+      ordos[idx].validee = true;
+      ordos[idx].statut  = 'Validée';
+      saveOrdos(ordos);
+      renderOrdoSection();
+      renderOrders(applyFilters());
+      // Petit feedback visuel
+      showToast('✅ Ordonnance validée — commande en préparation');
+    }
+
+    function refuserDirectement(id) {
+      if (!confirm('Refuser cette ordonnance ? Le patient en sera informé.')) return;
+      const ordos = getOrdos();
+      const idx   = ordos.findIndex(o => o.id === id);
+      if (idx === -1) return;
+      ordos[idx].statut  = 'Refusée';
+      ordos[idx].validee = false;
+      saveOrdos(ordos);
+      renderOrdoSection();
+      showToast('❌ Ordonnance refusée');
+    }
+
+    // ================================================================
+    // TOAST NOTIFICATION
+    // ================================================================
+    function showToast(msg) {
+      let toast = document.getElementById('globalToast');
+      if (!toast) {
+        toast = document.createElement('div');
+        toast.id = 'globalToast';
+        toast.className = 'fixed bottom-6 right-6 z-[100] px-5 py-3 bg-slate-900 dark:bg-white text-white dark:text-slate-900 rounded-2xl shadow-xl text-sm font-semibold transition-all duration-300 opacity-0 translate-y-4';
+        document.body.appendChild(toast);
+      }
+      toast.textContent = msg;
+      toast.classList.remove('opacity-0', 'translate-y-4');
+      toast.classList.add('opacity-100', 'translate-y-0');
+      setTimeout(() => {
+        toast.classList.remove('opacity-100', 'translate-y-0');
+        toast.classList.add('opacity-0', 'translate-y-4');
+      }, 3000);
+    }
+
+    // ================================================================
+    // TABLE DES COMMANDES
+    // ================================================================
     function formatDate(d) {
       if (!d) return '-'; const dt = new Date(d);
       return isNaN(dt) ? d : dt.toLocaleDateString('fr-FR');
     }
 
     function statusBadge(status) {
-      switch (status) {
-        case 'En attente': return '<span class="inline-flex items-center px-2.5 py-1 rounded-lg text-xs font-bold bg-yellow-100 text-yellow-800 dark:bg-yellow-900/40 dark:text-yellow-400">En attente</span>';
-        case 'En préparation': return '<span class="inline-flex items-center px-2.5 py-1 rounded-lg text-xs font-bold bg-blue-100 text-blue-800 dark:bg-blue-900/40 dark:text-blue-400">En préparation</span>';
-        case 'En livraison': return '<span class="inline-flex items-center px-2.5 py-1 rounded-lg text-xs font-bold bg-indigo-100 text-indigo-800 dark:bg-indigo-900/40 dark:text-indigo-400">En livraison</span>';
-        case 'Livrée': return '<span class="inline-flex items-center px-2.5 py-1 rounded-lg text-xs font-bold bg-green-100 text-green-800 dark:bg-green-900/40 dark:text-green-400">Livrée</span>';
-        case 'Annulée': return '<span class="inline-flex items-center px-2.5 py-1 rounded-lg text-xs font-bold bg-red-100 text-red-800 dark:bg-red-900/40 dark:text-red-400">Annulée</span>';
-        default: return `<span class="inline-flex items-center px-2.5 py-1 rounded-lg text-xs font-bold bg-slate-100 text-slate-800 dark:bg-slate-700 dark:text-slate-300">${status}</span>`;
-      }
+      const map = {
+        'En attente':     'bg-yellow-100 text-yellow-800 dark:bg-yellow-900/40 dark:text-yellow-400',
+        'En préparation': 'bg-blue-100 text-blue-800 dark:bg-blue-900/40 dark:text-blue-400',
+        'En livraison':   'bg-indigo-100 text-indigo-800 dark:bg-indigo-900/40 dark:text-indigo-400',
+        'Livrée':         'bg-green-100 text-green-800 dark:bg-green-900/40 dark:text-green-400',
+        'Annulée':        'bg-red-100 text-red-800 dark:bg-red-900/40 dark:text-red-400',
+      };
+      return `<span class="inline-flex items-center px-2.5 py-1 rounded-lg text-xs font-bold ${map[status] || 'bg-slate-100 text-slate-800 dark:bg-slate-700 dark:text-slate-300'}">${status}</span>`;
     }
 
     function populateCouriers() {
-      courierSelect.innerHTML = '';
-      couriers.forEach(c => {
-        const opt = document.createElement('option');
-        opt.value = c.name; opt.textContent = c.name;
-        courierSelect.appendChild(opt);
-      });
+      const sel = document.getElementById('courierSelect');
+      sel.innerHTML = '';
+      couriers.forEach(c => { const o = document.createElement('option'); o.value = c.name; o.textContent = c.name; sel.appendChild(o); });
     }
 
     function renderOrders(list = orders) {
-      ordersTable.innerHTML = '';
+      const tbody = document.getElementById('ordersTable');
+      tbody.innerHTML = '';
       if (!list.length) {
-        ordersTable.innerHTML = '<tr><td colspan="6" class="px-6 py-8 text-center text-slate-500 dark:text-slate-400">Aucune commande trouvée</td></tr>';
+        tbody.innerHTML = '<tr><td colspan="6" class="px-6 py-10 text-center text-slate-400 dark:text-slate-500">Aucune commande trouvée</td></tr>';
         return;
       }
-      list.forEach((o) => {
+
+      // Récupérer les ordonnances pour savoir lesquelles ont une ordo jointe
+      const ordos = getOrdos();
+
+      list.forEach(o => {
+        const ordoJointe   = ordos.find(od => od.cmdId.includes(String(o.id)) || od.cmdId === `CMD-2025-00${String(o.id).padStart(2,'0')}`);
+        const ordoEnAttente = ordoJointe && !ordoJointe.validee && ordoJointe.statut !== 'Refusée';
+        const ordoValidee   = ordoJointe && ordoJointe.validee;
+
         const tr = document.createElement('tr');
-        tr.className = 'hover:bg-slate-50 dark:hover:bg-slate-700/50 transition';
+        tr.className = `hover:bg-slate-50 dark:hover:bg-slate-700/50 transition ${ordoEnAttente ? 'border-l-4 border-violet-400' : ''}`;
         tr.innerHTML = `
           <td class="px-6 py-4 whitespace-nowrap text-sm font-medium text-slate-500 dark:text-slate-400">#${o.id}</td>
           <td class="px-6 py-4 whitespace-nowrap text-sm font-bold text-slate-900 dark:text-white">${o.client}</td>
@@ -297,74 +543,103 @@
           <td class="px-6 py-4 whitespace-nowrap text-sm text-slate-500 dark:text-slate-400">${formatDate(o.date)}</td>
           <td class="px-6 py-4 whitespace-nowrap">
             ${statusBadge(o.status)}
-            ${o.courier ? `<div class="text-xs font-medium text-slate-500 dark:text-slate-400 mt-2 flex items-center gap-1"><i data-feather="truck" class="w-3 h-3"></i> ${o.courier}</div>` : ''}
+            ${o.courier ? `<div class="text-xs font-medium text-slate-500 dark:text-slate-400 mt-1 flex items-center gap-1"><i data-feather="truck" class="w-3 h-3"></i> ${o.courier}</div>` : ''}
+            ${ordoEnAttente ? `<div class="flex items-center gap-1 mt-1.5 text-xs text-violet-600 dark:text-violet-400 font-semibold ordo-badge-pulse"><i data-feather="paperclip" class="h-3 w-3"></i> Ordonnance à valider</div>` : ''}
+            ${ordoValidee   ? `<div class="flex items-center gap-1 mt-1.5 text-xs text-green-600 dark:text-green-400 font-semibold"><i data-feather="check-circle" class="h-3 w-3"></i> Ordonnance validée</div>` : ''}
           </td>
           <td class="px-6 py-4 whitespace-nowrap text-right text-sm">
-            <button class="prepareBtn text-blue-600 dark:text-blue-400 hover:text-blue-800 bg-blue-50 dark:bg-blue-900/30 p-2 rounded-lg mr-2 transition" data-id="${o.id}" title="Marquer en préparation"><i data-feather="box" class="w-4 h-4"></i></button>
-            <button class="assignBtn text-indigo-600 dark:text-indigo-400 hover:text-indigo-800 bg-indigo-50 dark:bg-indigo-900/30 p-2 rounded-lg mr-2 transition" data-id="${o.id}" title="Assigner livreur"><i data-feather="truck" class="w-4 h-4"></i></button>
-            <button class="editBtn text-slate-600 dark:text-slate-400 hover:text-slate-800 bg-slate-100 dark:bg-slate-700 p-2 rounded-lg mr-2 transition" data-id="${o.id}" title="Modifier"><i data-feather="edit-2" class="w-4 h-4"></i></button>
+            ${ordoEnAttente ? `<button class="viewOrdoBtn text-violet-600 dark:text-violet-400 hover:text-violet-800 bg-violet-50 dark:bg-violet-900/30 p-2 rounded-lg mr-1 transition" data-ordoid="${ordoJointe.id}" title="Voir ordonnance"><i data-feather="file-text" class="w-4 h-4"></i></button>` : ''}
+            <button class="prepareBtn text-blue-600 dark:text-blue-400 hover:text-blue-800 bg-blue-50 dark:bg-blue-900/30 p-2 rounded-lg mr-1 transition" data-id="${o.id}" title="Marquer en préparation"><i data-feather="box" class="w-4 h-4"></i></button>
+            <button class="assignBtn text-indigo-600 dark:text-indigo-400 hover:text-indigo-800 bg-indigo-50 dark:bg-indigo-900/30 p-2 rounded-lg mr-1 transition" data-id="${o.id}" title="Assigner livreur"><i data-feather="truck" class="w-4 h-4"></i></button>
+            <button class="editBtn text-slate-600 dark:text-slate-400 hover:text-slate-800 bg-slate-100 dark:bg-slate-700 p-2 rounded-lg mr-1 transition" data-id="${o.id}" title="Modifier"><i data-feather="edit-2" class="w-4 h-4"></i></button>
             <button class="deleteBtn text-red-600 dark:text-red-400 hover:text-red-800 bg-red-50 dark:bg-red-900/30 p-2 rounded-lg transition" data-id="${o.id}" title="Supprimer"><i data-feather="trash-2" class="w-4 h-4"></i></button>
           </td>
         `;
-        ordersTable.appendChild(tr);
+        tbody.appendChild(tr);
       });
-      feather.replace(); attachOrderListeners();
+      feather.replace();
+      attachOrderListeners();
     }
 
     function attachOrderListeners() {
-      document.querySelectorAll('.prepareBtn').forEach(btn => btn.onclick = () => markPreparing(parseInt(btn.dataset.id)));
-      document.querySelectorAll('.assignBtn').forEach(btn => btn.onclick = () => openAssignModal(parseInt(btn.dataset.id)));
-      document.querySelectorAll('.editBtn').forEach(btn => btn.onclick = () => openEditOrder(parseInt(btn.dataset.id)));
-      document.querySelectorAll('.deleteBtn').forEach(btn => btn.onclick = () => {
-        if (confirm('Supprimer cette commande ?')) {
-          orders = orders.filter(o => o.id !== parseInt(btn.dataset.id));
-          saveOrders(); renderOrders(applyFilters());
-        }
+      document.querySelectorAll('.viewOrdoBtn').forEach(btn => {
+        btn.onclick = () => ouvrirOrdonnance(parseInt(btn.dataset.ordoid));
       });
-    }
-
-    function markPreparing(id) {
-      const idx = orders.findIndex(o => o.id === id);
-      if (idx !== -1) { orders[idx].status = 'En préparation'; saveOrders(); renderOrders(applyFilters()); }
+      document.querySelectorAll('.prepareBtn').forEach(btn => {
+        btn.onclick = () => {
+          const idx = orders.findIndex(o => o.id === parseInt(btn.dataset.id));
+          if (idx !== -1) {
+            orders[idx].status = 'En préparation';
+            saveOrders();
+            renderOrders(applyFilters());
+          }
+        };
+      });
+      document.querySelectorAll('.assignBtn').forEach(btn => {
+        btn.onclick = () => openAssignModal(parseInt(btn.dataset.id));
+      });
+      document.querySelectorAll('.editBtn').forEach(btn => {
+        btn.onclick = () => openEditOrder(parseInt(btn.dataset.id));
+      });
+      document.querySelectorAll('.deleteBtn').forEach(btn => {
+        btn.onclick = () => {
+          if (confirm('Supprimer cette commande ?')) {
+            orders = orders.filter(o => o.id !== parseInt(btn.dataset.id));
+            saveOrders();
+            renderOrders(applyFilters());
+          }
+        };
+      });
     }
 
     function openAssignModal(id) {
       orderToAssignId = id; populateCouriers();
-      assignModal.classList.remove('hidden'); assignModal.classList.add('flex');
+      document.getElementById('assignModal').classList.remove('hidden'); document.getElementById('assignModal').classList.add('flex');
     }
-    function closeAssignModal() {
-      orderToAssignId = null; assignModal.classList.add('hidden'); assignModal.classList.remove('flex');
-    }
-
-    confirmAssign.addEventListener('click', () => {
+    document.getElementById('cancelAssign').addEventListener('click', () => { document.getElementById('assignModal').classList.add('hidden'); document.getElementById('assignModal').classList.remove('flex'); });
+    document.getElementById('confirmAssign').addEventListener('click', () => {
       if (!orderToAssignId) return;
       const idx = orders.findIndex(o => o.id === orderToAssignId);
-      if (idx !== -1) { orders[idx].courier = courierSelect.value; orders[idx].status = 'En livraison'; saveOrders(); renderOrders(applyFilters()); }
-      closeAssignModal();
-    });
-    cancelAssign.addEventListener('click', closeAssignModal);
-
-    newOrderBtn.addEventListener('click', () => {
-      orderModalTitle.textContent = 'Nouvelle commande'; orderForm.reset(); orderIdInput.value = '';
-      orderModal.classList.remove('hidden'); orderModal.classList.add('flex');
+      if (idx !== -1) { orders[idx].courier = document.getElementById('courierSelect').value; orders[idx].status = 'En livraison'; saveOrders(); renderOrders(applyFilters()); }
+      document.getElementById('assignModal').classList.add('hidden'); document.getElementById('assignModal').classList.remove('flex');
     });
 
+    document.getElementById('newOrderBtn').addEventListener('click', () => {
+      document.getElementById('orderModalTitle').textContent = 'Nouvelle commande';
+      document.getElementById('orderForm').reset(); document.getElementById('orderId').value = '';
+      document.getElementById('orderModal').classList.remove('hidden'); document.getElementById('orderModal').classList.add('flex');
+    });
     function openEditOrder(id) {
       const o = orders.find(x => x.id === id);
       if (!o) return;
-      orderModalTitle.textContent = 'Modifier la commande'; orderIdInput.value = o.id; orderClient.value = o.client;
-      orderProduct.value = o.product; orderQty.value = o.qty; orderDate.value = o.date; orderStatus.value = o.status;
-      orderModal.classList.remove('hidden'); orderModal.classList.add('flex');
+      document.getElementById('orderModalTitle').textContent = 'Modifier la commande';
+      document.getElementById('orderId').value        = o.id;
+      document.getElementById('orderClient').value    = o.client;
+      document.getElementById('orderProduct').value   = o.product;
+      document.getElementById('orderQty').value       = o.qty;
+      document.getElementById('orderDate').value      = o.date;
+      document.getElementById('orderStatus').value    = o.status;
+      document.getElementById('orderModal').classList.remove('hidden');
+      document.getElementById('orderModal').classList.add('flex');
     }
 
-    cancelOrder.addEventListener('click', () => { orderModal.classList.add('hidden'); orderModal.classList.remove('flex'); });
+    document.getElementById('cancelOrder').addEventListener('click', () => {
+      document.getElementById('orderModal').classList.add('hidden');
+      document.getElementById('orderModal').classList.remove('flex');
+    });
 
-    orderForm.addEventListener('submit', (e) => {
+    document.getElementById('orderForm').addEventListener('submit', (e) => {
       e.preventDefault();
-      const idVal = orderIdInput.value ? parseInt(orderIdInput.value) : null;
+      const idVal = document.getElementById('orderId').value
+        ? parseInt(document.getElementById('orderId').value)
+        : null;
       const data = {
-        client: orderClient.value.trim(), product: orderProduct.value.trim(), qty: parseInt(orderQty.value),
-        date: orderDate.value || new Date().toISOString().slice(0,10), status: orderStatus.value, courier: ''
+        client:  document.getElementById('orderClient').value.trim(),
+        product: document.getElementById('orderProduct').value.trim(),
+        qty:     parseInt(document.getElementById('orderQty').value),
+        date:    document.getElementById('orderDate').value || new Date().toISOString().slice(0, 10),
+        status:  document.getElementById('orderStatus').value,
+        courier: ''
       };
       if (idVal) {
         const idx = orders.findIndex(o => o.id === idVal);
@@ -373,25 +648,94 @@
         const newId = orders.length ? Math.max(...orders.map(o => o.id)) + 1 : 1;
         orders.push({ id: newId, ...data });
       }
-      saveOrders(); orderModal.classList.add('hidden'); orderModal.classList.remove('flex'); renderOrders(applyFilters());
+      saveOrders();
+      document.getElementById('orderModal').classList.add('hidden');
+      document.getElementById('orderModal').classList.remove('flex');
+      renderOrders(applyFilters());
     });
 
     function applyFilters() {
-      const term = searchOrders.value.trim().toLowerCase(); const status = statusFilter.value;
+      const term   = document.getElementById('searchOrders').value.trim().toLowerCase();
+      const status = document.getElementById('statusFilter').value;
       let filtered = orders.slice().sort((a,b) => b.id - a.id);
       if (status) filtered = filtered.filter(o => o.status === status);
-      if (term) filtered = filtered.filter(o => (o.client && o.client.toLowerCase().includes(term)) || (o.product && o.product.toLowerCase().includes(term)));
+      if (term)   filtered = filtered.filter(o => (o.client || '').toLowerCase().includes(term) || (o.product || '').toLowerCase().includes(term));
       return filtered;
     }
 
-    searchOrders.addEventListener('input', () => renderOrders(applyFilters()));
-    statusFilter.addEventListener('change', () => renderOrders(applyFilters()));
-    refreshBtn.addEventListener('click', () => {
-      refreshBtn.disabled = true; refreshBtn.innerHTML = '<i data-feather="loader" class="animate-spin h-4 w-4"></i>'; feather.replace();
-      setTimeout(() => { renderOrders(applyFilters()); refreshBtn.disabled = false; refreshBtn.innerHTML = '<i data-feather="refresh-cw" class="h-4 w-4"></i> <span class="hidden sm:inline">Actualiser</span>'; feather.replace(); }, 500);
-    });
+    document.getElementById('searchOrders').addEventListener('input', () => renderOrders(applyFilters()));
+    document.getElementById('statusFilter').addEventListener('change', () => renderOrders(applyFilters()));
+    document.getElementById('refreshBtn').addEventListener('click', () => { renderOrders(applyFilters()); renderOrdoSection(); });
+    document.addEventListener('keydown', e => { if (e.key === 'Escape') closeOrdoModal(); });
 
+    // ================================================================
+    // WEBSOCKET — NOTIFICATIONS TEMPS RÉEL
+    // ================================================================
+    (function initWS() {
+      const WS_URL = `ws://${location.hostname}:3001`;
+      let ws;
+      let reconnectTimer;
+
+      function showLiveToast(message) {
+        let toast = document.getElementById('commandesLiveToast');
+        if (!toast) {
+          toast = document.createElement('div');
+          toast.id = 'commandesLiveToast';
+          toast.className = 'fixed bottom-6 right-6 z-[100] px-5 py-3 bg-slate-900 dark:bg-white text-white dark:text-slate-900 rounded-2xl shadow-xl text-sm font-semibold transition-all duration-300 opacity-0 translate-y-4';
+          document.body.appendChild(toast);
+        }
+        toast.textContent = message;
+        toast.classList.remove('opacity-0', 'translate-y-4');
+        toast.classList.add('opacity-100', 'translate-y-0');
+        setTimeout(() => {
+          toast.classList.remove('opacity-100', 'translate-y-0');
+          toast.classList.add('opacity-0', 'translate-y-4');
+        }, 3000);
+      }
+
+      function connect() {
+        ws = new WebSocket(WS_URL);
+
+        ws.onopen = () => {
+          clearTimeout(reconnectTimer);
+          ws.send(JSON.stringify({ type: 'identify', role: 'proprietaire' }));
+        };
+
+        ws.onmessage = (event) => {
+          let msg;
+          try { msg = JSON.parse(event.data); } catch { return; }
+
+          if (msg.type === 'nouvelle_commande') {
+            const title = `Nouvelle commande ${msg.cmdId}`;
+            const body = `${msg.client || 'Client'}${msg.produit ? ` — ${msg.produit}` : ''}`;
+            showLiveToast(`🆕 ${title}`);
+
+            if (Notification.permission === 'granted') {
+              new Notification(`🆕 ${title}`, { body, icon: '/favicon.ico' });
+            }
+          }
+        };
+
+        ws.onclose = () => {
+          reconnectTimer = setTimeout(connect, 4000);
+        };
+
+        ws.onerror = () => ws.close();
+      }
+
+      connect();
+
+      if (Notification.permission === 'default') {
+        setTimeout(() => Notification.requestPermission(), 3000);
+      }
+    })();
+
+    // Init
+    renderOrdoSection();
     renderOrders(applyFilters());
+
+    // Vérifier les nouvelles ordonnances toutes les 10s (polling simple)
+    setInterval(() => { renderOrdoSection(); renderOrders(applyFilters()); }, 10000);
   </script>
 </body>
 </html>

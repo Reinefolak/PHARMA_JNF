@@ -9,24 +9,26 @@
   <script>
     tailwind.config = {
       darkMode: 'class',
-      theme: { extend: { colors: { brand: { 50: '#eff6ff', 100: '#dbeafe', 200: '#bfdbfe', 500: '#3b82f6', 600: '#2563eb', 700: '#1d4ed8' } } } }
+      theme: { extend: { colors: { brand: { 50:'#eff6ff',100:'#dbeafe',200:'#bfdbfe',500:'#3b82f6',600:'#2563eb',700:'#1d4ed8' } } } }
     }
   </script>
   <style>
     @import url('https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap');
     body { font-family: 'Inter', sans-serif; transition: background-color 0.3s, color 0.3s; }
-    .toast {
-      position: fixed; top: 1.5rem; right: 1.5rem;
-      padding: 1rem 1.5rem; border-radius: 0.75rem; color: white;
-      font-size: 0.9rem; font-weight: 500; z-index: 9999;
-      transform: translateX(120%); transition: transform 0.4s cubic-bezier(0.34, 1.56, 0.64, 1);
-      display: flex; align-items: center; gap: 0.75rem; box-shadow: 0 10px 25px -5px rgba(0,0,0,0.1);
-    }
+    .toast { position:fixed; top:1.5rem; right:1.5rem; padding:1rem 1.5rem; border-radius:0.75rem; color:white; font-size:0.9rem; font-weight:500; z-index:9999; transform:translateX(120%); transition:transform 0.4s cubic-bezier(0.34,1.56,0.64,1); display:flex; align-items:center; gap:0.75rem; box-shadow:0 10px 25px -5px rgba(0,0,0,0.1); }
     .toast.show { transform: translateX(0); }
     .toast.success { background: #10b981; }
-    .toast.error { background: #ef4444; }
-    .glass { background: rgba(255, 255, 255, 0.7); backdrop-filter: blur(10px); border-bottom: 1px solid rgba(255, 255, 255, 0.3); }
-    .dark .glass { background: rgba(30, 41, 59, 0.7); border-bottom: 1px solid rgba(255, 255, 255, 0.1); }
+    .toast.error   { background: #ef4444; }
+    .toast.info    { background: #6366f1; }
+    .glass { background:rgba(255,255,255,0.7); backdrop-filter:blur(10px); border-bottom:1px solid rgba(255,255,255,0.3); }
+    .dark .glass { background:rgba(30,41,59,0.7); border-bottom:1px solid rgba(255,255,255,0.1); }
+    @keyframes fadeIn { from{opacity:0;transform:translateY(6px)} to{opacity:1;transform:translateY(0)} }
+    .fade-in { animation: fadeIn 0.2s ease forwards; }
+    /* Barre de progression stock */
+    .stock-bar { height:6px; border-radius:3px; transition:width 0.5s ease; }
+    /* Pulsation rappel actif */
+    @keyframes pulse-dot { 0%,100%{opacity:1} 50%{opacity:0.4} }
+    .pulse-dot { animation: pulse-dot 2s infinite; }
   </style>
 </head>
 <body class="bg-gray-50 text-gray-800 dark:bg-slate-900 dark:text-slate-200">
@@ -56,15 +58,14 @@
   </nav>
 
   <main class="max-w-6xl mx-auto px-4 sm:px-6 lg:px-8 pb-16 grid grid-cols-1 lg:grid-cols-3 gap-8">
-    
-    <!-- Informations Personnelles (Form) -->
+
+    <!-- Colonne gauche — Profil personnel -->
     <div class="lg:col-span-1 space-y-6">
       <div class="bg-white dark:bg-slate-800 rounded-2xl p-6 shadow-sm border border-gray-100 dark:border-slate-700 text-center">
         <div class="w-24 h-24 mx-auto mb-4 rounded-full border-4 border-brand-100 dark:border-slate-700 bg-brand-50 dark:bg-slate-700 flex items-center justify-center text-3xl font-bold text-brand-600 dark:text-blue-400" id="avatarInitials">?</div>
         <h2 class="text-xl font-bold text-gray-800 dark:text-white" id="displayName">Patient</h2>
         <p class="text-sm text-gray-500 dark:text-slate-400 mt-1" id="displayEmail">email@exemple.com</p>
       </div>
-
       <div class="bg-white dark:bg-slate-800 rounded-2xl p-6 shadow-sm border border-gray-100 dark:border-slate-700">
         <h3 class="font-bold text-gray-800 dark:text-white mb-4 flex items-center gap-2"><i data-feather="user" class="h-5 w-5 text-brand-500"></i> Infos Personnelles</h3>
         <form id="profileForm" class="space-y-4">
@@ -87,79 +88,80 @@
           <button type="submit" class="w-full bg-brand-600 text-white rounded-lg px-4 py-2.5 text-sm font-semibold hover:bg-brand-700 transition mt-2 shadow-sm">Enregistrer modifications</button>
         </form>
       </div>
-    </div>
 
-    <!-- Profil Médical -->
-    <div class="lg:col-span-2 space-y-6">
-      
       <!-- Allergies -->
       <div class="bg-white dark:bg-slate-800 rounded-2xl p-6 shadow-sm border border-gray-100 dark:border-slate-700">
-        <div class="flex flex-col sm:flex-row sm:justify-between sm:items-center mb-4 gap-2">
-          <h3 class="font-bold text-gray-800 dark:text-white flex items-center gap-2">
-            <i data-feather="alert-triangle" class="h-5 w-5 text-red-500"></i> Allergies Enregistrées
-          </h3>
-          <button class="text-sm text-brand-600 dark:text-blue-400 hover:underline flex items-center gap-1 self-start sm:self-auto"><i data-feather="plus" class="h-4 w-4"></i> Ajouter</button>
+        <div class="flex justify-between items-center mb-4">
+          <h3 class="font-bold text-gray-800 dark:text-white flex items-center gap-2"><i data-feather="alert-triangle" class="h-5 w-5 text-red-500"></i> Allergies</h3>
         </div>
-        <div class="flex flex-wrap gap-3">
-          <div class="px-3 py-1.5 bg-red-50 dark:bg-red-900/20 border border-red-100 dark:border-red-800/50 rounded-lg flex items-center gap-2">
-            <span class="text-red-700 dark:text-red-400 font-medium text-sm">Pénicilline</span>
-            <button class="text-red-400 hover:text-red-600 dark:hover:text-red-300"><i data-feather="x" class="h-3 w-3"></i></button>
-          </div>
-          <div class="px-3 py-1.5 bg-red-50 dark:bg-red-900/20 border border-red-100 dark:border-red-800/50 rounded-lg flex items-center gap-2">
-            <span class="text-red-700 dark:text-red-400 font-medium text-sm">Arachide</span>
-            <button class="text-red-400 hover:text-red-600 dark:hover:text-red-300"><i data-feather="x" class="h-3 w-3"></i></button>
-          </div>
-          <button class="px-3 py-1.5 bg-gray-50 dark:bg-slate-700/50 border border-gray-200 dark:border-slate-600 rounded-lg text-gray-500 dark:text-slate-400 text-sm border-dashed hover:bg-gray-100 dark:hover:bg-slate-700 transition flex items-center gap-1">
-            <i data-feather="plus" class="h-3 w-3"></i> Nouvelle allergie
+        <div class="flex flex-wrap gap-2">
+          <span class="px-3 py-1.5 bg-red-50 dark:bg-red-900/20 border border-red-100 dark:border-red-800/50 rounded-lg text-red-700 dark:text-red-400 font-medium text-sm flex items-center gap-1.5">Pénicilline <button class="text-red-300 hover:text-red-500"><i data-feather="x" class="h-3 w-3"></i></button></span>
+          <span class="px-3 py-1.5 bg-red-50 dark:bg-red-900/20 border border-red-100 dark:border-red-800/50 rounded-lg text-red-700 dark:text-red-400 font-medium text-sm flex items-center gap-1.5">Arachide <button class="text-red-300 hover:text-red-500"><i data-feather="x" class="h-3 w-3"></i></button></span>
+          <button class="px-3 py-1.5 bg-gray-50 dark:bg-slate-700/50 border border-dashed border-gray-200 dark:border-slate-600 rounded-lg text-gray-400 text-sm hover:bg-gray-100 transition flex items-center gap-1">
+            <i data-feather="plus" class="h-3 w-3"></i> Ajouter
           </button>
         </div>
       </div>
+    </div>
 
-      <!-- Médicaments Habituels -->
-      <div class="bg-white dark:bg-slate-800 rounded-2xl p-6 shadow-sm border border-gray-100 dark:border-slate-700">
-        <div class="flex flex-col sm:flex-row sm:justify-between sm:items-center mb-4 gap-2">
-          <h3 class="font-bold text-gray-800 dark:text-white flex items-center gap-2">
-            <i data-feather="heart" class="h-5 w-5 text-pink-500"></i> Médicaments Habituels
-          </h3>
-          <button class="text-sm text-brand-600 dark:text-blue-400 hover:underline flex items-center gap-1 self-start sm:self-auto"><i data-feather="plus" class="h-4 w-4"></i> Ajouter un traitement</button>
+    <!-- Colonne droite -->
+    <div class="lg:col-span-2 space-y-6">
+
+      <!-- ============================================================ -->
+      <!-- SECTION RAPPELS DE TRAITEMENT — NOUVELLE FONCTIONNALITÉ      -->
+      <!-- ============================================================ -->
+      <div class="bg-white dark:bg-slate-800 rounded-2xl shadow-sm border border-gray-100 dark:border-slate-700 overflow-hidden">
+        <div class="p-6 border-b border-gray-100 dark:border-slate-700 flex items-center justify-between flex-wrap gap-3">
+          <div class="flex items-center gap-3">
+            <div class="p-2 bg-emerald-100 dark:bg-emerald-900/30 rounded-xl">
+              <i data-feather="clock" class="h-5 w-5 text-emerald-600 dark:text-emerald-400"></i>
+            </div>
+            <div>
+              <h3 class="font-bold text-gray-800 dark:text-white">Mes Traitements & Rappels</h3>
+              <p class="text-xs text-gray-400 dark:text-slate-500">Notifications automatiques aux heures de prise</p>
+            </div>
+          </div>
+          <div class="flex items-center gap-2">
+            <span id="notifPermBadge" class="hidden text-xs px-2.5 py-1 bg-yellow-100 text-yellow-700 dark:bg-yellow-900/30 dark:text-yellow-400 rounded-full font-semibold cursor-pointer" onclick="demanderPermissionNotif()">
+              🔔 Activer les notifications
+            </span>
+            <button onclick="ouvrirModalTraitement()"
+              class="flex items-center gap-1.5 bg-emerald-600 hover:bg-emerald-700 text-white px-4 py-2 rounded-xl text-sm font-bold transition shadow-sm">
+              <i data-feather="plus" class="h-4 w-4"></i> Ajouter un traitement
+            </button>
+          </div>
         </div>
-        <div class="space-y-3">
-          <div class="flex flex-col sm:flex-row sm:items-center justify-between p-4 bg-gray-50 dark:bg-slate-900/50 rounded-xl border border-gray-100 dark:border-slate-700 gap-3">
-            <div>
-              <h4 class="font-semibold text-gray-800 dark:text-slate-200">Amlodipine 5mg</h4>
-              <p class="text-xs text-gray-500 dark:text-slate-400 mt-0.5">1 comprimé par jour (Matin) - Traitement HTA</p>
-            </div>
-            <button class="bg-brand-100 dark:bg-brand-900/40 text-brand-700 dark:text-blue-300 px-3 py-1.5 rounded-lg text-xs font-semibold hover:bg-brand-200 dark:hover:bg-brand-900/60 transition flex justify-center gap-1 whitespace-nowrap">
-              <i data-feather="shopping-cart" class="h-3 w-3"></i> Commander
-            </button>
+
+        <!-- Liste des traitements -->
+        <div id="traitementsList" class="divide-y divide-gray-50 dark:divide-slate-700/50">
+          <!-- Rempli par JS -->
+        </div>
+
+        <div id="traitEmptyState" class="hidden p-10 text-center">
+          <div class="p-4 bg-gray-100 dark:bg-slate-700 rounded-full w-16 h-16 flex items-center justify-center mx-auto mb-4">
+            <i data-feather="clock" class="h-8 w-8 text-gray-400 dark:text-slate-500"></i>
           </div>
-          <div class="flex flex-col sm:flex-row sm:items-center justify-between p-4 bg-gray-50 dark:bg-slate-900/50 rounded-xl border border-gray-100 dark:border-slate-700 gap-3">
-            <div>
-              <h4 class="font-semibold text-gray-800 dark:text-slate-200">Paracétamol 1000mg</h4>
-              <p class="text-xs text-gray-500 dark:text-slate-400 mt-0.5">En cas de douleur</p>
-            </div>
-            <button class="bg-brand-100 dark:bg-brand-900/40 text-brand-700 dark:text-blue-300 px-3 py-1.5 rounded-lg text-xs font-semibold hover:bg-brand-200 dark:hover:bg-brand-900/60 transition flex justify-center gap-1 whitespace-nowrap">
-              <i data-feather="shopping-cart" class="h-3 w-3"></i> Commander
-            </button>
-          </div>
+          <p class="text-sm font-medium text-gray-500 dark:text-slate-400">Aucun traitement enregistré.</p>
+          <p class="text-xs text-gray-400 dark:text-slate-500 mt-1">Ajoutez vos médicaments pour recevoir des rappels.</p>
         </div>
       </div>
+      <!-- ============================================================ -->
+      <!-- FIN SECTION RAPPELS                                           -->
+      <!-- ============================================================ -->
 
-      <!-- Ordonnances Sauvegardées -->
+      <!-- Ordonnances -->
       <div class="bg-white dark:bg-slate-800 rounded-2xl p-6 shadow-sm border border-gray-100 dark:border-slate-700">
         <div class="flex flex-col sm:flex-row sm:justify-between sm:items-center mb-4 gap-3">
           <h3 class="font-bold text-gray-800 dark:text-white flex items-center gap-2">
             <i data-feather="file-text" class="h-5 w-5 text-indigo-500"></i> Ordonnances Numériques
           </h3>
-          <button class="text-sm bg-indigo-50 dark:bg-indigo-900/30 text-indigo-600 dark:text-indigo-400 px-3 py-1.5 rounded-lg font-medium hover:bg-indigo-100 dark:hover:bg-indigo-900/50 transition flex items-center justify-center gap-1 self-start sm:self-auto">
+          <a href="com_patient.html" class="text-sm bg-indigo-50 dark:bg-indigo-900/30 text-indigo-600 dark:text-indigo-400 px-3 py-1.5 rounded-lg font-medium hover:bg-indigo-100 dark:hover:bg-indigo-900/50 transition flex items-center gap-1 self-start">
             <i data-feather="upload-cloud" class="h-4 w-4"></i> Importer
-          </button>
+          </a>
         </div>
         <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
           <div class="border border-gray-200 dark:border-slate-700 rounded-xl p-4 flex gap-4 hover:shadow-md transition cursor-pointer bg-white dark:bg-slate-800">
-            <div class="bg-indigo-50 dark:bg-indigo-900/30 p-3 rounded-lg text-indigo-600 dark:text-indigo-400 h-12 w-12 flex items-center justify-center shrink-0">
-              <i data-feather="file" class="h-6 w-6"></i>
-            </div>
+            <div class="bg-indigo-50 dark:bg-indigo-900/30 p-3 rounded-lg text-indigo-600 dark:text-indigo-400 h-12 w-12 flex items-center justify-center shrink-0"><i data-feather="file" class="h-6 w-6"></i></div>
             <div class="flex-1 min-w-0">
               <h4 class="font-semibold text-sm text-gray-800 dark:text-slate-200 truncate">Ordo_Dr_Martin.pdf</h4>
               <p class="text-xs text-gray-500 dark:text-slate-400 mt-0.5">Ajouté le 12/05/2026</p>
@@ -169,15 +171,12 @@
               </div>
             </div>
           </div>
-          
           <div class="border border-gray-200 dark:border-slate-700 rounded-xl p-4 flex gap-4 hover:shadow-md transition cursor-pointer bg-white dark:bg-slate-800 opacity-70">
-            <div class="bg-gray-100 dark:bg-slate-700 p-3 rounded-lg text-gray-500 dark:text-slate-400 h-12 w-12 flex items-center justify-center shrink-0">
-              <i data-feather="file" class="h-6 w-6"></i>
-            </div>
+            <div class="bg-gray-100 dark:bg-slate-700 p-3 rounded-lg text-gray-500 dark:text-slate-400 h-12 w-12 flex items-center justify-center shrink-0"><i data-feather="file" class="h-6 w-6"></i></div>
             <div class="flex-1 min-w-0">
               <h4 class="font-semibold text-sm text-gray-800 dark:text-slate-200 truncate">Ordonnance_Dermato.jpg</h4>
               <p class="text-xs text-gray-500 dark:text-slate-400 mt-0.5">Ajouté le 10/01/2026</p>
-              <div class="mt-2 flex flex-wrap gap-2">
+              <div class="mt-2">
                 <span class="text-[10px] bg-red-100 text-red-700 dark:bg-red-900/30 dark:text-red-400 px-1.5 py-0.5 rounded font-bold uppercase border border-red-200 dark:border-red-800/50">Expirée</span>
               </div>
             </div>
@@ -188,72 +187,107 @@
     </div>
   </main>
 
+  <!-- ===== MODAL AJOUTER / MODIFIER TRAITEMENT ===== -->
+  <div id="modalTraitement" class="fixed inset-0 z-50 hidden items-center justify-center p-4">
+    <div class="absolute inset-0 bg-slate-900/60 backdrop-blur-sm" onclick="fermerModalTraitement()"></div>
+    <div class="relative bg-white dark:bg-slate-800 rounded-2xl shadow-2xl w-full max-w-lg overflow-hidden">
+      <div class="p-6 border-b border-gray-100 dark:border-slate-700 flex items-center justify-between">
+        <h3 id="modalTraitTitle" class="text-xl font-bold text-gray-900 dark:text-white">Ajouter un traitement</h3>
+        <button onclick="fermerModalTraitement()" class="p-2 hover:bg-gray-100 dark:hover:bg-slate-700 rounded-full transition">
+          <i data-feather="x" class="h-5 w-5 text-gray-500"></i>
+        </button>
+      </div>
+      <div class="p-6 space-y-4">
+        <input type="hidden" id="traitId">
+
+        <div class="grid grid-cols-2 gap-4">
+          <div class="col-span-2">
+            <label class="block text-xs font-bold text-gray-500 dark:text-slate-400 uppercase tracking-wide mb-2">Médicament *</label>
+            <input id="traitNom" type="text" placeholder="Ex: Amlodipine 5mg" required
+              class="w-full bg-gray-50 dark:bg-slate-900 border border-gray-200 dark:border-slate-700 rounded-xl px-4 py-2.5 text-sm focus:ring-2 focus:ring-emerald-500 outline-none dark:text-white transition">
+          </div>
+        </div>
+
+        <div class="grid grid-cols-2 gap-4">
+          <div>
+            <label class="block text-xs font-bold text-gray-500 dark:text-slate-400 uppercase tracking-wide mb-2">Posologie *</label>
+            <input id="traitPosologie" type="text" placeholder="Ex: 1 comprimé" required
+              class="w-full bg-gray-50 dark:bg-slate-900 border border-gray-200 dark:border-slate-700 rounded-xl px-4 py-2.5 text-sm focus:ring-2 focus:ring-emerald-500 outline-none dark:text-white transition">
+          </div>
+          <div>
+            <label class="block text-xs font-bold text-gray-500 dark:text-slate-400 uppercase tracking-wide mb-2">Fréquence *</label>
+            <select id="traitFrequence"
+              class="w-full bg-gray-50 dark:bg-slate-900 border border-gray-200 dark:border-slate-700 rounded-xl px-4 py-2.5 text-sm focus:ring-2 focus:ring-emerald-500 outline-none dark:text-white transition cursor-pointer">
+              <option value="1">1× par jour</option>
+              <option value="2">2× par jour</option>
+              <option value="3">3× par jour</option>
+              <option value="custom">Personnalisé</option>
+            </select>
+          </div>
+        </div>
+
+        <!-- Heures de prise -->
+        <div>
+          <label class="block text-xs font-bold text-gray-500 dark:text-slate-400 uppercase tracking-wide mb-2">Heures de prise *</label>
+          <div id="heuresContainer" class="flex flex-wrap gap-2"></div>
+        </div>
+
+        <div class="grid grid-cols-2 gap-4">
+          <div>
+            <label class="block text-xs font-bold text-gray-500 dark:text-slate-400 uppercase tracking-wide mb-2">Stock actuel (unités)</label>
+            <input id="traitStock" type="number" min="0" value="30" placeholder="30"
+              class="w-full bg-gray-50 dark:bg-slate-900 border border-gray-200 dark:border-slate-700 rounded-xl px-4 py-2.5 text-sm focus:ring-2 focus:ring-emerald-500 outline-none dark:text-white transition">
+          </div>
+          <div>
+            <label class="block text-xs font-bold text-gray-500 dark:text-slate-400 uppercase tracking-wide mb-2">Alerte renouvellement à</label>
+            <div class="flex items-center gap-2">
+              <input id="traitAlerte" type="number" min="1" value="7" placeholder="7"
+                class="w-full bg-gray-50 dark:bg-slate-900 border border-gray-200 dark:border-slate-700 rounded-xl px-4 py-2.5 text-sm focus:ring-2 focus:ring-emerald-500 outline-none dark:text-white transition">
+              <span class="text-xs text-gray-400 whitespace-nowrap">unités</span>
+            </div>
+          </div>
+        </div>
+
+        <div>
+          <label class="block text-xs font-bold text-gray-500 dark:text-slate-400 uppercase tracking-wide mb-2">Note (optionnel)</label>
+          <input id="traitNote" type="text" placeholder="Ex: À prendre avec de l'eau, éviter le pamplemousse..."
+            class="w-full bg-gray-50 dark:bg-slate-900 border border-gray-200 dark:border-slate-700 rounded-xl px-4 py-2.5 text-sm focus:ring-2 focus:ring-emerald-500 outline-none dark:text-white transition">
+        </div>
+      </div>
+      <div class="p-5 border-t border-gray-100 dark:border-slate-700 flex gap-3 justify-end">
+        <button onclick="fermerModalTraitement()" class="px-5 py-2.5 bg-gray-100 dark:bg-slate-700 text-gray-700 dark:text-slate-200 rounded-xl font-semibold text-sm hover:bg-gray-200 transition">Annuler</button>
+        <button onclick="sauvegarderTraitement()" class="px-5 py-2.5 bg-emerald-600 hover:bg-emerald-700 text-white rounded-xl font-bold text-sm transition shadow-sm">
+          <span id="modalTraitBtnTxt">Enregistrer</span>
+        </button>
+      </div>
+    </div>
+  </div>
+  <!-- ===== FIN MODAL TRAITEMENT ===== -->
+
   <script src="auth.js"></script>
   <script>
     feather.replace();
 
-    // ---- AUTH & USER DATA ----
+    // ---- AUTH ----
     const user = Auth.requireAuth('patient');
     if (user) {
       document.getElementById('prenom').value = user.prenom || '';
-      document.getElementById('nom').value = user.nom || '';
+      document.getElementById('nom').value    = user.nom || '';
       document.getElementById('telephone').value = user.telephone || '';
-      document.getElementById('adresse').value = user.adresse || '';
-      
-      document.getElementById('displayName').textContent = `${user.prenom || ''} ${user.nom || ''}`;
+      document.getElementById('adresse').value   = user.adresse || '';
+      document.getElementById('displayName').textContent  = `${user.prenom || ''} ${user.nom || ''}`;
       document.getElementById('displayEmail').textContent = user.email || '';
-      
       const initials = ((user.prenom || '?')[0] + (user.nom || '?')[0]).toUpperCase();
       document.getElementById('avatarInitials').textContent = initials;
     }
 
-    function showToast(msg, type='success') {
-      const t = document.getElementById('toast');
-      document.getElementById('toast-msg').textContent = msg;
-      t.className = `toast ${type} show`;
-      document.getElementById('toast-icon').setAttribute('data-feather', type==='success' ? 'check-circle' : 'alert-circle');
-      feather.replace();
-      setTimeout(() => t.classList.remove('show'), 3000);
-    }
-
-    document.getElementById('profileForm').addEventListener('submit', async (e) => {
-      e.preventDefault();
-      const updates = {
-        prenom: document.getElementById('prenom').value.trim(),
-        nom: document.getElementById('nom').value.trim(),
-        telephone: document.getElementById('telephone').value.trim(),
-        adresse: document.getElementById('adresse').value.trim()
-      };
-      
-      try {
-        const resp = await fetch(`/api/user/${user.id}`, {
-          method: 'PUT', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify(updates)
-        });
-        const data = await resp.json();
-        if (data.success) {
-          Auth.setUser(data.user);
-          showToast('Profil mis à jour !', 'success');
-          document.getElementById('displayName').textContent = `${data.user.prenom} ${data.user.nom}`;
-          document.getElementById('avatarInitials').textContent = (data.user.prenom[0] + data.user.nom[0]).toUpperCase();
-        } else {
-          showToast(data.message, 'error');
-        }
-      } catch (err) {
-        showToast('Erreur réseau.', 'error');
-      }
-    });
-
     // ---- DARK MODE ----
+    const htmlClass   = document.documentElement.classList;
     const themeToggle = document.getElementById('themeToggle');
-    const themeIcon = document.getElementById('themeIcon');
-    const htmlClass = document.documentElement.classList;
-
+    const themeIcon   = document.getElementById('themeIcon');
     if (localStorage.getItem('theme') === 'dark' || (!('theme' in localStorage) && window.matchMedia('(prefers-color-scheme: dark)').matches)) {
-      htmlClass.add('dark');
-      themeIcon.setAttribute('data-feather', 'sun');
-      feather.replace();
+      htmlClass.add('dark'); themeIcon.setAttribute('data-feather', 'sun'); feather.replace();
     }
-
     themeToggle.addEventListener('click', () => {
       htmlClass.toggle('dark');
       const isDark = htmlClass.contains('dark');
@@ -261,6 +295,402 @@
       themeIcon.setAttribute('data-feather', isDark ? 'sun' : 'moon');
       feather.replace();
     });
+
+    // ---- TOAST ----
+    function showToast(msg, type = 'success') {
+      const t   = document.getElementById('toast');
+      const ico = document.getElementById('toast-icon');
+      document.getElementById('toast-msg').textContent = msg;
+      t.className = `toast ${type} show`;
+      ico.setAttribute('data-feather', type === 'success' ? 'check-circle' : type === 'error' ? 'alert-circle' : 'bell');
+      feather.replace();
+      setTimeout(() => t.classList.remove('show'), 4000);
+    }
+
+    // ---- PROFIL FORM ----
+    document.getElementById('profileForm').addEventListener('submit', async (e) => {
+      e.preventDefault();
+      const updates = {
+        prenom:    document.getElementById('prenom').value.trim(),
+        nom:       document.getElementById('nom').value.trim(),
+        telephone: document.getElementById('telephone').value.trim(),
+        adresse:   document.getElementById('adresse').value.trim()
+      };
+      try {
+        const resp = await fetch(`/api/user/${user.id}`, { method:'PUT', headers:{'Content-Type':'application/json'}, body:JSON.stringify(updates) });
+        const data = await resp.json();
+        if (data.success) {
+          Auth.setUser(data.user);
+          showToast('Profil mis à jour !', 'success');
+          document.getElementById('displayName').textContent = `${data.user.prenom} ${data.user.nom}`;
+          document.getElementById('avatarInitials').textContent = (data.user.prenom[0] + data.user.nom[0]).toUpperCase();
+        } else { showToast(data.message, 'error'); }
+      } catch { showToast('Erreur réseau.', 'error'); }
+    });
+
+    // ================================================================
+    // RAPPELS DE TRAITEMENT
+    // ================================================================
+
+    // --- Storage ---
+    function getTraitements() {
+      try { return JSON.parse(localStorage.getItem('pharmalink_traitements') || '[]'); } catch { return []; }
+    }
+    function saveTraitements(list) {
+      localStorage.setItem('pharmalink_traitements', JSON.stringify(list));
+    }
+
+    // --- Notifications navigateur ---
+    let notifPermission = Notification.permission;
+
+    function demanderPermissionNotif() {
+      Notification.requestPermission().then(perm => {
+        notifPermission = perm;
+        if (perm === 'granted') {
+          showToast('Notifications activées !', 'success');
+          document.getElementById('notifPermBadge').classList.add('hidden');
+          new Notification('PharmaLink Pro', {
+            body: 'Les rappels de traitement sont maintenant actifs.',
+            icon: '/favicon.ico'
+          });
+          demarrerRappels();
+        } else {
+          showToast('Notifications refusées — les rappels seront affichés sur la page.', 'info');
+        }
+      });
+    }
+
+    function envoyerNotif(titre, corps) {
+      if (Notification.permission === 'granted') {
+        new Notification(titre, { body: corps, icon: '/favicon.ico', badge: '/favicon.ico' });
+      }
+      // Toast en fallback
+      showToast(`${titre} — ${corps}`, 'info');
+    }
+
+    // --- Heures de prise dynamiques ---
+    const defaultHeures = { '1':['08:00'], '2':['08:00','20:00'], '3':['08:00','14:00','20:00'] };
+
+    function genererHeures(freq, valeurs = null) {
+      const container = document.getElementById('heuresContainer');
+      container.innerHTML = '';
+      const heures = valeurs || defaultHeures[freq] || ['08:00'];
+      heures.forEach((h, i) => {
+        const wrap = document.createElement('div');
+        wrap.className = 'flex items-center gap-1.5';
+        wrap.innerHTML = `
+          <span class="text-xs text-gray-400 dark:text-slate-500 shrink-0">Prise ${i + 1}</span>
+          <input type="time" value="${h}" data-index="${i}"
+            class="heure-input bg-gray-50 dark:bg-slate-900 border border-gray-200 dark:border-slate-700 rounded-lg px-3 py-2 text-sm focus:ring-2 focus:ring-emerald-500 outline-none dark:text-white transition">
+        `;
+        container.appendChild(wrap);
+      });
+    }
+
+    document.getElementById('traitFrequence').addEventListener('change', (e) => {
+      const val = e.target.value;
+      if (val === 'custom') {
+        genererHeures('1');
+        const btn = document.createElement('button');
+        btn.type = 'button';
+        btn.className = 'text-xs px-3 py-1.5 bg-gray-100 dark:bg-slate-700 text-gray-500 dark:text-slate-400 rounded-lg hover:bg-gray-200 transition flex items-center gap-1 mt-1';
+        btn.innerHTML = '<i data-feather="plus" class="h-3 w-3"></i> Ajouter une prise';
+        btn.onclick = () => ajouterHeure();
+        document.getElementById('heuresContainer').appendChild(btn);
+        feather.replace();
+      } else {
+        genererHeures(val);
+      }
+    });
+
+    function ajouterHeure() {
+      const container = document.getElementById('heuresContainer');
+      const idx = container.querySelectorAll('.heure-input').length;
+      const wrap = document.createElement('div');
+      wrap.className = 'flex items-center gap-1.5';
+      wrap.innerHTML = `
+        <span class="text-xs text-gray-400 dark:text-slate-500 shrink-0">Prise ${idx + 1}</span>
+        <input type="time" value="12:00" data-index="${idx}"
+          class="heure-input bg-gray-50 dark:bg-slate-900 border border-gray-200 dark:border-slate-700 rounded-lg px-3 py-2 text-sm focus:ring-2 focus:ring-emerald-500 outline-none dark:text-white transition">
+        <button type="button" onclick="this.closest('.flex').remove()" class="text-red-400 hover:text-red-600 transition">
+          <i data-feather="x" class="h-4 w-4"></i>
+        </button>
+      `;
+      container.insertBefore(wrap, container.lastElementChild);
+      feather.replace();
+    }
+
+    function getHeuresSaisies() {
+      return [...document.querySelectorAll('.heure-input')].map(i => i.value).filter(Boolean);
+    }
+
+    // --- Modal ---
+    function ouvrirModalTraitement(id = null) {
+      document.getElementById('traitId').value = '';
+      document.getElementById('traitNom').value = '';
+      document.getElementById('traitPosologie').value = '';
+      document.getElementById('traitFrequence').value = '1';
+      document.getElementById('traitStock').value = '30';
+      document.getElementById('traitAlerte').value = '7';
+      document.getElementById('traitNote').value = '';
+      document.getElementById('modalTraitTitle').textContent = 'Ajouter un traitement';
+      document.getElementById('modalTraitBtnTxt').textContent = 'Enregistrer';
+      genererHeures('1');
+
+      if (id !== null) {
+        const t = getTraitements().find(x => x.id === id);
+        if (t) {
+          document.getElementById('traitId').value = t.id;
+          document.getElementById('traitNom').value = t.nom;
+          document.getElementById('traitPosologie').value = t.posologie;
+          document.getElementById('traitFrequence').value = String(t.heures.length);
+          document.getElementById('traitStock').value = t.stock;
+          document.getElementById('traitAlerte').value = t.alerte;
+          document.getElementById('traitNote').value = t.note || '';
+          document.getElementById('modalTraitTitle').textContent = 'Modifier le traitement';
+          document.getElementById('modalTraitBtnTxt').textContent = 'Mettre à jour';
+          genererHeures(String(t.heures.length), t.heures);
+        }
+      }
+
+      document.getElementById('modalTraitement').classList.remove('hidden');
+      document.getElementById('modalTraitement').classList.add('flex');
+      feather.replace();
+    }
+
+    function fermerModalTraitement() {
+      document.getElementById('modalTraitement').classList.add('hidden');
+      document.getElementById('modalTraitement').classList.remove('flex');
+    }
+
+    function sauvegarderTraitement() {
+      const nom      = document.getElementById('traitNom').value.trim();
+      const posologie = document.getElementById('traitPosologie').value.trim();
+      const heures   = getHeuresSaisies();
+      const stock    = parseInt(document.getElementById('traitStock').value) || 30;
+      const alerte   = parseInt(document.getElementById('traitAlerte').value) || 7;
+      const note     = document.getElementById('traitNote').value.trim();
+      const idVal    = document.getElementById('traitId').value;
+
+      if (!nom || !posologie || heures.length === 0) {
+        showToast('Remplissez tous les champs obligatoires.', 'error');
+        return;
+      }
+
+      const traitements = getTraitements();
+
+      if (idVal) {
+        const idx = traitements.findIndex(t => t.id === parseInt(idVal));
+        if (idx !== -1) {
+          traitements[idx] = { ...traitements[idx], nom, posologie, heures, stock, alerte, note, actif: true };
+        }
+      } else {
+        traitements.push({
+          id:         Date.now(),
+          nom, posologie, heures, stock, alerte, note,
+          actif:      true,
+          dateAjout:  new Date().toISOString()
+        });
+      }
+
+      saveTraitements(traitements);
+      fermerModalTraitement();
+      renderTraitements();
+      demarrerRappels();
+      showToast(idVal ? 'Traitement mis à jour !' : 'Traitement ajouté — rappels activés !', 'success');
+    }
+
+    // --- Rendu des cartes de traitement ---
+    function renderTraitements() {
+      const list      = getTraitements();
+      const container = document.getElementById('traitementsList');
+      const empty     = document.getElementById('traitEmptyState');
+      container.innerHTML = '';
+
+      if (list.length === 0) {
+        empty.classList.remove('hidden');
+        return;
+      }
+      empty.classList.add('hidden');
+
+      list.forEach(t => {
+        const stockPct   = Math.min(100, Math.round(t.stock / Math.max(t.stock + 10, 30) * 100));
+        const stockColor = t.stock <= t.alerte
+          ? 'bg-red-500'
+          : t.stock <= t.alerte * 2
+          ? 'bg-yellow-500'
+          : 'bg-emerald-500';
+        const alerteStock = t.stock <= t.alerte;
+        const joursRestants = Math.floor(t.stock / t.heures.length);
+
+        const div = document.createElement('div');
+        div.className = `fade-in p-5 hover:bg-gray-50 dark:hover:bg-slate-700/30 transition ${alerteStock ? 'border-l-4 border-red-400' : ''}`;
+        div.innerHTML = `
+          <div class="flex flex-col sm:flex-row sm:items-start justify-between gap-4">
+            <div class="flex items-start gap-3 flex-1 min-w-0">
+              <div class="p-2.5 bg-emerald-100 dark:bg-emerald-900/30 rounded-xl shrink-0 mt-0.5">
+                <i data-feather="activity" class="h-4 w-4 text-emerald-600 dark:text-emerald-400"></i>
+              </div>
+              <div class="flex-1 min-w-0">
+                <div class="flex items-center gap-2 flex-wrap">
+                  <h4 class="font-bold text-gray-800 dark:text-slate-200">${escHtml(t.nom)}</h4>
+                  ${t.actif
+                    ? '<span class="flex items-center gap-1 text-[10px] px-2 py-0.5 bg-emerald-100 dark:bg-emerald-900/30 text-emerald-700 dark:text-emerald-400 rounded-full font-bold"><span class="h-1.5 w-1.5 bg-emerald-500 rounded-full inline-block pulse-dot"></span> Actif</span>'
+                    : '<span class="text-[10px] px-2 py-0.5 bg-gray-100 dark:bg-slate-700 text-gray-500 rounded-full font-bold">Pausé</span>'
+                  }
+                </div>
+                <p class="text-xs text-gray-500 dark:text-slate-400 mt-0.5">${escHtml(t.posologie)} · ${t.heures.join(' / ')}</p>
+                ${t.note ? `<p class="text-xs text-gray-400 dark:text-slate-500 mt-0.5 italic">${escHtml(t.note)}</p>` : ''}
+
+                <!-- Barre de stock -->
+                <div class="mt-3">
+                  <div class="flex items-center justify-between text-xs mb-1">
+                    <span class="text-gray-500 dark:text-slate-400">Stock restant</span>
+                    <span class="font-semibold ${alerteStock ? 'text-red-500' : 'text-gray-600 dark:text-slate-300'}">${t.stock} unités · ~${joursRestants} jour${joursRestants > 1 ? 's' : ''}</span>
+                  </div>
+                  <div class="w-full bg-gray-100 dark:bg-slate-700 rounded-full h-1.5">
+                    <div class="stock-bar ${stockColor} rounded-full" style="width:${stockPct}%"></div>
+                  </div>
+                  ${alerteStock ? `
+                  <div class="flex items-center gap-1.5 mt-1.5 text-xs text-red-600 dark:text-red-400 font-semibold">
+                    <i data-feather="alert-triangle" class="h-3 w-3 shrink-0"></i>
+                    Stock faible — pensez à renouveler votre ordonnance
+                  </div>` : ''}
+                </div>
+
+                <!-- Prochaine prise -->
+                <div class="mt-2 flex items-center gap-1.5 text-xs text-brand-600 dark:text-blue-400 font-medium">
+                  <i data-feather="clock" class="h-3 w-3 shrink-0"></i>
+                  Prochaine prise : ${prochainePrise(t.heures)}
+                </div>
+              </div>
+            </div>
+
+            <!-- Actions -->
+            <div class="flex items-center gap-2 shrink-0 sm:self-start">
+              <button onclick="toggleActif(${t.id})"
+                class="p-2 rounded-xl ${t.actif ? 'bg-gray-100 dark:bg-slate-700 text-gray-500' : 'bg-emerald-100 dark:bg-emerald-900/30 text-emerald-600'} hover:opacity-80 transition" title="${t.actif ? 'Mettre en pause' : 'Réactiver'}">
+                <i data-feather="${t.actif ? 'pause' : 'play'}" class="h-4 w-4"></i>
+              </button>
+              <button onclick="ouvrirModalTraitement(${t.id})" class="p-2 bg-blue-50 dark:bg-blue-900/20 text-blue-600 dark:text-blue-400 rounded-xl hover:bg-blue-100 transition" title="Modifier">
+                <i data-feather="edit-2" class="h-4 w-4"></i>
+              </button>
+              <button onclick="prendreDose(${t.id})" class="p-2 bg-emerald-600 hover:bg-emerald-700 text-white rounded-xl transition" title="Marquer dose prise">
+                <i data-feather="check" class="h-4 w-4"></i>
+              </button>
+              <button onclick="supprimerTraitement(${t.id})" class="p-2 bg-red-50 dark:bg-red-900/20 text-red-500 rounded-xl hover:bg-red-100 transition" title="Supprimer">
+                <i data-feather="trash-2" class="h-4 w-4"></i>
+              </button>
+            </div>
+          </div>
+        `;
+        container.appendChild(div);
+      });
+
+      feather.replace();
+    }
+
+    function escHtml(str) {
+      return String(str || '').replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;').replace(/"/g,'&quot;');
+    }
+
+    function prochainePrise(heures) {
+      const now   = new Date();
+      const nowMin = now.getHours() * 60 + now.getMinutes();
+      const sorted = [...heures].sort();
+      for (const h of sorted) {
+        const [hh, mm] = h.split(':').map(Number);
+        if (hh * 60 + mm > nowMin) return `aujourd'hui à ${h}`;
+      }
+      return `demain à ${sorted[0]}`;
+    }
+
+    // --- Actions ---
+    function prendreDose(id) {
+      const traitements = getTraitements();
+      const idx = traitements.findIndex(t => t.id === id);
+      if (idx === -1) return;
+      traitements[idx].stock = Math.max(0, traitements[idx].stock - 1);
+      saveTraitements(traitements);
+      renderTraitements();
+      showToast('Dose enregistrée ✓', 'success');
+      // Vérifier alerte stock
+      if (traitements[idx].stock <= traitements[idx].alerte) {
+        setTimeout(() => envoyerNotif('⚠️ Stock faible', `${traitements[idx].nom} — ${traitements[idx].stock} unités restantes. Pensez à renouveler.`), 500);
+      }
+    }
+
+    function toggleActif(id) {
+      const traitements = getTraitements();
+      const idx = traitements.findIndex(t => t.id === id);
+      if (idx === -1) return;
+      traitements[idx].actif = !traitements[idx].actif;
+      saveTraitements(traitements);
+      renderTraitements();
+      showToast(traitements[idx].actif ? 'Traitement réactivé' : 'Traitement mis en pause', 'info');
+    }
+
+    function supprimerTraitement(id) {
+      if (!confirm('Supprimer ce traitement et ses rappels ?')) return;
+      saveTraitements(getTraitements().filter(t => t.id !== id));
+      renderTraitements();
+      showToast('Traitement supprimé', 'info');
+    }
+
+    // ================================================================
+    // SYSTÈME DE RAPPELS — setInterval
+    // Vérifie toutes les minutes si une heure de prise est atteinte
+    // ================================================================
+    let rappelInterval = null;
+
+    function demarrerRappels() {
+      if (rappelInterval) clearInterval(rappelInterval);
+      rappelInterval = setInterval(verifierRappels, 60000);
+      verifierRappels(); // Vérification immédiate
+    }
+
+    function verifierRappels() {
+      const traitements = getTraitements().filter(t => t.actif);
+      const now   = new Date();
+      const hhmm  = `${String(now.getHours()).padStart(2,'0')}:${String(now.getMinutes()).padStart(2,'0')}`;
+
+      traitements.forEach(t => {
+        // Rappel de prise
+        if (t.heures.includes(hhmm)) {
+          envoyerNotif(
+            `💊 Heure de prise — ${t.nom}`,
+            `${t.posologie}. Stock restant : ${t.stock} unités.`
+          );
+        }
+        // Alerte stock faible (vérification à chaque heure)
+        if (now.getMinutes() === 0 && t.stock <= t.alerte) {
+          envoyerNotif(
+            `⚠️ Stock faible — ${t.nom}`,
+            `Il vous reste ${t.stock} unité${t.stock > 1 ? 's' : ''}. Renouvelez votre ordonnance.`
+          );
+        }
+      });
+    }
+
+    // ================================================================
+    // INIT
+    // ================================================================
+
+    // Vérifier permission notifications
+    if (Notification.permission === 'default') {
+      document.getElementById('notifPermBadge').classList.remove('hidden');
+    }
+
+    // Remplir le select fréquence au chargement
+    genererHeures('1');
+
+    // Afficher les traitements
+    renderTraitements();
+
+    // Démarrer les rappels si permission déjà accordée
+    if (Notification.permission === 'granted') {
+      demarrerRappels();
+    }
   </script>
 </body>
 </html>
