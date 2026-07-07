@@ -1,0 +1,17 @@
+{
+  "name": "PharmaLink Pro",
+  "short_name": "PharmaLink",
+  "description": "Application de gestion de livraison en pharmacie",
+  "start_url": "./livreur.html",
+  "display": "standalone",
+  "background_color": "#f8fafc",
+  "theme_color": "#f59e0b",
+  "orientation": "portrait-primary",
+  "icons": [
+    {
+      "src": "https://cdn-icons-png.flaticon.com/512/2966/2966327.png",
+      "sizes": "512x512",
+      "type": "image/png"
+    }
+  ]
+}

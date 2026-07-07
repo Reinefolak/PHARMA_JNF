@@ -4,6 +4,11 @@
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <title>Tableau de Bord - Espace Livreur</title>
+  <link rel="manifest" href="manifest.json">
+  <meta name="theme-color" content="#f59e0b">
+  <link rel="apple-touch-icon" href="https://cdn-icons-png.flaticon.com/512/2966/2966327.png">
+  <meta name="apple-mobile-web-app-capable" content="yes">
+  <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
   <script src="https://cdn.tailwindcss.com"></script>
   <script src="https://cdn.jsdelivr.net/npm/feather-icons/dist/feather.min.js"></script>
   <script>
@@ -69,6 +74,11 @@
             <a href="tournee.html" class="text-gray-600 dark:text-slate-300 hover:text-brand-600 dark:hover:text-yellow-400 transition">Ma Tournée</a>
           </div>
 
+          <!-- Mobile Menu Toggle -->
+          <button id="mobileMenuBtn" class="md:hidden p-2 rounded-lg hover:bg-gray-200 dark:hover:bg-slate-800 transition text-gray-600 dark:text-slate-300 focus:outline-none">
+            <i data-feather="menu" class="h-6 w-6"></i>
+          </button>
+
           <!-- Dark Mode Toggle -->
           <button id="themeToggle" class="p-2 rounded-full hover:bg-gray-200 dark:hover:bg-slate-800 transition text-gray-600 dark:text-slate-300 focus:outline-none">
             <i data-feather="moon" id="themeIcon" class="h-5 w-5"></i>
@@ -131,6 +141,12 @@
             </div>
           </div>
         </div>
+      </div>
+      <!-- Mobile Navigation Menu -->
+      <div id="mobileMenu" class="hidden md:hidden pb-4 border-t border-gray-100 dark:border-slate-700 pt-2 space-y-2">
+        <a href="livreur.html" class="block px-3 py-2 rounded-md text-base font-medium text-brand-600 dark:text-yellow-400 bg-brand-50 dark:bg-slate-800">Tableau de bord</a>
+        <a href="commande_livreur.html" class="block px-3 py-2 rounded-md text-base font-medium text-gray-600 dark:text-slate-300 hover:bg-gray-50 dark:hover:bg-slate-800">Nouvelles courses</a>
+        <a href="tournee.html" class="block px-3 py-2 rounded-md text-base font-medium text-gray-600 dark:text-slate-300 hover:bg-gray-50 dark:hover:bg-slate-800">Ma Tournée</a>
       </div>
     </div>
   </nav>
@@ -413,20 +429,22 @@
       document.getElementById('userInitials').textContent = initials;
     }
 
-    // ---- DROPDOWNS ----
+    // ---- DROPDOWNS & MOBILE MENU ----
     function setupDropdown(btnId, dropdownId) {
       const btn = document.getElementById(btnId);
       const dropdown = document.getElementById(dropdownId);
+      if (!btn || !dropdown) return;
       btn.addEventListener('click', (e) => {
         e.stopPropagation();
         dropdown.classList.toggle('hidden');
       });
       document.addEventListener('click', (e) => {
-        if (!dropdown.contains(e.target)) dropdown.classList.add('hidden');
+        if (!dropdown.contains(e.target) && !btn.contains(e.target)) dropdown.classList.add('hidden');
       });
     }
     setupDropdown('notifBtn', 'notifDropdown');
     setupDropdown('userBtn', 'userDropdown');
+    setupDropdown('mobileMenuBtn', 'mobileMenu');
 
     // ---- DARK MODE ----
     const themeToggle = document.getElementById('themeToggle');

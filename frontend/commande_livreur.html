@@ -4,6 +4,11 @@
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <title>Commandes - PharmaLink Pro</title>
+  <link rel="manifest" href="manifest.json">
+  <meta name="theme-color" content="#f59e0b">
+  <link rel="apple-touch-icon" href="https://cdn-icons-png.flaticon.com/512/2966/2966327.png">
+  <meta name="apple-mobile-web-app-capable" content="yes">
+  <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
   <script src="https://cdn.tailwindcss.com"></script>
   <script>
     tailwind.config = {
@@ -92,6 +97,7 @@
   </footer>
 
   <!-- Scripts -->
+  <script src="auth.js"></script>
   <script>
     feather.replace();
 
@@ -154,9 +160,36 @@
         listContainer.appendChild(card);
 
         // Ajouter événement pour accepter la commande
-        document.getElementById(`accept-${order.id}`).addEventListener('click', () => {
+        const acceptBtn = document.getElementById(`accept-${order.id}`);
+        acceptBtn.addEventListener('click', async () => {
           order.statut = "✅ Acceptée";
           document.getElementById(`status-${order.id}`).textContent = order.statut;
+          acceptBtn.disabled = true;
+          acceptBtn.classList.add('opacity-50', 'cursor-not-allowed');
+          acceptBtn.textContent = 'Acceptée';
+
+          const actionData = {
+            url: '/api/commandes/' + order.id + '/accepter',
+            method: 'POST',
+            body: { livreurId: 1, action: 'accepter' }
+          };
+
+          if (!navigator.onLine && window.OfflineSync) {
+            window.OfflineSync.saveAction(actionData);
+          } else {
+            try {
+              const res = await fetch(actionData.url, {
+                method: actionData.method,
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify(actionData.body)
+              });
+              if (!res.ok) throw new Error('Network response was not ok');
+              console.log('Commande acceptée sur le serveur.');
+            } catch (error) {
+              console.warn('Erreur serveur, sauvegarde hors-ligne...', error);
+              if (window.OfflineSync) window.OfflineSync.saveAction(actionData);
+            }
+          }
         });
       });
 

@@ -70,6 +70,11 @@
             <a href="stats.html" class="text-gray-600 dark:text-slate-300 hover:text-brand-600 dark:hover:text-green-400 transition">Statistiques</a>
           </div>
 
+          <!-- Mobile Menu Toggle -->
+          <button id="mobileMenuBtn" class="md:hidden p-2 rounded-lg hover:bg-gray-200 dark:hover:bg-slate-800 transition text-gray-600 dark:text-slate-300 focus:outline-none">
+            <i data-feather="menu" class="h-6 w-6"></i>
+          </button>
+
           <!-- Dark Mode Toggle -->
           <button id="themeToggle" class="p-2 rounded-full hover:bg-gray-200 dark:hover:bg-slate-800 transition text-gray-600 dark:text-slate-300 focus:outline-none">
             <i data-feather="moon" id="themeIcon" class="h-5 w-5"></i>
@@ -142,6 +147,13 @@
             </div>
           </div>
         </div>
+      </div>
+      <!-- Mobile Navigation Menu -->
+      <div id="mobileMenu" class="hidden md:hidden pb-4 border-t border-gray-100 dark:border-slate-700 pt-2 space-y-2">
+        <a href="proprietaire.html" class="block px-3 py-2 rounded-md text-base font-medium text-brand-600 dark:text-green-400 bg-brand-50 dark:bg-slate-800">Tableau de bord</a>
+        <a href="stock.html" class="block px-3 py-2 rounded-md text-base font-medium text-gray-600 dark:text-slate-300 hover:bg-gray-50 dark:hover:bg-slate-800">Stock</a>
+        <a href="commandes.html" class="block px-3 py-2 rounded-md text-base font-medium text-gray-600 dark:text-slate-300 hover:bg-gray-50 dark:hover:bg-slate-800">Commandes</a>
+        <a href="stats.html" class="block px-3 py-2 rounded-md text-base font-medium text-gray-600 dark:text-slate-300 hover:bg-gray-50 dark:hover:bg-slate-800">Statistiques</a>
       </div>
     </div>
   </nav>
@@ -452,20 +464,22 @@
       document.getElementById('userInitials').textContent = initials;
     }
 
-    // ---- DROPDOWNS ----
+    // ---- DROPDOWNS & MOBILE MENU ----
     function setupDropdown(btnId, dropdownId) {
       const btn = document.getElementById(btnId);
       const dropdown = document.getElementById(dropdownId);
+      if (!btn || !dropdown) return;
       btn.addEventListener('click', (e) => {
         e.stopPropagation();
         dropdown.classList.toggle('hidden');
       });
       document.addEventListener('click', (e) => {
-        if (!dropdown.contains(e.target)) dropdown.classList.add('hidden');
+        if (!dropdown.contains(e.target) && !btn.contains(e.target)) dropdown.classList.add('hidden');
       });
     }
     setupDropdown('notifBtn', 'notifDropdown');
     setupDropdown('userBtn', 'userDropdown');
+    setupDropdown('mobileMenuBtn', 'mobileMenu');
 
     // ---- DARK MODE ----
     const themeToggle = document.getElementById('themeToggle');

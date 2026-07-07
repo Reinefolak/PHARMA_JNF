@@ -82,6 +82,22 @@
           <a href="register.html" class="inline-flex items-center justify-center px-6 py-2.5 border border-transparent text-sm font-bold rounded-full text-white bg-gradient-to-r from-brand-600 to-teal-500 hover:from-brand-500 hover:to-teal-400 transition shadow-lg shadow-brand-500/30 transform hover:-translate-y-0.5">
             Démarrer
           </a>
+          <!-- Mobile Menu Toggle -->
+          <button id="mobileMenuBtn" class="md:hidden p-2.5 rounded-lg hover:bg-slate-200 dark:hover:bg-slate-800 transition text-slate-600 dark:text-slate-300 focus:outline-none">
+            <i data-feather="menu" class="h-6 w-6"></i>
+          </button>
+        </div>
+      </div>
+      
+      <!-- Mobile Navigation Menu -->
+      <div id="mobileMenu" class="hidden md:hidden pb-4 border-t border-slate-200 dark:border-slate-800 pt-4 space-y-3">
+        <a href="#features" class="block px-3 py-2 rounded-md text-base font-medium text-slate-700 dark:text-slate-300 hover:bg-slate-50 dark:hover:bg-slate-800">Fonctionnalités</a>
+        <a href="pharmacies.html" class="block px-3 py-2 rounded-md text-base font-medium text-slate-700 dark:text-slate-300 hover:bg-slate-50 dark:hover:bg-slate-800">Pharmacies</a>
+        <a href="know.html" class="block px-3 py-2 rounded-md text-base font-medium text-slate-700 dark:text-slate-300 hover:bg-slate-50 dark:hover:bg-slate-800">À Propos</a>
+        <div class="mt-4 border-t border-slate-200 dark:border-slate-800 pt-4 px-3 sm:hidden">
+          <a href="login.html" class="block w-full text-center px-4 py-2 border border-transparent text-sm font-bold rounded-full text-brand-700 bg-brand-50 hover:bg-brand-100 dark:text-brand-300 dark:bg-brand-900/30 transition">
+            Connexion
+          </a>
         </div>
       </div>
     </div>
@@ -226,6 +242,21 @@
     if (Auth && Auth.isLoggedIn()) {
       const user = Auth.getUser();
       // On pourrait modifier le bouton "Connexion" en "Mon Espace" ici
+    }
+
+    // Mobile Menu Toggle
+    const mobileMenuBtn = document.getElementById('mobileMenuBtn');
+    const mobileMenu = document.getElementById('mobileMenu');
+    if (mobileMenuBtn && mobileMenu) {
+      mobileMenuBtn.addEventListener('click', (e) => {
+        e.stopPropagation();
+        mobileMenu.classList.toggle('hidden');
+      });
+      document.addEventListener('click', (e) => {
+        if (!mobileMenu.contains(e.target) && !mobileMenuBtn.contains(e.target)) {
+          mobileMenu.classList.add('hidden');
+        }
+      });
     }
   </script>
 </body>
